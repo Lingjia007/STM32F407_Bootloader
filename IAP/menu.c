@@ -64,6 +64,11 @@ void jump_to_app(void)
   jump_fn = (pFunction)(*(__IO uint32_t *)(APPLICATION_ADDRESS + 4));
 
   __disable_irq();
+  for (int i = 0; i < 8; i++)
+  {
+    NVIC->ICER[i] = 0xFFFFFFFF;
+    NVIC->ICPR[i] = 0xFFFFFFFF;
+  }
   HAL_RCC_DeInit();
   HAL_DeInit();
   __enable_irq();

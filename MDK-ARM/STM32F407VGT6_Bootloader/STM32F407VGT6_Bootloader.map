@@ -1324,14 +1324,14 @@ Image Symbol Table
     i._sys_exit                              0x0800321c   Section        0  usart.o(i._sys_exit)
     i.fputc                                  0x08003220   Section        0  usart.o(i.fputc)
     i.jump_to_app                            0x08003238   Section        0  menu.o(i.jump_to_app)
-    i.led_control_task                       0x0800326c   Section        0  led.o(i.led_control_task)
-    i.main                                   0x080032a8   Section        0  main.o(i.main)
-    i.uart_wait_command                      0x08003310   Section        0  usart.o(i.uart_wait_command)
-    x$fpl$fpinit                             0x0800332c   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x0800332c   Number         0  fpinit.o(x$fpl$fpinit)
-    .constdata                               0x08003336   Section       16  system_stm32f4xx.o(.constdata)
-    .constdata                               0x08003346   Section        8  system_stm32f4xx.o(.constdata)
-    .conststring                             0x08003350   Section      461  menu.o(.conststring)
+    i.led_control_task                       0x08003284   Section        0  led.o(i.led_control_task)
+    i.main                                   0x080032c0   Section        0  main.o(i.main)
+    i.uart_wait_command                      0x08003328   Section        0  usart.o(i.uart_wait_command)
+    x$fpl$fpinit                             0x08003344   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x08003344   Number         0  fpinit.o(x$fpl$fpinit)
+    .constdata                               0x0800334e   Section       16  system_stm32f4xx.o(.constdata)
+    .constdata                               0x0800335e   Section        8  system_stm32f4xx.o(.constdata)
+    .conststring                             0x08003368   Section      461  menu.o(.conststring)
     .data                                    0x20000000   Section        1  usart.o(.data)
     .data                                    0x20000004   Section        4  usart.o(.data)
     .data                                    0x20000008   Section        4  system_stm32f4xx.o(.data)
@@ -1638,17 +1638,17 @@ Image Symbol Table
     Ymodem_Transmit                          0x08002f35   Thumb Code   704  ymodem.o(i.Ymodem_Transmit)
     _sys_exit                                0x0800321d   Thumb Code     2  usart.o(i._sys_exit)
     fputc                                    0x08003221   Thumb Code    18  usart.o(i.fputc)
-    jump_to_app                              0x08003239   Thumb Code    44  menu.o(i.jump_to_app)
-    led_control_task                         0x0800326d   Thumb Code    52  led.o(i.led_control_task)
-    main                                     0x080032a9   Thumb Code    62  main.o(i.main)
-    uart_wait_command                        0x08003311   Thumb Code    24  usart.o(i.uart_wait_command)
-    _fp_init                                 0x0800332d   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08003335   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08003335   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    AHBPrescTable                            0x08003336   Data          16  system_stm32f4xx.o(.constdata)
-    APBPrescTable                            0x08003346   Data           8  system_stm32f4xx.o(.constdata)
-    Region$$Table$$Base                      0x08003520   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x08003540   Number         0  anon$$obj.o(Region$$Table)
+    jump_to_app                              0x08003239   Thumb Code    68  menu.o(i.jump_to_app)
+    led_control_task                         0x08003285   Thumb Code    52  led.o(i.led_control_task)
+    main                                     0x080032c1   Thumb Code    62  main.o(i.main)
+    uart_wait_command                        0x08003329   Thumb Code    24  usart.o(i.uart_wait_command)
+    _fp_init                                 0x08003345   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x0800334d   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x0800334d   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    AHBPrescTable                            0x0800334e   Data          16  system_stm32f4xx.o(.constdata)
+    APBPrescTable                            0x0800335e   Data           8  system_stm32f4xx.o(.constdata)
+    Region$$Table$$Base                      0x08003538   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08003558   Number         0  anon$$obj.o(Region$$Table)
     cmd                                      0x20000000   Data           1  usart.o(.data)
     __stdout                                 0x20000004   Data           4  usart.o(.data)
     SystemCoreClock                          0x20000008   Data           4  system_stm32f4xx.o(.data)
@@ -1675,9 +1675,9 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00003584, Max: 0x00100000, ABSOLUTE)
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x0000359c, Max: 0x00100000, ABSOLUTE)
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00003540, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00003558, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -1871,46 +1871,46 @@ Memory Map of the image
     0x0800321c   0x0800321c   0x00000002   Code   RO          254    i._sys_exit         usart.o
     0x0800321e   0x0800321e   0x00000002   PAD
     0x08003220   0x08003220   0x00000018   Code   RO          255    i.fputc             usart.o
-    0x08003238   0x08003238   0x00000034   Code   RO          580    i.jump_to_app       menu.o
-    0x0800326c   0x0800326c   0x0000003c   Code   RO          703    i.led_control_task  led.o
-    0x080032a8   0x080032a8   0x00000068   Code   RO           16    i.main              main.o
-    0x08003310   0x08003310   0x0000001c   Code   RO          256    i.uart_wait_command  usart.o
-    0x0800332c   0x0800332c   0x0000000a   Code   RO         3347    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x08003336   0x08003336   0x00000010   Data   RO          431    .constdata          system_stm32f4xx.o
-    0x08003346   0x08003346   0x00000008   Data   RO          432    .constdata          system_stm32f4xx.o
-    0x0800334e   0x0800334e   0x00000002   PAD
-    0x08003350   0x08003350   0x000001cd   Data   RO          582    .conststring        menu.o
-    0x0800351d   0x0800351d   0x00000003   PAD
-    0x08003520   0x08003520   0x00000020   Data   RO         3405    Region$$Table       anon$$obj.o
+    0x08003238   0x08003238   0x0000004c   Code   RO          580    i.jump_to_app       menu.o
+    0x08003284   0x08003284   0x0000003c   Code   RO          703    i.led_control_task  led.o
+    0x080032c0   0x080032c0   0x00000068   Code   RO           16    i.main              main.o
+    0x08003328   0x08003328   0x0000001c   Code   RO          256    i.uart_wait_command  usart.o
+    0x08003344   0x08003344   0x0000000a   Code   RO         3347    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x0800334e   0x0800334e   0x00000010   Data   RO          431    .constdata          system_stm32f4xx.o
+    0x0800335e   0x0800335e   0x00000008   Data   RO          432    .constdata          system_stm32f4xx.o
+    0x08003366   0x08003366   0x00000002   PAD
+    0x08003368   0x08003368   0x000001cd   Data   RO          582    .conststring        menu.o
+    0x08003535   0x08003535   0x00000003   PAD
+    0x08003538   0x08003538   0x00000020   Data   RO         3405    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08003540, Size: 0x00000bc8, Max: 0x0001c000, ABSOLUTE)
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08003558, Size: 0x00000bc8, Max: 0x0001c000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
-    0x20000000   0x08003540   0x00000001   Data   RW          258    .data               usart.o
-    0x20000001   0x08003541   0x00000003   PAD
-    0x20000004   0x08003544   0x00000004   Data   RW          259    .data               usart.o
-    0x20000008   0x08003548   0x00000004   Data   RW          433    .data               system_stm32f4xx.o
-    0x2000000c   0x0800354c   0x00000004   Data   RW          583    .data               menu.o
-    0x20000010   0x08003550   0x00000004   Data   RW          646    .data               ymodem.o
-    0x20000014   0x08003554   0x00000002   Data   RW          704    .data               led.o
-    0x20000016   0x08003556   0x00000002   PAD
-    0x20000018   0x08003558   0x00000020   Data   RW         1879    .data               stm32f4xx_hal_flash.o
-    0x20000038   0x08003578   0x0000000c   Data   RW         2625    .data               stm32f4xx_hal.o
+    0x20000000   0x08003558   0x00000001   Data   RW          258    .data               usart.o
+    0x20000001   0x08003559   0x00000003   PAD
+    0x20000004   0x0800355c   0x00000004   Data   RW          259    .data               usart.o
+    0x20000008   0x08003560   0x00000004   Data   RW          433    .data               system_stm32f4xx.o
+    0x2000000c   0x08003564   0x00000004   Data   RW          583    .data               menu.o
+    0x20000010   0x08003568   0x00000004   Data   RW          646    .data               ymodem.o
+    0x20000014   0x0800356c   0x00000002   Data   RW          704    .data               led.o
+    0x20000016   0x0800356e   0x00000002   PAD
+    0x20000018   0x08003570   0x00000020   Data   RW         1879    .data               stm32f4xx_hal_flash.o
+    0x20000038   0x08003590   0x0000000c   Data   RW         2625    .data               stm32f4xx_hal.o
     0x20000044        -       0x00000048   Zero   RW          212    .bss                tim.o
     0x2000008c        -       0x00000048   Zero   RW          257    .bss                usart.o
     0x200000d4        -       0x00000048   Zero   RW          472    .bss                common.o
     0x2000011c        -       0x00000040   Zero   RW          581    .bss                menu.o
     0x2000015c        -       0x00000406   Zero   RW          645    .bss                ymodem.o
-    0x20000562   0x08003584   0x00000002   PAD
+    0x20000562   0x0800359c   0x00000002   PAD
     0x20000564        -       0x00000060   Zero   RW         3279    .bss                c_w.l(libspace.o)
-    0x200005c4   0x08003584   0x00000004   PAD
+    0x200005c4   0x0800359c   0x00000004   PAD
     0x200005c8        -       0x00000200   Zero   RW            2    HEAP                startup_stm32f407xx.o
     0x200007c8        -       0x00000400   Zero   RW            1    STACK               startup_stm32f407xx.o
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x08003584, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
+    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x0800359c, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
@@ -1927,7 +1927,7 @@ Image component sizes
        108          8          0          0          0        927   gpio.o
         60          8          0          2          0        787   led.o
        288         62          0          0          0     701532   main.o
-      1644       1184        461          4         64       9836   menu.o
+      1668       1184        461          4         64       9928   menu.o
         64         26        392          0       1536        848   startup_stm32f407xx.o
        254         46          0         12          0      10550   stm32f4xx_hal.o
        198         14          0          0          0      33863   stm32f4xx_hal_cortex.o
@@ -1948,7 +1948,7 @@ Image component sizes
       1376         34          0          4       1030       6928   ymodem.o
 
     ----------------------------------------------------------------------
-     11868       1918        914         68       2848     836115   Object Totals
+     11892       1918        914         68       2848     836207   Object Totals
          0          0         32          0          0          0   (incl. Generated)
         34          0          5          5          2          0   (incl. Padding)
 
@@ -2004,15 +2004,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     12718       1944        914         68       2948     826283   Grand Totals
-     12718       1944        914         68       2948     826283   ELF Image Totals
-     12718       1944        914         68          0          0   ROM Totals
+     12742       1944        914         68       2948     826375   Grand Totals
+     12742       1944        914         68       2948     826375   ELF Image Totals
+     12742       1944        914         68          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                13632 (  13.31kB)
+    Total RO  Size (Code + RO Data)                13656 (  13.34kB)
     Total RW  Size (RW Data + ZI Data)              3016 (   2.95kB)
-    Total ROM Size (Code + RO Data + RW Data)      13700 (  13.38kB)
+    Total ROM Size (Code + RO Data + RW Data)      13724 (  13.40kB)
 
 ==============================================================================
 
