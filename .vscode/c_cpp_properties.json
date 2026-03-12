@@ -18,7 +18,14 @@
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
                 "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
                 "Drivers/CMSIS/Include",
-                "Bootloader_Core"
+                "Bootloader_Core",
+                "FATFS/Target",
+                "FATFS/App",
+                "USB_DEVICE/App",
+                "USB_DEVICE/Target",
+                "Middlewares/Third_Party/FatFs/src",
+                "Middlewares/ST/STM32_USB_Device_Library/Core/Inc",
+                "Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

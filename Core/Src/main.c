@@ -18,6 +18,9 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "dma.h"
+#include "fatfs.h"
+#include "rtc.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -26,6 +29,9 @@
 /* USER CODE BEGIN Includes */
 #include "stdio.h"
 #include "led.h"
+#include "sdio.h"
+#include "bsp_driver_sd.h"
+#include "usb_device.h"
 #include "menu.h"
 #include "common.h"
 /* USER CODE END Includes */
@@ -91,12 +97,52 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_UART4_Init();
   MX_TIM1_Init();
+  MX_FATFS_Init();
+  MX_RTC_Init();
   /* USER CODE BEGIN 2 */
+  MX_SDIO_SD_Init_Fix();
   Common_Init();
   HAL_TIM_Base_Start_IT(&htim1);
 
+  // 检查SD卡检测引脚状态
+  uint8_t sd_detected = BSP_SD_IsDetected();
+  printf("SD Card Detection Pin State: %s\r\n",
+         sd_detected == SD_PRESENT ? "PRESENT" : "NOT PRESENT");
+  printf("SD_CARD_DET_Pin GPIO Level: %s\r\n",
+         HAL_GPIO_ReadPin(SD_CARD_DET_GPIO_Port, SD_CARD_DET_Pin) == GPIO_PIN_RESET ? "LOW" : "HIGH");
+
+  // 先挂载文件系统
+  FRESULT fres = f_mount(&SDFatFS, "0:", 1);
+  if (fres != FR_OK)
+  {
+    printf("f_mount failed: %d\r\n", fres);
+  }
+
+  HAL_SD_CardStateTypeDef sd_state;
+  uint32_t timeout = 100; // 100ms超时
+  uint32_t start_tick = HAL_GetTick();
+
+  do
+  {
+    sd_state = HAL_SD_GetCardState(&hsd);
+    if (HAL_GetTick() - start_tick > timeout)
+    {
+      printf("TF card detection timeout\r\n");
+      sd_state = HAL_SD_CARD_ERROR; // 设置为错误状态
+      break;
+    }
+    HAL_Delay(1);
+  } while (sd_state == HAL_SD_CARD_PROGRAMMING || sd_state == HAL_SD_CARD_RECEIVING);
+
+  if (sd_state == HAL_SD_CARD_TRANSFER)
+  {
+    printf("TF card detected and ready\r\n\r\n");
+
+    MX_USB_DEVICE_Init(); // 启动USB设备
+  }
   if (uart_wait_command(&cmd, 1500) && cmd == 'M')
   {
     printf("\r\nEnter Bootloader Menu...\r\n");
@@ -132,14 +178,15 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
    * in the RCC_OscInitTypeDef structure.
    */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE | RCC_OSCILLATORTYPE_LSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.LSEState = RCC_LSE_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = 4;
   RCC_OscInitStruct.PLL.PLLN = 168;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 4;
+  RCC_OscInitStruct.PLL.PLLQ = 7;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
