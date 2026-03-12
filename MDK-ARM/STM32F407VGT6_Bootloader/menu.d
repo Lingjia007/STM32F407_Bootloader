@@ -35,3 +35,4 @@ stm32f407vgt6_bootloader\menu.o: ..\IAP\common.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\flash_if.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\menu.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\ymodem.h
+stm32f407vgt6_bootloader\menu.o: ..\Bootloader_Core\Bootloader_core.h

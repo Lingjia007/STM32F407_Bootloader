@@ -36,3 +36,4 @@ stm32f407vgt6_bootloader\ymodem.o: ..\IAP\ymodem.h
 stm32f407vgt6_bootloader\ymodem.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
 stm32f407vgt6_bootloader\ymodem.o: ../Core/Inc/main.h
 stm32f407vgt6_bootloader\ymodem.o: ..\IAP\menu.h
+stm32f407vgt6_bootloader\ymodem.o: ..\Bootloader_Core\Bootloader_core.h

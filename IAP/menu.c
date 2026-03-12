@@ -50,33 +50,6 @@ void SerialUpload(void);
 /* Private functions ---------------------------------------------------------*/
 
 /**
- * @brief  Jump to user application
- * @param  None
- * @retval None
- */
-void jump_to_app(void)
-{
-  pFunction jump_fn;
-  SCB->VTOR = APPLICATION_ADDRESS;
-  __DSB();
-  __ISB();
-  __set_MSP(*(__IO uint32_t *)APPLICATION_ADDRESS);
-  jump_fn = (pFunction)(*(__IO uint32_t *)(APPLICATION_ADDRESS + 4));
-
-  __disable_irq();
-  for (int i = 0; i < 8; i++)
-  {
-    NVIC->ICER[i] = 0xFFFFFFFF;
-    NVIC->ICPR[i] = 0xFFFFFFFF;
-  }
-  HAL_RCC_DeInit();
-  HAL_DeInit();
-  __enable_irq();
-
-  jump_fn();
-}
-
-/**
  * @brief  Download a file via serial port
  * @param  None
  * @retval None
@@ -202,7 +175,7 @@ void Main_Menu(void)
       break;
     case '3':
       Serial_PutString((uint8_t *)"Start program execution......\r\n\n");
-      jump_to_app();
+      bootloader_ctx.jump_func(bootloader_ctx.app_jump_addr);
       break;
     case '4':
       if (FlashProtection != FLASHIF_PROTECTION_NONE)

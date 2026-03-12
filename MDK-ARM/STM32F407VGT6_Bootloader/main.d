@@ -39,4 +39,5 @@ stm32f407vgt6_bootloader\main.o: ../LED/led.h
 stm32f407vgt6_bootloader\main.o: ../IAP/menu.h
 stm32f407vgt6_bootloader\main.o: ../IAP/flash_if.h
 stm32f407vgt6_bootloader\main.o: ../IAP/ymodem.h
+stm32f407vgt6_bootloader\main.o: ..\Bootloader_Core\Bootloader_core.h
 stm32f407vgt6_bootloader\main.o: ../IAP/common.h
