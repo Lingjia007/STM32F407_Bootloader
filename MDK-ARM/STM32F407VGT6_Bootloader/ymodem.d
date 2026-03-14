@@ -35,6 +35,9 @@ stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx
 stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
+stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
+stm32f407vgt6_bootloader\ymodem.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 stm32f407vgt6_bootloader\ymodem.o: ..\IAP\common.h
 stm32f407vgt6_bootloader\ymodem.o: ../Bootloader_Core/bootloader_core.h
 stm32f407vgt6_bootloader\ymodem.o: ..\IAP\ymodem.h

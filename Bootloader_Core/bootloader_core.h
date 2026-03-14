@@ -4,7 +4,7 @@
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
-#define APPLICATION_ADDRESS (uint32_t)0x08008000
+#define APPLICATION_ADDRESS (uint32_t)0x08020000
 
 typedef void (*pFunction)(void);
 

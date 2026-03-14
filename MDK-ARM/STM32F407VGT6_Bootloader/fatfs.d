@@ -39,6 +39,9 @@ stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_
 stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
+stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
+stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
+stm32f407vgt6_bootloader\fatfs.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 stm32f407vgt6_bootloader\fatfs.o: ../FATFS/Target/bsp_driver_sd.h
 stm32f407vgt6_bootloader\fatfs.o: ../FATFS/Target/fatfs_platform.h
 stm32f407vgt6_bootloader\fatfs.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h

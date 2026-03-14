@@ -66,7 +66,7 @@ uint32_t FLASH_If_Erase(uint32_t StartSector)
 
   pEraseInit.TypeErase = TYPEERASE_SECTORS;
   pEraseInit.Sector = UserStartSector;
-  pEraseInit.NbSectors = 10;
+  pEraseInit.NbSectors = 2;
   pEraseInit.VoltageRange = VOLTAGE_RANGE_3;
 
   if (HAL_FLASHEx_Erase(&pEraseInit, &SectorError) != HAL_OK)
