@@ -39,3 +39,11 @@ stm32f407vgt6_bootloader\bootloader_core.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/
 stm32f407vgt6_bootloader\bootloader_core.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 stm32f407vgt6_bootloader\bootloader_core.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 stm32f407vgt6_bootloader\bootloader_core.o: ../Core/Inc/main.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../Middlewares/Third_Party/FatFs/src/ff.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../Middlewares/Third_Party/FatFs/src/integer.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/ffconf.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/bsp_driver_sd.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/fatfs_platform.h
+stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
+stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+stm32f407vgt6_bootloader\bootloader_core.o: ..\IAP\flash_if.h

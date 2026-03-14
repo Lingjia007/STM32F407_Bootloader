@@ -60,8 +60,8 @@ stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/App/usb_device.h
 stm32f407vgt6_bootloader\main.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
 stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/Target/usbd_conf.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
-stm32f407vgt6_bootloader\main.o: ../IAP/menu.h
-stm32f407vgt6_bootloader\main.o: ../IAP/flash_if.h
-stm32f407vgt6_bootloader\main.o: ../IAP/ymodem.h
+stm32f407vgt6_bootloader\main.o: ..\IAP\menu.h
+stm32f407vgt6_bootloader\main.o: ..\IAP\flash_if.h
+stm32f407vgt6_bootloader\main.o: ..\IAP\ymodem.h
 stm32f407vgt6_bootloader\main.o: ../Bootloader_Core/Bootloader_core.h
-stm32f407vgt6_bootloader\main.o: ../IAP/common.h
+stm32f407vgt6_bootloader\main.o: ..\IAP\common.h

@@ -12,7 +12,6 @@
                 "C:/Keil_v5/ARM/ARM_Compiler_5.06u7/include/rw",
                 "MDK-ARM/RTE/_STM32F407VGT6_Bootloader",
                 "Core/Inc",
-                "IAP",
                 "LED",
                 "Drivers/STM32F4xx_HAL_Driver/Inc",
                 "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
@@ -25,7 +24,8 @@
                 "USB_DEVICE/App",
                 "USB_DEVICE/Target",
                 "Middlewares/ST/STM32_USB_Device_Library/Core/Inc",
-                "Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc"
+                "Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc",
+                "IAP"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

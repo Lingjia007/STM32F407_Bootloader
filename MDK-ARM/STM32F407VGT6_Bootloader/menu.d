@@ -43,3 +43,16 @@ stm32f407vgt6_bootloader\menu.o: ../Bootloader_Core/bootloader_core.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\flash_if.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\menu.h
 stm32f407vgt6_bootloader\menu.o: ..\IAP\ymodem.h
+stm32f407vgt6_bootloader\menu.o: ../FATFS/App/fatfs.h
+stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/ff.h
+stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/integer.h
+stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/ffconf.h
+stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/bsp_driver_sd.h
+stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/fatfs_platform.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
+stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h
+stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
+stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/sd_diskio.h
+stm32f407vgt6_bootloader\menu.o: ../Core/Inc/rtc.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h

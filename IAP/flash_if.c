@@ -28,8 +28,6 @@
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
-static uint32_t GetSector(uint32_t Address);
-
 /* Private functions ---------------------------------------------------------*/
 
 /**
@@ -159,7 +157,7 @@ uint16_t FLASH_If_GetWriteProtectionStatus(void)
  * @param  Address: Flash address
  * @retval The sector of a given address
  */
-static uint32_t GetSector(uint32_t Address)
+uint32_t GetSector(uint32_t Address)
 {
   uint32_t sector = 0;
 
