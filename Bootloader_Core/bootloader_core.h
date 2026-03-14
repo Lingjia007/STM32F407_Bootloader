@@ -1,6 +1,7 @@
 #ifndef BOOTLOADER_CORE_H
 #define BOOTLOADER_CORE_H
 
+#include "stm32f4xx_hal.h"
 #include <stdint.h>
 
 #define APPLICATION_ADDRESS (uint32_t)0x08008000
@@ -113,9 +114,9 @@ typedef struct
  */
 typedef struct
 {
-    void *huart;        // 串口句柄，实际类型为 UART_HandleTypeDef*
-    uint32_t dest_addr; // 写入内部 Flash 的目标起始地址
-} serial_params_t;
+    void *huart;             // 串口句柄，实际类型为 UART_HandleTypeDef*
+    __IO uint32_t dest_addr; // 写入内部 Flash 的目标起始地址
+} Ymodem_serial_params_t;
 
 // ==================== 源/目标接口定义 ====================
 
@@ -147,7 +148,7 @@ typedef struct
 typedef struct
 {
     // ---------- 跳转相关 ----------
-    uint32_t app_jump_addr;           /**< 应用程序入口地址 */
+    __IO uint32_t app_jump_addr;      /**< 应用程序入口地址 */
     void (*jump_func)(uint32_t addr); /**< 跳转函数指针 */
 
     // ---------- 当前源 ----------
@@ -168,6 +169,9 @@ typedef struct
         lfs_target_priv_t spi;                 /**< SPI Flash (LittleFS) 目标 */
         fatfs_target_priv_t sd;                /**< SD卡 (FATFS) 目标 */
     } target_priv;                             /**< 目标私有数据联合体 */
+
+    // ---------- Ymodem下载参数 ----------
+    Ymodem_serial_params_t serial_params; /**< Ymodem下载参数 */
 
     // ---------- 运行状态 ----------
     bootloader_err_t last_error; /**< 最后一次错误码 */

@@ -35,9 +35,6 @@ stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_l
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
-stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
-stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/dma.h
 stm32f407vgt6_bootloader\main.o: ../FATFS/App/fatfs.h
 stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/FatFs/src/ff.h
@@ -56,10 +53,6 @@ stm32f407vgt6_bootloader\main.o: ../Core/Inc/gpio.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 stm32f407vgt6_bootloader\main.o: ../LED/led.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/sdio.h
-stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/App/usb_device.h
-stm32f407vgt6_bootloader\main.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
-stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/Target/usbd_conf.h
-stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
 stm32f407vgt6_bootloader\main.o: ../IAP/menu.h
 stm32f407vgt6_bootloader\main.o: ../IAP/flash_if.h
 stm32f407vgt6_bootloader\main.o: ../IAP/ymodem.h

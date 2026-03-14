@@ -21,7 +21,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
-
+#include "bootloader_core.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Constants used by Serial Command Line Mode */
@@ -41,7 +41,7 @@ extern UART_HandleTypeDef UartHandle;
 #define CONVERTHEX(c) (IS_09(c) ? ((c) - '0') : CONVERTHEX_ALPHA(c))
 
 /* Exported functions ------------------------------------------------------- */
-void Common_Init(void);
+void Common_Init(Ymodem_serial_params_t *params);
 void Int2Str(uint8_t *p_str, uint32_t intnum);
 uint32_t Str2Int(uint8_t *inputstr, uint32_t *intnum);
 void Serial_PutString(uint8_t *p_string);
