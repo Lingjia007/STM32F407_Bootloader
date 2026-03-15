@@ -1,0 +1,9 @@
+stm32f407vgt6_bootloader\lfs_util.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.c
+stm32f407vgt6_bootloader\lfs_util.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
+stm32f407vgt6_bootloader\lfs_util.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h

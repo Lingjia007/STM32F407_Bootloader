@@ -34,6 +34,7 @@
 #include "menu.h"
 #include "ymodem.h"
 #include "fatfs.h"
+#include "lfs_spi_flash_adapter.h"
 #include "stdio.h"
 #include "string.h"
 
@@ -56,6 +57,7 @@ static uint8_t file_count = 0;
 void SerialDownload(void);
 void SerialUpload(void);
 void SDCardDownload(void);
+void SPIFlashDownload(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -122,6 +124,81 @@ static void scan_sd_card_files(void)
   }
 
   f_closedir(&dir);
+}
+
+static void scan_lfs_files(lfs_t *lfs)
+{
+  lfs_dir_t dir;
+  struct lfs_info info;
+  int res;
+
+  file_count = 0;
+
+  res = lfs_dir_open(lfs, &dir, "/");
+  if (res != LFS_ERR_OK)
+  {
+    Serial_PutString((uint8_t *)"\r\nError: Cannot open SPI Flash directory!\r\n");
+    return;
+  }
+
+  while (file_count < MAX_FILES)
+  {
+    res = lfs_dir_read(lfs, &dir, &info);
+    if (res <= 0)
+    {
+      break;
+    }
+
+    if (info.type == LFS_TYPE_REG)
+    {
+      if (check_file_extension(info.name))
+      {
+        strncpy(file_list[file_count], info.name, MAX_FILENAME_LEN - 1);
+        file_list[file_count][MAX_FILENAME_LEN - 1] = '\0';
+        file_count++;
+      }
+    }
+  }
+
+  lfs_dir_close(lfs, &dir);
+}
+
+static void ImageDownloadMenu(void)
+{
+  uint8_t key = 0;
+
+  while (1)
+  {
+    Serial_PutString((uint8_t *)"\r\n=================== Image Download Menu =================\r\n\n");
+    Serial_PutString((uint8_t *)"  Download via Serial (Ymodem) ------------------------ 1\r\n\n");
+    Serial_PutString((uint8_t *)"  Download from SD card (FATFS) ------------------------ 2\r\n\n");
+    Serial_PutString((uint8_t *)"  Download from SPI Flash (LittleFS) ------------------- 3\r\n\n");
+    Serial_PutString((uint8_t *)"  Return to Main Menu ---------------------------------- 0\r\n\n");
+    Serial_PutString((uint8_t *)"==========================================================\r\n\n");
+
+    __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    switch (key)
+    {
+    case '0':
+      Serial_PutString((uint8_t *)"\r\nReturn to Main Menu...\r\n");
+      return;
+    case '1':
+      SerialDownload();
+      break;
+    case '2':
+      SDCardDownload();
+      break;
+    case '3':
+      SPIFlashDownload();
+      break;
+    default:
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 0, 1, 2 or 3\r");
+      break;
+    }
+  }
 }
 
 void SDCardDownload(void)
@@ -262,6 +339,154 @@ void SDCardDownload(void)
   f_mount(NULL, (TCHAR const *)SDPath, 0);
 }
 
+void SPIFlashDownload(void)
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[128];
+  int res;
+  bootloader_err_t err;
+  lfs_src_priv_t src_priv;
+  internal_flash_target_priv_t tgt_priv;
+  lfs_t lfs;
+
+  Serial_PutString((uint8_t *)"\r\nInitializing SPI Flash...\r\n");
+
+  res = lfs_spi_flash_init();
+  if (res != 0)
+  {
+    Serial_PutString((uint8_t *)"Error: SPI Flash initialization failed!\r\n");
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Mounting LittleFS...\r\n");
+
+  res = lfs_spi_flash_mount(&lfs);
+  if (res != LFS_ERR_OK)
+  {
+    Serial_PutString((uint8_t *)"Error: LittleFS mount failed! Error code: ");
+    Int2Str((uint8_t *)msg, (uint32_t)(-res));
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Scanning for bin and aes files...\r\n\r\n");
+
+  scan_lfs_files(&lfs);
+
+  if (file_count == 0)
+  {
+    Serial_PutString((uint8_t *)"No bin or aes files found on SPI Flash!\r\n");
+    lfs_spi_flash_unmount(&lfs);
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Found bin and aes files:\r\n");
+
+  for (i = 0; i < file_count; i++)
+  {
+    snprintf(msg, sizeof(msg), "  [%d] %s\r\n", i + 1, file_list[i]);
+    Serial_PutString((uint8_t *)msg);
+  }
+
+  Serial_PutString((uint8_t *)"\r\nPlease select a file (1-");
+  msg[0] = '0' + file_count;
+  msg[1] = ')';
+  msg[2] = ' ';
+  msg[3] = 'o';
+  msg[4] = 'r';
+  msg[5] = ' ';
+  msg[6] = 'p';
+  msg[7] = 'r';
+  msg[8] = 'e';
+  msg[9] = 's';
+  msg[10] = 's';
+  msg[11] = ' ';
+  msg[12] = '\'';
+  msg[13] = 'a';
+  msg[14] = '\'';
+  msg[15] = ' ';
+  msg[16] = 't';
+  msg[17] = 'o';
+  msg[18] = ' ';
+  msg[19] = 'a';
+  msg[20] = 'b';
+  msg[21] = 'o';
+  msg[22] = 'r';
+  msg[23] = 't';
+  msg[24] = ':';
+  msg[25] = ' ';
+  msg[26] = '\0';
+  Serial_PutString((uint8_t *)msg);
+
+  __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+  while (1)
+  {
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    if (key == 'a' || key == 'A')
+    {
+      Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+      lfs_spi_flash_unmount(&lfs);
+      return;
+    }
+
+    if (key >= '1' && key <= '9')
+    {
+      selected = key - '0';
+      if (selected >= 1 && selected <= file_count)
+      {
+        break;
+      }
+    }
+
+    if (file_count >= 10)
+    {
+      if (key >= '0' && key <= '9')
+      {
+        selected = (selected * 10) + (key - '0');
+        if (selected >= 1 && selected <= file_count)
+        {
+          break;
+        }
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", file_list[selected - 1]);
+  Serial_PutString((uint8_t *)msg);
+
+  Serial_PutString((uint8_t *)"\r\nStarting firmware update...\r\n");
+
+  src_priv.lfs = &lfs;
+  strncpy(src_priv.path, file_list[selected - 1], sizeof(src_priv.path) - 1);
+  src_priv.path[sizeof(src_priv.path) - 1] = '\0';
+
+  tgt_priv.start_addr = APPLICATION_ADDRESS;
+
+  err = bootloader_download(&lfs_source_if, &src_priv,
+                            &internal_flash_target_if, &tgt_priv,
+                            NULL);
+
+  if (err == BOOTLOADER_OK)
+  {
+    Serial_PutString((uint8_t *)"\r\nFirmware update completed successfully!\r\n");
+    Serial_PutString((uint8_t *)"You can now execute the application.\r\n");
+  }
+  else
+  {
+    Serial_PutString((uint8_t *)"\r\nFirmware update failed! Error code: ");
+    Int2Str((uint8_t *)msg, (uint32_t)(-err));
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+  }
+
+  lfs_spi_flash_unmount(&lfs);
+}
+
 /**
  * @brief  Download a file via serial port
  * @param  None
@@ -360,15 +585,14 @@ void Main_Menu(void)
     Serial_PutString((uint8_t *)"  Download image to the internal Flash ----------------- 1\r\n\n");
     Serial_PutString((uint8_t *)"  Upload image from the internal Flash ----------------- 2\r\n\n");
     Serial_PutString((uint8_t *)"  Execute the loaded application ----------------------- 3\r\n\n");
-    Serial_PutString((uint8_t *)"  Download image from SD card to the internal Flash ---- 4\r\n\n");
 
     if (FlashProtection != FLASHIF_PROTECTION_NONE)
     {
-      Serial_PutString((uint8_t *)"  Disable the write protection ------------------------- 5\r\n\n");
+      Serial_PutString((uint8_t *)"  Disable the write protection ------------------------- 4\r\n\n");
     }
     else
     {
-      Serial_PutString((uint8_t *)"  Enable the write protection -------------------------- 5\r\n\n");
+      Serial_PutString((uint8_t *)"  Enable the write protection -------------------------- 4\r\n\n");
     }
     Serial_PutString((uint8_t *)"==========================================================\r\n\n");
 
@@ -381,11 +605,9 @@ void Main_Menu(void)
     switch (key)
     {
     case '1':
-      /* Download user application in the Flash */
-      SerialDownload();
+      ImageDownloadMenu();
       break;
     case '2':
-      /* Upload user application from the Flash */
       SerialUpload();
       break;
     case '3':
@@ -393,19 +615,13 @@ void Main_Menu(void)
       bootloader_ctx.jump_func(bootloader_ctx.app_jump_addr);
       break;
     case '4':
-      SDCardDownload();
-      break;
-    case '5':
       if (FlashProtection != FLASHIF_PROTECTION_NONE)
       {
-        /* Disable the write protection */
         if (FLASH_If_WriteProtectionConfig(OB_WRPSTATE_DISABLE) == HAL_OK)
         {
           Serial_PutString((uint8_t *)"Write Protection disabled...\r\n");
           Serial_PutString((uint8_t *)"System will now restart...\r\n");
-          /* Launch the option byte loading */
           HAL_FLASH_OB_Launch();
-          /* Ulock the flash */
           HAL_FLASH_Unlock();
         }
         else
@@ -419,7 +635,6 @@ void Main_Menu(void)
         {
           Serial_PutString((uint8_t *)"Write Protection enabled...\r\n");
           Serial_PutString((uint8_t *)"System will now restart...\r\n");
-          /* Launch the option byte loading */
           HAL_FLASH_OB_Launch();
         }
         else
@@ -429,7 +644,7 @@ void Main_Menu(void)
       }
       break;
     default:
-      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be either 1, 2, 3, 4 or 5\r");
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be either 1, 2, 3 or 4\r");
       break;
     }
   }

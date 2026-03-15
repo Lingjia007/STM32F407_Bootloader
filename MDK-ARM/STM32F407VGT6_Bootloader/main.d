@@ -32,6 +32,7 @@ stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h
+stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\main.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
@@ -50,6 +51,7 @@ stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv
 stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
 stm32f407vgt6_bootloader\main.o: ../FATFS/Target/sd_diskio.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/rtc.h
+stm32f407vgt6_bootloader\main.o: ../Core/Inc/spi.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/tim.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/usart.h
 stm32f407vgt6_bootloader\main.o: ../Core/Inc/gpio.h
@@ -60,8 +62,15 @@ stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/App/usb_device.h
 stm32f407vgt6_bootloader\main.o: ../Middlewares/ST/STM32_USB_Device_Library/Core/Inc/usbd_def.h
 stm32f407vgt6_bootloader\main.o: ../USB_DEVICE/Target/usbd_conf.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
-stm32f407vgt6_bootloader\main.o: ..\IAP\menu.h
-stm32f407vgt6_bootloader\main.o: ..\IAP\flash_if.h
-stm32f407vgt6_bootloader\main.o: ..\IAP\ymodem.h
+stm32f407vgt6_bootloader\main.o: ../IAP/menu.h
+stm32f407vgt6_bootloader\main.o: ../IAP/flash_if.h
+stm32f407vgt6_bootloader\main.o: ../IAP/ymodem.h
 stm32f407vgt6_bootloader\main.o: ../Bootloader_Core/Bootloader_core.h
-stm32f407vgt6_bootloader\main.o: ..\IAP\common.h
+stm32f407vgt6_bootloader\main.o: ../IAP/common.h
+stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\w25q128.h
+stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h
+stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs.h
+stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.h
+stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
+stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
+stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h

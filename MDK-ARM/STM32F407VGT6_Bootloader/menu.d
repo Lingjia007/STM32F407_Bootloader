@@ -32,6 +32,7 @@ stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h
+stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
@@ -54,5 +55,13 @@ stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv
 stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
 stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/sd_diskio.h
 stm32f407vgt6_bootloader\menu.o: ../Core/Inc/rtc.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+stm32f407vgt6_bootloader\menu.o: ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h
+stm32f407vgt6_bootloader\menu.o: ..\Middlewares\Third_Party\LittleFs\lfs.h
+stm32f407vgt6_bootloader\menu.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
+stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
+stm32f407vgt6_bootloader\menu.o: ..\Middlewares\Third_Party\LittleFs\w25q128.h
+stm32f407vgt6_bootloader\menu.o: ../Core/Inc/spi.h

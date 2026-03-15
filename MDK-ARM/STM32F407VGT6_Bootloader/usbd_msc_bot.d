@@ -38,6 +38,7 @@ stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h
+stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
 stm32f407vgt6_bootloader\usbd_msc_bot.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h

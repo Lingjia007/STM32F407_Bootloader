@@ -226,4 +226,20 @@ bootloader_err_t internal_flash_tgt_close(void *ctx);
 
 extern const target_if_t internal_flash_target_if;
 
+// ==================== LFS (LittleFS) 源接口 ====================
+
+bootloader_err_t lfs_src_open(void *ctx, const char *path, uint32_t *total_size);
+bootloader_err_t lfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read);
+bootloader_err_t lfs_src_close(void *ctx);
+
+extern const source_if_t lfs_source_if;
+
+// ==================== LFS (LittleFS) 目标接口 ====================
+
+bootloader_err_t lfs_tgt_open(void *ctx, const char *path, uint32_t total_size);
+bootloader_err_t lfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, uint32_t len);
+bootloader_err_t lfs_tgt_close(void *ctx);
+
+extern const target_if_t lfs_target_if;
+
 #endif

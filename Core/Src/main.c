@@ -21,6 +21,7 @@
 #include "dma.h"
 #include "fatfs.h"
 #include "rtc.h"
+#include "spi.h"
 #include "tim.h"
 #include "usart.h"
 #include "gpio.h"
@@ -34,6 +35,8 @@
 #include "usb_device.h"
 #include "menu.h"
 #include "common.h"
+#include "w25q128.h"
+#include "lfs_spi_flash_adapter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -102,9 +105,11 @@ int main(void)
   MX_TIM1_Init();
   MX_FATFS_Init();
   MX_RTC_Init();
+  MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   MX_SDIO_SD_Init_Fix();
   Common_Init(&bootloader_ctx.serial_params);
+  w25q128_init();
   HAL_TIM_Base_Start_IT(&htim1);
 
   // 检查SD卡检测引脚状态

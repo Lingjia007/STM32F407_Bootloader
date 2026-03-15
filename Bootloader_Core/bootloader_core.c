@@ -1,6 +1,7 @@
 #include "bootloader_core.h"
 #include "main.h"
 #include "ff.h"
+#include "lfs.h"
 #include <string.h>
 #include "flash_if.h"
 
@@ -422,6 +423,252 @@ const target_if_t fatfs_target_if = {
     .open = fatfs_tgt_open,
     .write = fatfs_tgt_write,
     .close = fatfs_tgt_close,
+};
+
+// ==================== LFS (LittleFS) 源接口实现 ====================
+
+typedef struct
+{
+    lfs_t *lfs;
+    lfs_file_t file;
+    char path[64];
+    uint32_t total_size;
+    uint8_t is_open;
+} lfs_src_ctx_t;
+
+static lfs_src_ctx_t lfs_src_ctx;
+
+bootloader_err_t lfs_src_open(void *ctx, const char *path, uint32_t *total_size)
+{
+    lfs_src_priv_t *priv = (lfs_src_priv_t *)ctx;
+    struct lfs_info info;
+    int res;
+
+    if (priv == NULL || total_size == NULL)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    if (priv->lfs == NULL)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    memset(&lfs_src_ctx, 0, sizeof(lfs_src_ctx));
+    lfs_src_ctx.lfs = (lfs_t *)priv->lfs;
+
+    if (path != NULL)
+    {
+        strncpy(lfs_src_ctx.path, path, sizeof(lfs_src_ctx.path) - 1);
+    }
+    else
+    {
+        strncpy(lfs_src_ctx.path, priv->path, sizeof(lfs_src_ctx.path) - 1);
+    }
+    lfs_src_ctx.path[sizeof(lfs_src_ctx.path) - 1] = '\0';
+
+    res = lfs_stat(lfs_src_ctx.lfs, lfs_src_ctx.path, &info);
+    if (res != LFS_ERR_OK)
+    {
+        return BOOTLOADER_ERR_OPEN_SRC;
+    }
+
+    if (info.type != LFS_TYPE_REG)
+    {
+        return BOOTLOADER_ERR_OPEN_SRC;
+    }
+
+    lfs_src_ctx.total_size = (uint32_t)info.size;
+    *total_size = lfs_src_ctx.total_size;
+
+    res = lfs_file_open(lfs_src_ctx.lfs, &lfs_src_ctx.file, lfs_src_ctx.path, LFS_O_RDONLY);
+    if (res != LFS_ERR_OK)
+    {
+        return BOOTLOADER_ERR_OPEN_SRC;
+    }
+
+    lfs_src_ctx.is_open = 1;
+
+    return BOOTLOADER_OK;
+}
+
+bootloader_err_t lfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+{
+    (void)ctx;
+    lfs_ssize_t res;
+
+    if (buf == NULL || bytes_read == NULL)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    if (!lfs_src_ctx.is_open)
+    {
+        return BOOTLOADER_ERR_READ;
+    }
+
+    res = lfs_file_read(lfs_src_ctx.lfs, &lfs_src_ctx.file, buf, size);
+    if (res < 0)
+    {
+        return BOOTLOADER_ERR_READ;
+    }
+
+    *bytes_read = (uint32_t)res;
+
+    return BOOTLOADER_OK;
+}
+
+bootloader_err_t lfs_src_close(void *ctx)
+{
+    (void)ctx;
+    int res;
+
+    if (!lfs_src_ctx.is_open)
+    {
+        return BOOTLOADER_OK;
+    }
+
+    res = lfs_file_close(lfs_src_ctx.lfs, &lfs_src_ctx.file);
+    if (res != LFS_ERR_OK)
+    {
+        return BOOTLOADER_ERR_CLOSE;
+    }
+
+    lfs_src_ctx.is_open = 0;
+
+    return BOOTLOADER_OK;
+}
+
+const source_if_t lfs_source_if = {
+    .open = lfs_src_open,
+    .read = lfs_src_read,
+    .close = lfs_src_close,
+};
+
+// ==================== LFS (LittleFS) 目标接口实现 ====================
+
+typedef struct
+{
+    lfs_t *lfs;
+    lfs_file_t file;
+    char path[64];
+    uint32_t total_size;
+    uint32_t written_size;
+    uint8_t is_open;
+} lfs_tgt_ctx_t;
+
+static lfs_tgt_ctx_t lfs_tgt_ctx;
+
+bootloader_err_t lfs_tgt_open(void *ctx, const char *path, uint32_t total_size)
+{
+    lfs_target_priv_t *priv = (lfs_target_priv_t *)ctx;
+    int res;
+
+    if (priv == NULL)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    if (priv->lfs == NULL)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    memset(&lfs_tgt_ctx, 0, sizeof(lfs_tgt_ctx));
+    lfs_tgt_ctx.lfs = (lfs_t *)priv->lfs;
+
+    if (path != NULL)
+    {
+        strncpy(lfs_tgt_ctx.path, path, sizeof(lfs_tgt_ctx.path) - 1);
+    }
+    else
+    {
+        strncpy(lfs_tgt_ctx.path, priv->path, sizeof(lfs_tgt_ctx.path) - 1);
+    }
+    lfs_tgt_ctx.path[sizeof(lfs_tgt_ctx.path) - 1] = '\0';
+
+    lfs_tgt_ctx.total_size = total_size;
+
+    res = lfs_file_open(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, lfs_tgt_ctx.path,
+                        LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC);
+    if (res != LFS_ERR_OK)
+    {
+        return BOOTLOADER_ERR_OPEN_DST;
+    }
+
+    lfs_tgt_ctx.is_open = 1;
+    lfs_tgt_ctx.written_size = 0;
+
+    return BOOTLOADER_OK;
+}
+
+bootloader_err_t lfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
+{
+    (void)ctx;
+    lfs_ssize_t res;
+
+    if (data == NULL || len == 0)
+    {
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    if (!lfs_tgt_ctx.is_open)
+    {
+        return BOOTLOADER_ERR_WRITE;
+    }
+
+    if (offset != lfs_tgt_ctx.written_size)
+    {
+        res = lfs_file_seek(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, offset, LFS_SEEK_SET);
+        if (res < 0)
+        {
+            return BOOTLOADER_ERR_WRITE;
+        }
+    }
+
+    res = lfs_file_write(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, data, len);
+    if (res != (lfs_ssize_t)len)
+    {
+        return BOOTLOADER_ERR_WRITE;
+    }
+
+    lfs_tgt_ctx.written_size = offset + len;
+
+    return BOOTLOADER_OK;
+}
+
+bootloader_err_t lfs_tgt_close(void *ctx)
+{
+    (void)ctx;
+    int res;
+
+    if (!lfs_tgt_ctx.is_open)
+    {
+        return BOOTLOADER_OK;
+    }
+
+    res = lfs_file_sync(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
+    if (res != LFS_ERR_OK)
+    {
+        lfs_file_close(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
+        return BOOTLOADER_ERR_CLOSE;
+    }
+
+    res = lfs_file_close(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
+    if (res != LFS_ERR_OK)
+    {
+        return BOOTLOADER_ERR_CLOSE;
+    }
+
+    lfs_tgt_ctx.is_open = 0;
+
+    return BOOTLOADER_OK;
+}
+
+const target_if_t lfs_target_if = {
+    .open = lfs_tgt_open,
+    .write = lfs_tgt_write,
+    .close = lfs_tgt_close,
 };
 
 // ==================== 统一下载函数实现 ====================

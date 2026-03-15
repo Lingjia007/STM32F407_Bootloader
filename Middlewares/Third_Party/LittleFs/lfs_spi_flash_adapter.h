@@ -1,0 +1,29 @@
+#ifndef LFS_SPI_FLASH_ADAPTER_H
+#define LFS_SPI_FLASH_ADAPTER_H
+
+#include "lfs.h"
+#include "w25q128.h"
+
+// 定义SPI Flash的块大小、扇区大小等参数
+#define SPI_FLASH_BLOCK_SIZE 4096  // 块大小，W25Q128一个扇区为4KB
+#define SPI_FLASH_BLOCK_COUNT 1024 // 块数量，设置为4MB存储空间，4MB / 4KB = 1024块
+#define SPI_FLASH_PROG_SIZE 256    // 编程大小，W25Q128一页为256字节
+#define SPI_FLASH_READ_SIZE 1      // 读取大小，最小为1字节
+
+// 声明lfs配置结构体和实例
+extern const struct lfs_config lfs_spi_flash_cfg;
+extern struct lfs lfs_instance;
+
+// 初始化SPI Flash和littlefs
+int lfs_spi_flash_init(void);
+
+// 挂载文件系统
+int lfs_spi_flash_mount(struct lfs *lfs);
+
+// 卸载文件系统
+int lfs_spi_flash_unmount(struct lfs *lfs);
+
+// 格式化文件系统
+int lfs_spi_flash_format(struct lfs *lfs);
+
+#endif /* LFS_SPI_FLASH_ADAPTER_H */
