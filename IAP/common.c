@@ -38,22 +38,18 @@ UART_HandleTypeDef UartHandle = {0};
  * @param  None
  * @retval None
  */
-void Common_Init(Ymodem_serial_params_t *params)
+void Common_Init(ymodem_serial_params_t *params)
 {
-  /* 检查参数有效性 */
   if (params == NULL)
   {
     return;
   }
 
-  /* 设置UART句柄 */
   params->huart = &huart4;
 
-  /* 设置默认下载地址 */
-  params->dest_addr = bootloader_ctx.app_jump_addr;
+  params->dest_addr = bootloader_ctx.config.jump.app_jump_addr;
 
-  /* 配置UartHandle参数 */
-  UartHandle = *(UART_HandleTypeDef *)bootloader_ctx.serial_params.huart;
+  UartHandle = *(UART_HandleTypeDef *)bootloader_ctx.config.ymodem.huart;
 }
 
 /**
@@ -174,7 +170,7 @@ void Serial_PutString(uint8_t *p_string)
   }
 
   // 使用 bootloader_ctx 中的 UART 句柄
-  HAL_UART_Transmit((UART_HandleTypeDef *)bootloader_ctx.serial_params.huart, p_string, length, TX_TIMEOUT);
+  HAL_UART_Transmit((UART_HandleTypeDef *)bootloader_ctx.config.ymodem.huart, p_string, length, TX_TIMEOUT);
 }
 
 /**
@@ -185,7 +181,7 @@ void Serial_PutString(uint8_t *p_string)
 HAL_StatusTypeDef Serial_PutByte(uint8_t param)
 {
   // 获取 UART 句柄指针
-  UART_HandleTypeDef *huart = (UART_HandleTypeDef *)bootloader_ctx.serial_params.huart;
+  UART_HandleTypeDef *huart = (UART_HandleTypeDef *)bootloader_ctx.config.ymodem.huart;
 
   /* May be timeouted... */
   if (huart->gState == HAL_UART_STATE_TIMEOUT)

@@ -108,7 +108,7 @@ int main(void)
   MX_SPI1_Init();
   /* USER CODE BEGIN 2 */
   MX_SDIO_SD_Init_Fix();
-  Common_Init(&bootloader_ctx.serial_params);
+  Common_Init(&bootloader_ctx.config.ymodem);
   w25q128_init();
   HAL_TIM_Base_Start_IT(&htim1);
 

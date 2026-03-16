@@ -2,15 +2,11 @@
     "configurations": [
         {
             "name": "STM32F407VGT6_Bootloader",
-            "cStandard": "c11",
-            "cppStandard": "c++11",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
             "intelliSenseMode": "${default}",
             "includePath": [
-                "C:/Keil_v5/ARM/ARM_Compiler_5.06u7/include",
-                "C:/Keil_v5/ARM/ARM_Compiler_5.06u7/include/arm_linux",
-                "C:/Keil_v5/ARM/ARM_Compiler_5.06u7/include/arm_linux_compat",
-                "C:/Keil_v5/ARM/ARM_Compiler_5.06u7/include/rw",
-                "MDK-ARM/RTE/_STM32F407VGT6_Bootloader",
+                "C:/Keil_v5/ARM/ARMCC/include",
                 "Core/Inc",
                 "LED",
                 "Drivers/STM32F4xx_HAL_Driver/Inc",
@@ -31,7 +27,6 @@
             "defines": [
                 "USE_HAL_DRIVER",
                 "STM32F407xx",
-                "RTE_COMPONENTS_H",
                 "__CC_ARM",
                 "__arm__",
                 "__align(x)=",

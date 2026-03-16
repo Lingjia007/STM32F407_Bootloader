@@ -8,15 +8,14 @@
 #define USER_FLASH_END_ADDRESS 0x080FFFFF
 
 bootloader_ctx_t bootloader_ctx = {
-    .app_jump_addr = APPLICATION_ADDRESS,
-    .jump_func = jump_to_app,
+    .config = {
+        .jump = {
+            .app_jump_addr = APPLICATION_ADDRESS,
+            .jump_func = jump_to_app,
+        },
+    },
 };
 
-/**
- * @brief  Jump to user application
- * @param  None
- * @retval None
- */
 void jump_to_app(uint32_t app_address)
 {
     pFunction jump_fn;
@@ -50,22 +49,16 @@ typedef struct
 
 static internal_flash_tgt_ctx_t internal_flash_ctx;
 
-bootloader_err_t internal_flash_tgt_open(void *ctx, const char *path, uint32_t total_size)
+bootloader_err_t internal_flash_tgt_open(const char *path, uint32_t total_size)
 {
-    internal_flash_target_priv_t *priv = (internal_flash_target_priv_t *)ctx;
+    (void)path;
+
     uint32_t StartSector, EndSector;
     FLASH_EraseInitTypeDef pEraseInit;
     uint32_t SectorError;
 
-    (void)path;
-
-    if (priv == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
     memset(&internal_flash_ctx, 0, sizeof(internal_flash_ctx));
-    internal_flash_ctx.start_addr = priv->start_addr;
+    internal_flash_ctx.start_addr = bootloader_ctx.config.storage.internal_flash_addr;
     internal_flash_ctx.total_size = total_size;
 
     HAL_FLASH_Unlock();
@@ -74,8 +67,8 @@ bootloader_err_t internal_flash_tgt_open(void *ctx, const char *path, uint32_t t
 
     if (total_size > 0)
     {
-        StartSector = GetSector(priv->start_addr);
-        EndSector = GetSector(priv->start_addr + total_size - 1);
+        StartSector = GetSector(internal_flash_ctx.start_addr);
+        EndSector = GetSector(internal_flash_ctx.start_addr + total_size - 1);
 
         pEraseInit.TypeErase = TYPEERASE_SECTORS;
         pEraseInit.Sector = StartSector;
@@ -96,9 +89,8 @@ bootloader_err_t internal_flash_tgt_open(void *ctx, const char *path, uint32_t t
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t internal_flash_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
+bootloader_err_t internal_flash_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
 {
-    (void)ctx;
     uint32_t i;
     uint32_t FlashAddress;
     uint32_t *DataWord;
@@ -137,10 +129,8 @@ bootloader_err_t internal_flash_tgt_write(void *ctx, uint32_t offset, const uint
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t internal_flash_tgt_close(void *ctx)
+bootloader_err_t internal_flash_tgt_close(void)
 {
-    (void)ctx;
-
     if (!internal_flash_ctx.is_open)
     {
         return BOOTLOADER_OK;
@@ -159,37 +149,34 @@ const target_if_t internal_flash_target_if = {
     .close = internal_flash_tgt_close,
 };
 
-// ==================== FATFS 源接口实现 ====================
-
 typedef struct
 {
     FATFS *fs;
     FIL file;
-    char path[64];
+    char path[BOOTLOADER_PATH_MAX];
     uint32_t total_size;
     uint8_t is_open;
 } fatfs_src_ctx_t;
 
 static fatfs_src_ctx_t fatfs_src_ctx;
 
-bootloader_err_t fatfs_src_open(void *ctx, const char *path, uint32_t *total_size)
+bootloader_err_t fatfs_src_open(const char *path, uint32_t *total_size)
 {
-    fatfs_src_priv_t *priv = (fatfs_src_priv_t *)ctx;
     FRESULT res;
     FILINFO fno;
 
-    if (priv == NULL || total_size == NULL)
+    if (total_size == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
-    if (priv->fs == NULL)
+    if (bootloader_ctx.config.storage.fatfs == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
     memset(&fatfs_src_ctx, 0, sizeof(fatfs_src_ctx));
-    fatfs_src_ctx.fs = (FATFS *)priv->fs;
+    fatfs_src_ctx.fs = (FATFS *)bootloader_ctx.config.storage.fatfs;
 
     if (path != NULL)
     {
@@ -197,7 +184,7 @@ bootloader_err_t fatfs_src_open(void *ctx, const char *path, uint32_t *total_siz
     }
     else
     {
-        strncpy(fatfs_src_ctx.path, priv->path, sizeof(fatfs_src_ctx.path) - 1);
+        strncpy(fatfs_src_ctx.path, bootloader_ctx.config.storage.fatfs_path, sizeof(fatfs_src_ctx.path) - 1);
     }
     fatfs_src_ctx.path[sizeof(fatfs_src_ctx.path) - 1] = '\0';
 
@@ -221,9 +208,8 @@ bootloader_err_t fatfs_src_open(void *ctx, const char *path, uint32_t *total_siz
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t fatfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+bootloader_err_t fatfs_src_read(uint8_t *buf, uint32_t size, uint32_t *bytes_read)
 {
-    (void)ctx;
     FRESULT res;
     UINT br;
 
@@ -248,9 +234,8 @@ bootloader_err_t fatfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t fatfs_src_close(void *ctx)
+bootloader_err_t fatfs_src_close(void)
 {
-    (void)ctx;
     FRESULT res;
 
     if (!fatfs_src_ctx.is_open)
@@ -275,13 +260,11 @@ const source_if_t fatfs_source_if = {
     .close = fatfs_src_close,
 };
 
-// ==================== FATFS 目标接口实现 ====================
-
 typedef struct
 {
     FATFS *fs;
     FIL file;
-    char path[64];
+    char path[BOOTLOADER_PATH_MAX];
     uint32_t total_size;
     uint32_t written_size;
     uint8_t is_open;
@@ -289,23 +272,17 @@ typedef struct
 
 static fatfs_tgt_ctx_t fatfs_tgt_ctx;
 
-bootloader_err_t fatfs_tgt_open(void *ctx, const char *path, uint32_t total_size)
+bootloader_err_t fatfs_tgt_open(const char *path, uint32_t total_size)
 {
-    fatfs_target_priv_t *priv = (fatfs_target_priv_t *)ctx;
     FRESULT res;
 
-    if (priv == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (priv->fs == NULL)
+    if (bootloader_ctx.config.storage.fatfs == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
     memset(&fatfs_tgt_ctx, 0, sizeof(fatfs_tgt_ctx));
-    fatfs_tgt_ctx.fs = (FATFS *)priv->fs;
+    fatfs_tgt_ctx.fs = (FATFS *)bootloader_ctx.config.storage.fatfs;
 
     if (path != NULL)
     {
@@ -313,7 +290,7 @@ bootloader_err_t fatfs_tgt_open(void *ctx, const char *path, uint32_t total_size
     }
     else
     {
-        strncpy(fatfs_tgt_ctx.path, priv->path, sizeof(fatfs_tgt_ctx.path) - 1);
+        strncpy(fatfs_tgt_ctx.path, bootloader_ctx.config.storage.fatfs_path, sizeof(fatfs_tgt_ctx.path) - 1);
     }
     fatfs_tgt_ctx.path[sizeof(fatfs_tgt_ctx.path) - 1] = '\0';
 
@@ -355,9 +332,8 @@ bootloader_err_t fatfs_tgt_open(void *ctx, const char *path, uint32_t total_size
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t fatfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
+bootloader_err_t fatfs_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
 {
-    (void)ctx;
     FRESULT res;
     UINT bw;
 
@@ -391,9 +367,8 @@ bootloader_err_t fatfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t fatfs_tgt_close(void *ctx)
+bootloader_err_t fatfs_tgt_close(void)
 {
-    (void)ctx;
     FRESULT res;
 
     if (!fatfs_tgt_ctx.is_open)
@@ -425,37 +400,34 @@ const target_if_t fatfs_target_if = {
     .close = fatfs_tgt_close,
 };
 
-// ==================== LFS (LittleFS) 源接口实现 ====================
-
 typedef struct
 {
     lfs_t *lfs;
     lfs_file_t file;
-    char path[64];
+    char path[BOOTLOADER_PATH_MAX];
     uint32_t total_size;
     uint8_t is_open;
 } lfs_src_ctx_t;
 
 static lfs_src_ctx_t lfs_src_ctx;
 
-bootloader_err_t lfs_src_open(void *ctx, const char *path, uint32_t *total_size)
+bootloader_err_t lfs_src_open(const char *path, uint32_t *total_size)
 {
-    lfs_src_priv_t *priv = (lfs_src_priv_t *)ctx;
     struct lfs_info info;
     int res;
 
-    if (priv == NULL || total_size == NULL)
+    if (total_size == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
-    if (priv->lfs == NULL)
+    if (bootloader_ctx.config.storage.lfs == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
     memset(&lfs_src_ctx, 0, sizeof(lfs_src_ctx));
-    lfs_src_ctx.lfs = (lfs_t *)priv->lfs;
+    lfs_src_ctx.lfs = (lfs_t *)bootloader_ctx.config.storage.lfs;
 
     if (path != NULL)
     {
@@ -463,7 +435,7 @@ bootloader_err_t lfs_src_open(void *ctx, const char *path, uint32_t *total_size)
     }
     else
     {
-        strncpy(lfs_src_ctx.path, priv->path, sizeof(lfs_src_ctx.path) - 1);
+        strncpy(lfs_src_ctx.path, bootloader_ctx.config.storage.lfs_path, sizeof(lfs_src_ctx.path) - 1);
     }
     lfs_src_ctx.path[sizeof(lfs_src_ctx.path) - 1] = '\0';
 
@@ -492,9 +464,8 @@ bootloader_err_t lfs_src_open(void *ctx, const char *path, uint32_t *total_size)
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t lfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+bootloader_err_t lfs_src_read(uint8_t *buf, uint32_t size, uint32_t *bytes_read)
 {
-    (void)ctx;
     lfs_ssize_t res;
 
     if (buf == NULL || bytes_read == NULL)
@@ -518,9 +489,8 @@ bootloader_err_t lfs_src_read(void *ctx, uint8_t *buf, uint32_t size, uint32_t *
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t lfs_src_close(void *ctx)
+bootloader_err_t lfs_src_close(void)
 {
-    (void)ctx;
     int res;
 
     if (!lfs_src_ctx.is_open)
@@ -545,13 +515,11 @@ const source_if_t lfs_source_if = {
     .close = lfs_src_close,
 };
 
-// ==================== LFS (LittleFS) 目标接口实现 ====================
-
 typedef struct
 {
     lfs_t *lfs;
     lfs_file_t file;
-    char path[64];
+    char path[BOOTLOADER_PATH_MAX];
     uint32_t total_size;
     uint32_t written_size;
     uint8_t is_open;
@@ -559,23 +527,17 @@ typedef struct
 
 static lfs_tgt_ctx_t lfs_tgt_ctx;
 
-bootloader_err_t lfs_tgt_open(void *ctx, const char *path, uint32_t total_size)
+bootloader_err_t lfs_tgt_open(const char *path, uint32_t total_size)
 {
-    lfs_target_priv_t *priv = (lfs_target_priv_t *)ctx;
     int res;
 
-    if (priv == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (priv->lfs == NULL)
+    if (bootloader_ctx.config.storage.lfs == NULL)
     {
         return BOOTLOADER_ERR_PARAM;
     }
 
     memset(&lfs_tgt_ctx, 0, sizeof(lfs_tgt_ctx));
-    lfs_tgt_ctx.lfs = (lfs_t *)priv->lfs;
+    lfs_tgt_ctx.lfs = (lfs_t *)bootloader_ctx.config.storage.lfs;
 
     if (path != NULL)
     {
@@ -583,7 +545,7 @@ bootloader_err_t lfs_tgt_open(void *ctx, const char *path, uint32_t total_size)
     }
     else
     {
-        strncpy(lfs_tgt_ctx.path, priv->path, sizeof(lfs_tgt_ctx.path) - 1);
+        strncpy(lfs_tgt_ctx.path, bootloader_ctx.config.storage.lfs_path, sizeof(lfs_tgt_ctx.path) - 1);
     }
     lfs_tgt_ctx.path[sizeof(lfs_tgt_ctx.path) - 1] = '\0';
 
@@ -602,9 +564,8 @@ bootloader_err_t lfs_tgt_open(void *ctx, const char *path, uint32_t total_size)
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t lfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
+bootloader_err_t lfs_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
 {
-    (void)ctx;
     lfs_ssize_t res;
 
     if (data == NULL || len == 0)
@@ -637,9 +598,8 @@ bootloader_err_t lfs_tgt_write(void *ctx, uint32_t offset, const uint8_t *data, 
     return BOOTLOADER_OK;
 }
 
-bootloader_err_t lfs_tgt_close(void *ctx)
+bootloader_err_t lfs_tgt_close(void)
 {
-    (void)ctx;
     int res;
 
     if (!lfs_tgt_ctx.is_open)
@@ -671,14 +631,12 @@ const target_if_t lfs_target_if = {
     .close = lfs_tgt_close,
 };
 
-// ==================== 统一下载函数实现 ====================
-
 #define BOOTLOADER_BUFFER_SIZE 4096
 
 static uint8_t bootloader_buffer[BOOTLOADER_BUFFER_SIZE];
 
-bootloader_err_t bootloader_download(const source_if_t *src_if, void *src_ctx,
-                                     const target_if_t *tgt_if, void *tgt_ctx,
+bootloader_err_t bootloader_download(const source_if_t *src_if,
+                                     const target_if_t *tgt_if,
                                      const char *path)
 {
     bootloader_err_t err;
@@ -702,16 +660,16 @@ bootloader_err_t bootloader_download(const source_if_t *src_if, void *src_ctx,
         return BOOTLOADER_ERR_PARAM;
     }
 
-    err = src_if->open(src_ctx, path, &total_size);
+    err = src_if->open(path, &total_size);
     if (err != BOOTLOADER_OK)
     {
         return err;
     }
 
-    err = tgt_if->open(tgt_ctx, path, total_size);
+    err = tgt_if->open(path, total_size);
     if (err != BOOTLOADER_OK)
     {
-        src_if->close(src_ctx);
+        src_if->close();
         return err;
     }
 
@@ -723,11 +681,11 @@ bootloader_err_t bootloader_download(const source_if_t *src_if, void *src_ctx,
             to_read = total_size - total_read;
         }
 
-        err = src_if->read(src_ctx, bootloader_buffer, to_read, &bytes_read);
+        err = src_if->read(bootloader_buffer, to_read, &bytes_read);
         if (err != BOOTLOADER_OK)
         {
-            tgt_if->close(tgt_ctx);
-            src_if->close(src_ctx);
+            tgt_if->close();
+            src_if->close();
             return err;
         }
 
@@ -736,11 +694,11 @@ bootloader_err_t bootloader_download(const source_if_t *src_if, void *src_ctx,
             break;
         }
 
-        err = tgt_if->write(tgt_ctx, offset, bootloader_buffer, bytes_read);
+        err = tgt_if->write(offset, bootloader_buffer, bytes_read);
         if (err != BOOTLOADER_OK)
         {
-            tgt_if->close(tgt_ctx);
-            src_if->close(src_ctx);
+            tgt_if->close();
+            src_if->close();
             return err;
         }
 
@@ -748,14 +706,14 @@ bootloader_err_t bootloader_download(const source_if_t *src_if, void *src_ctx,
         offset += bytes_read;
     }
 
-    err = tgt_if->close(tgt_ctx);
+    err = tgt_if->close();
     if (err != BOOTLOADER_OK)
     {
-        src_if->close(src_ctx);
+        src_if->close();
         return err;
     }
 
-    err = src_if->close(src_ctx);
+    err = src_if->close();
     if (err != BOOTLOADER_OK)
     {
         return err;

@@ -6,6 +6,15 @@
         "*.c": "c",
         "stdio.h": "c",
         "flash_if.h": "c",
-        "bootloader_core.h": "c"
+        "bootloader_core.h": "c",
+        "atomic": "c",
+        "compare": "c",
+        "cstddef": "c",
+        "limits": "c",
+        "memory": "c",
+        "type_traits": "c",
+        "xmemory": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

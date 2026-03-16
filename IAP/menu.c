@@ -35,6 +35,7 @@
 #include "ymodem.h"
 #include "fatfs.h"
 #include "lfs_spi_flash_adapter.h"
+#include "bootloader_core.h"
 #include "stdio.h"
 #include "string.h"
 
@@ -209,8 +210,6 @@ void SDCardDownload(void)
   char msg[128];
   FRESULT res;
   bootloader_err_t err;
-  fatfs_src_priv_t src_priv;
-  internal_flash_target_priv_t tgt_priv;
 
   Serial_PutString((uint8_t *)"\r\nInitializing TF card...\r\n");
 
@@ -313,14 +312,13 @@ void SDCardDownload(void)
 
   Serial_PutString((uint8_t *)"\r\nStarting firmware update...\r\n");
 
-  src_priv.fs = &SDFatFS;
-  strncpy(src_priv.path, file_list[selected - 1], sizeof(src_priv.path) - 1);
-  src_priv.path[sizeof(src_priv.path) - 1] = '\0';
+  bootloader_ctx.config.storage.fatfs = &SDFatFS;
+  strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
+  bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
+  bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  tgt_priv.start_addr = APPLICATION_ADDRESS;
-
-  err = bootloader_download(&fatfs_source_if, &src_priv,
-                            &internal_flash_target_if, &tgt_priv,
+  err = bootloader_download(&fatfs_source_if,
+                            &internal_flash_target_if,
                             NULL);
 
   if (err == BOOTLOADER_OK)
@@ -347,8 +345,6 @@ void SPIFlashDownload(void)
   char msg[128];
   int res;
   bootloader_err_t err;
-  lfs_src_priv_t src_priv;
-  internal_flash_target_priv_t tgt_priv;
   lfs_t lfs;
 
   Serial_PutString((uint8_t *)"\r\nInitializing SPI Flash...\r\n");
@@ -461,14 +457,13 @@ void SPIFlashDownload(void)
 
   Serial_PutString((uint8_t *)"\r\nStarting firmware update...\r\n");
 
-  src_priv.lfs = &lfs;
-  strncpy(src_priv.path, file_list[selected - 1], sizeof(src_priv.path) - 1);
-  src_priv.path[sizeof(src_priv.path) - 1] = '\0';
+  bootloader_ctx.config.storage.lfs = &lfs;
+  strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
+  bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
+  bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  tgt_priv.start_addr = APPLICATION_ADDRESS;
-
-  err = bootloader_download(&lfs_source_if, &src_priv,
-                            &internal_flash_target_if, &tgt_priv,
+  err = bootloader_download(&lfs_source_if,
+                            &internal_flash_target_if,
                             NULL);
 
   if (err == BOOTLOADER_OK)
@@ -612,7 +607,7 @@ void Main_Menu(void)
       break;
     case '3':
       Serial_PutString((uint8_t *)"Start program execution......\r\n\n");
-      bootloader_ctx.jump_func(bootloader_ctx.app_jump_addr);
+      bootloader_ctx.config.jump.jump_func(bootloader_ctx.config.jump.app_jump_addr);
       break;
     case '4':
       if (FlashProtection != FLASHIF_PROTECTION_NONE)
