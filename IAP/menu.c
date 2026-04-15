@@ -39,6 +39,7 @@
 #include "lfs.h"
 #include "stdio.h"
 #include "string.h"
+#include "aes_decrypt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -60,6 +61,8 @@ void SerialDownload(void);
 void SerialUpload(void);
 void SDCardDownload(void);
 void SPIFlashDownload(void);
+static void DecryptAESFile(void);
+static void DecryptAndDownloadMenu(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -79,9 +82,9 @@ static uint8_t check_file_extension(const char *filename)
     return 1;
   }
 
-  if (len >= 7)
+  if (len >= 8)
   {
-    ext = filename + len - 7;
+    ext = filename + len - 8;
     if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
     {
       return 1;
@@ -1191,6 +1194,8 @@ void Main_Menu(void)
     Serial_PutString((uint8_t *)"  Upload image from the internal Flash ----------------- 2\r\n\n");
     Serial_PutString((uint8_t *)"  Store image to SPI-Flash LFS ------------------------- 3\r\n\n");
     Serial_PutString((uint8_t *)"  Execute the loaded application ----------------------- 4\r\n\n");
+    Serial_PutString((uint8_t *)"  Decrypt and download encrypted firmware -------------- 6\r\n\n");
+    Serial_PutString((uint8_t *)"  Decrypt .bin.aes file on SD card --------------------- 7\r\n\n");
 
     if (FlashProtection != FLASHIF_PROTECTION_NONE)
     {
@@ -1224,6 +1229,12 @@ void Main_Menu(void)
       Serial_PutString((uint8_t *)"Start program execution......\r\n\n");
       bootloader_ctx.config.jump.jump_func(bootloader_ctx.config.jump.app_jump_addr);
       break;
+    case '6':
+      DecryptAndDownloadMenu();
+      break;
+    case '7':
+      DecryptAESFile();
+      break;
     case '5':
       if (FlashProtection != FLASHIF_PROTECTION_NONE)
       {
@@ -1254,9 +1265,515 @@ void Main_Menu(void)
       }
       break;
     default:
-      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1, 2, 3, 4 or 5\r");
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1, 2, 3, 4, 5, 6 or 7\r");
       break;
     }
+  }
+}
+
+static void DecryptAESFile(void)
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  FRESULT res;
+  int decrypt_result;
+  char src_path[128];
+  char dst_path[128];
+  char *dot_pos;
+  aes_decrypt_config_t decrypt_config = {
+      .key = {0x8f, 0x8b, 0x6e, 0xcb, 0x07, 0x78, 0xa9, 0xb7,
+              0x10, 0x97, 0x94, 0xb6, 0xe2, 0x31, 0xcd, 0xf3,
+              0xc3, 0x40, 0x2e, 0x1d, 0x4f, 0x2a, 0xa3, 0x14,
+              0xe0, 0x56, 0x60, 0x16, 0xac, 0xe4, 0x5c, 0xe0},
+      .iv = {0xc1, 0xb7, 0x95, 0x2d, 0x38, 0xe6, 0x0e, 0xbd,
+             0x33, 0x30, 0x6d, 0xdf, 0x49, 0x2b, 0x7a, 0x58}};
+
+  Serial_PutString((uint8_t *)"\r\nInitializing TF card...\r\n");
+
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    Serial_PutString((uint8_t *)"Error: SD card mount failed! Error code: ");
+    Int2Str((uint8_t *)msg, res);
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Scanning for .bin.aes files...\r\n\r\n");
+
+  scan_sd_card_files();
+
+  uint8_t aes_file_count = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    size_t len = strlen(file_list[i]);
+    if (len >= 8)
+    {
+      const char *ext = file_list[i] + len - 8;
+      if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+      {
+        snprintf(msg, sizeof(msg), "  [%d] %s\r\n", aes_file_count + 1, file_list[i]);
+        Serial_PutString((uint8_t *)msg);
+        aes_file_count++;
+      }
+    }
+  }
+
+  if (aes_file_count == 0)
+  {
+    Serial_PutString((uint8_t *)"No .bin.aes files found on SD card!\r\n");
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt (1-");
+  msg[0] = '0' + aes_file_count;
+  msg[1] = ')';
+  msg[2] = ' ';
+  msg[3] = 'o';
+  msg[4] = 'r';
+  msg[5] = ' ';
+  msg[6] = 'p';
+  msg[7] = 'r';
+  msg[8] = 'e';
+  msg[9] = 's';
+  msg[10] = 's';
+  msg[11] = ' ';
+  msg[12] = '\'';
+  msg[13] = 'a';
+  msg[14] = '\'';
+  msg[15] = ' ';
+  msg[16] = 't';
+  msg[17] = 'o';
+  msg[18] = ' ';
+  msg[19] = 'a';
+  msg[20] = 'b';
+  msg[21] = 'o';
+  msg[22] = 'r';
+  msg[23] = 't';
+  msg[24] = ':';
+  msg[25] = ' ';
+  msg[26] = '\0';
+  Serial_PutString((uint8_t *)msg);
+
+  __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+  while (1)
+  {
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    if (key == 'a' || key == 'A')
+    {
+      Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+
+    if (key >= '1' && key <= '9')
+    {
+      selected = key - '0';
+      if (selected >= 1 && selected <= aes_file_count)
+      {
+        break;
+      }
+    }
+  }
+
+  uint8_t aes_idx = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    size_t len = strlen(file_list[i]);
+    if (len >= 8)
+    {
+      const char *ext = file_list[i] + len - 8;
+      if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+      {
+        aes_idx++;
+        if (aes_idx == selected)
+        {
+          selected = i;
+          break;
+        }
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", file_list[selected]);
+  Serial_PutString((uint8_t *)msg);
+
+  snprintf(src_path, sizeof(src_path), "0:/%s", file_list[selected]);
+
+  strncpy(dst_path, src_path, sizeof(dst_path) - 1);
+  dst_path[sizeof(dst_path) - 1] = '\0';
+
+  dot_pos = strstr(dst_path, ".bin.aes");
+  if (dot_pos == NULL)
+  {
+    dot_pos = strstr(dst_path, ".BIN.AES");
+  }
+
+  if (dot_pos != NULL)
+  {
+    *dot_pos = '\0';
+    strcat(dst_path, ".bin");
+  }
+  else
+  {
+    strcat(dst_path, ".decrypted");
+  }
+
+  snprintf(msg, sizeof(msg), "Output file: %s\r\n", dst_path);
+  Serial_PutString((uint8_t *)msg);
+
+  Serial_PutString((uint8_t *)"\r\nStarting decryption...\r\n");
+
+  decrypt_result = aes_decrypt_file_fatfs(&SDFatFS, src_path, dst_path, &decrypt_config);
+
+  if (decrypt_result > 0)
+  {
+    Serial_PutString((uint8_t *)"\r\nDecryption completed successfully!\r\n");
+    snprintf(msg, sizeof(msg), "Decrypted size: %d bytes\r\n", decrypt_result);
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"Output file saved to SD card.\r\n");
+  }
+  else
+  {
+    Serial_PutString((uint8_t *)"\r\nDecryption failed! Error code: ");
+    Int2Str((uint8_t *)msg, (uint32_t)(-decrypt_result));
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+  }
+
+  f_mount(NULL, (TCHAR const *)SDPath, 0);
+}
+
+static void DecryptAndDownloadMenu(void)
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  FRESULT res;
+  int decrypt_result;
+  char src_path[128];
+  int lfs_res;
+  lfs_t lfs;
+  aes_decrypt_config_t decrypt_config = {
+      .key = {0x8f, 0x8b, 0x6e, 0xcb, 0x07, 0x78, 0xa9, 0xb7,
+              0x10, 0x97, 0x94, 0xb6, 0xe2, 0x31, 0xcd, 0xf3,
+              0xc3, 0x40, 0x2e, 0x1d, 0x4f, 0x2a, 0xa3, 0x14,
+              0xe0, 0x56, 0x60, 0x16, 0xac, 0xe4, 0x5c, 0xe0},
+      .iv = {0xc1, 0xb7, 0x95, 0x2d, 0x38, 0xe6, 0x0e, 0xbd,
+             0x33, 0x30, 0x6d, 0xdf, 0x49, 0x2b, 0x7a, 0x58}};
+
+  Serial_PutString((uint8_t *)"\r\n============== Decrypt and Download Menu =================\r\n\n");
+  Serial_PutString((uint8_t *)"  Decrypt from SD card and download to Flash ----------- 1\r\n\n");
+  Serial_PutString((uint8_t *)"  Decrypt from SPI Flash and download to Flash --------- 2\r\n\n");
+  Serial_PutString((uint8_t *)"  Return to Main Menu ---------------------------------- 0\r\n\n");
+  Serial_PutString((uint8_t *)"===========================================================\r\n\n");
+
+  __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+  HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+  switch (key)
+  {
+  case '0':
+    Serial_PutString((uint8_t *)"\r\nReturn to Main Menu...\r\n");
+    return;
+
+  case '1':
+  {
+    Serial_PutString((uint8_t *)"\r\nInitializing TF card...\r\n");
+
+    res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+    if (res != FR_OK)
+    {
+      Serial_PutString((uint8_t *)"Error: SD card mount failed! Error code: ");
+      Int2Str((uint8_t *)msg, res);
+      Serial_PutString((uint8_t *)msg);
+      Serial_PutString((uint8_t *)"\r\n");
+      return;
+    }
+
+    Serial_PutString((uint8_t *)"Scanning for .bin.aes files...\r\n\r\n");
+
+    scan_sd_card_files();
+
+    uint8_t aes_file_count = 0;
+    for (i = 0; i < file_count; i++)
+    {
+      size_t len = strlen(file_list[i]);
+      if (len >= 8)
+      {
+        const char *ext = file_list[i] + len - 8;
+        if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+        {
+          snprintf(msg, sizeof(msg), "  [%d] %s\r\n", aes_file_count + 1, file_list[i]);
+          Serial_PutString((uint8_t *)msg);
+          aes_file_count++;
+        }
+      }
+    }
+
+    if (aes_file_count == 0)
+    {
+      Serial_PutString((uint8_t *)"No .bin.aes files found on SD card!\r\n");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+
+    Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt and download (1-");
+    msg[0] = '0' + aes_file_count;
+    msg[1] = ')';
+    msg[2] = ' ';
+    msg[3] = 'o';
+    msg[4] = 'r';
+    msg[5] = ' ';
+    msg[6] = 'p';
+    msg[7] = 'r';
+    msg[8] = 'e';
+    msg[9] = 's';
+    msg[10] = 's';
+    msg[11] = ' ';
+    msg[12] = '\'';
+    msg[13] = 'a';
+    msg[14] = '\'';
+    msg[15] = ' ';
+    msg[16] = 't';
+    msg[17] = 'o';
+    msg[18] = ' ';
+    msg[19] = 'a';
+    msg[20] = 'b';
+    msg[21] = 'o';
+    msg[22] = 'r';
+    msg[23] = 't';
+    msg[24] = ':';
+    msg[25] = ' ';
+    msg[26] = '\0';
+    Serial_PutString((uint8_t *)msg);
+
+    __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+    while (1)
+    {
+      HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+      if (key == 'a' || key == 'A')
+      {
+        Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+        f_mount(NULL, (TCHAR const *)SDPath, 0);
+        return;
+      }
+
+      if (key >= '1' && key <= '9')
+      {
+        selected = key - '0';
+        if (selected >= 1 && selected <= aes_file_count)
+        {
+          break;
+        }
+      }
+    }
+
+    uint8_t aes_idx = 0;
+    for (i = 0; i < file_count; i++)
+    {
+      size_t len = strlen(file_list[i]);
+      if (len >= 8)
+      {
+        const char *ext = file_list[i] + len - 8;
+        if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+        {
+          aes_idx++;
+          if (aes_idx == selected)
+          {
+            selected = i;
+            break;
+          }
+        }
+      }
+    }
+
+    snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", file_list[selected]);
+    Serial_PutString((uint8_t *)msg);
+
+    snprintf(src_path, sizeof(src_path), "0:/%s", file_list[selected]);
+
+    Serial_PutString((uint8_t *)"\r\nStarting decryption and download...\r\n");
+
+    decrypt_result = aes_decrypt_to_flash_fatfs(&SDFatFS, src_path, APPLICATION_ADDRESS, &decrypt_config);
+
+    if (decrypt_result > 0)
+    {
+      Serial_PutString((uint8_t *)"\r\nDecryption and download completed successfully!\r\n");
+      snprintf(msg, sizeof(msg), "Written size: %d bytes\r\n", decrypt_result);
+      Serial_PutString((uint8_t *)msg);
+      Serial_PutString((uint8_t *)"You can now execute the application.\r\n");
+    }
+    else
+    {
+      Serial_PutString((uint8_t *)"\r\nDecryption failed! Error code: ");
+      Int2Str((uint8_t *)msg, (uint32_t)(-decrypt_result));
+      Serial_PutString((uint8_t *)msg);
+      Serial_PutString((uint8_t *)"\r\n");
+    }
+
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    break;
+  }
+
+  case '2':
+  {
+    Serial_PutString((uint8_t *)"\r\nInitializing SPI Flash...\r\n");
+
+    lfs_res = lfs_spi_flash_init();
+    if (lfs_res != 0)
+    {
+      Serial_PutString((uint8_t *)"Error: SPI Flash initialization failed!\r\n");
+      return;
+    }
+
+    Serial_PutString((uint8_t *)"Mounting LittleFS...\r\n");
+
+    lfs_res = lfs_spi_flash_mount(&lfs);
+    if (lfs_res != LFS_ERR_OK)
+    {
+      Serial_PutString((uint8_t *)"Error: LittleFS mount failed!\r\n");
+      return;
+    }
+
+    Serial_PutString((uint8_t *)"Scanning for .bin.aes files...\r\n\r\n");
+
+    scan_lfs_files(&lfs);
+
+    uint8_t lfs_aes_file_count = 0;
+    for (i = 0; i < file_count; i++)
+    {
+      size_t len = strlen(file_list[i]);
+      if (len >= 8)
+      {
+        const char *ext = file_list[i] + len - 8;
+        if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+        {
+          snprintf(msg, sizeof(msg), "  [%d] %s\r\n", lfs_aes_file_count + 1, file_list[i]);
+          Serial_PutString((uint8_t *)msg);
+          lfs_aes_file_count++;
+        }
+      }
+    }
+
+    if (lfs_aes_file_count == 0)
+    {
+      Serial_PutString((uint8_t *)"No .bin.aes files found on SPI Flash!\r\n");
+      lfs_spi_flash_unmount(&lfs);
+      return;
+    }
+
+    Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt and download (1-");
+    msg[0] = '0' + lfs_aes_file_count;
+    msg[1] = ')';
+    msg[2] = ' ';
+    msg[3] = 'o';
+    msg[4] = 'r';
+    msg[5] = ' ';
+    msg[6] = 'p';
+    msg[7] = 'r';
+    msg[8] = 'e';
+    msg[9] = 's';
+    msg[10] = 's';
+    msg[11] = ' ';
+    msg[12] = '\'';
+    msg[13] = 'a';
+    msg[14] = '\'';
+    msg[15] = ' ';
+    msg[16] = 't';
+    msg[17] = 'o';
+    msg[18] = ' ';
+    msg[19] = 'a';
+    msg[20] = 'b';
+    msg[21] = 'o';
+    msg[22] = 'r';
+    msg[23] = 't';
+    msg[24] = ':';
+    msg[25] = ' ';
+    msg[26] = '\0';
+    Serial_PutString((uint8_t *)msg);
+
+    __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+    while (1)
+    {
+      HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+      if (key == 'a' || key == 'A')
+      {
+        Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+        lfs_spi_flash_unmount(&lfs);
+        return;
+      }
+
+      if (key >= '1' && key <= '9')
+      {
+        selected = key - '0';
+        if (selected >= 1 && selected <= lfs_aes_file_count)
+        {
+          break;
+        }
+      }
+    }
+
+    uint8_t lfs_aes_idx = 0;
+    for (i = 0; i < file_count; i++)
+    {
+      size_t len = strlen(file_list[i]);
+      if (len >= 8)
+      {
+        const char *ext = file_list[i] + len - 8;
+        if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
+        {
+          lfs_aes_idx++;
+          if (lfs_aes_idx == selected)
+          {
+            selected = i;
+            break;
+          }
+        }
+      }
+    }
+
+    snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", file_list[selected]);
+    Serial_PutString((uint8_t *)msg);
+
+    Serial_PutString((uint8_t *)"\r\nStarting decryption and download...\r\n");
+
+    decrypt_result = aes_decrypt_to_flash_lfs(&lfs, file_list[selected], APPLICATION_ADDRESS, &decrypt_config);
+
+    if (decrypt_result > 0)
+    {
+      Serial_PutString((uint8_t *)"\r\nDecryption and download completed successfully!\r\n");
+      snprintf(msg, sizeof(msg), "Written size: %d bytes\r\n", decrypt_result);
+      Serial_PutString((uint8_t *)msg);
+      Serial_PutString((uint8_t *)"You can now execute the application.\r\n");
+    }
+    else
+    {
+      Serial_PutString((uint8_t *)"\r\nDecryption failed! Error code: ");
+      Int2Str((uint8_t *)msg, (uint32_t)(-decrypt_result));
+      Serial_PutString((uint8_t *)msg);
+      Serial_PutString((uint8_t *)"\r\n");
+    }
+
+    lfs_spi_flash_unmount(&lfs);
+    break;
+  }
+
+  default:
+    Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 0, 1 or 2\r");
+    break;
   }
 }
 

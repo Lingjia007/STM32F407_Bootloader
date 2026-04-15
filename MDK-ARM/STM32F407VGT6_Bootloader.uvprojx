@@ -3827,6 +3827,11 @@
               <FileType>1</FileType>
               <FilePath>..\utils\aes.c</FilePath>
             </File>
+            <File>
+              <FileName>aes_decrypt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\utils\aes_decrypt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

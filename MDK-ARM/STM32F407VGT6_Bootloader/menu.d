@@ -65,3 +65,4 @@ stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\inclu
 stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
 stm32f407vgt6_bootloader\menu.o: ..\Middlewares\Third_Party\LittleFs\w25q128.h
 stm32f407vgt6_bootloader\menu.o: ../Core/Inc/spi.h
+stm32f407vgt6_bootloader\menu.o: ..\utils\aes_decrypt.h
