@@ -63,6 +63,7 @@ void SDCardDownload(void);
 void SPIFlashDownload(void);
 static void DecryptAESFile(void);
 static void DecryptAndDownloadMenu(void);
+static void BuildSelectionPrompt(char *msg, size_t msg_size, uint8_t file_count, const char *prefix);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -92,6 +93,11 @@ static uint8_t check_file_extension(const char *filename)
   }
 
   return 0;
+}
+
+static void BuildSelectionPrompt(char *msg, size_t msg_size, uint8_t file_count, const char *prefix)
+{
+  snprintf(msg, msg_size, "%s (1-%d) or 'a' to abort: ", prefix, file_count);
 }
 
 static void scan_sd_card_files(void)
@@ -274,28 +280,7 @@ static void DeleteStoredImage(lfs_t *lfs)
     Serial_PutString((uint8_t *)msg);
   }
 
-  Serial_PutString((uint8_t *)"\r\nEnter selection (1-");
-  msg[0] = '0' + file_count;
-  msg[1] = ')';
-  msg[2] = ' ';
-  msg[3] = 'o';
-  msg[4] = 'r';
-  msg[5] = ' ';
-  msg[6] = '\'';
-  msg[7] = 'a';
-  msg[8] = '\'';
-  msg[9] = ' ';
-  msg[10] = 't';
-  msg[11] = 'o';
-  msg[12] = ' ';
-  msg[13] = 'a';
-  msg[14] = 'b';
-  msg[15] = 'o';
-  msg[16] = 'r';
-  msg[17] = 't';
-  msg[18] = ':';
-  msg[19] = ' ';
-  msg[20] = '\0';
+  BuildSelectionPrompt(msg, sizeof(msg), file_count, "\r\nEnter selection");
   Serial_PutString((uint8_t *)msg);
 
   __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -438,28 +423,7 @@ static void StoreFromTFCard(void)
     Serial_PutString((uint8_t *)msg);
   }
 
-  Serial_PutString((uint8_t *)"\r\nSelect file to store (1-");
-  msg[0] = '0' + file_count;
-  msg[1] = ')';
-  msg[2] = ' ';
-  msg[3] = 'o';
-  msg[4] = 'r';
-  msg[5] = ' ';
-  msg[6] = '\'';
-  msg[7] = 'a';
-  msg[8] = '\'';
-  msg[9] = ' ';
-  msg[10] = 't';
-  msg[11] = 'o';
-  msg[12] = ' ';
-  msg[13] = 'a';
-  msg[14] = 'b';
-  msg[15] = 'o';
-  msg[16] = 'r';
-  msg[17] = 't';
-  msg[18] = ':';
-  msg[19] = ' ';
-  msg[20] = '\0';
+  BuildSelectionPrompt(msg, sizeof(msg), file_count, "\r\nSelect file to store");
   Serial_PutString((uint8_t *)msg);
 
   __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -855,34 +819,7 @@ void SDCardDownload(void)
     Serial_PutString((uint8_t *)msg);
   }
 
-  Serial_PutString((uint8_t *)"\r\nPlease select a file (1-");
-  msg[0] = '0' + file_count;
-  msg[1] = ')';
-  msg[2] = ' ';
-  msg[3] = 'o';
-  msg[4] = 'r';
-  msg[5] = ' ';
-  msg[6] = 'p';
-  msg[7] = 'r';
-  msg[8] = 'e';
-  msg[9] = 's';
-  msg[10] = 's';
-  msg[11] = ' ';
-  msg[12] = '\'';
-  msg[13] = 'a';
-  msg[14] = '\'';
-  msg[15] = ' ';
-  msg[16] = 't';
-  msg[17] = 'o';
-  msg[18] = ' ';
-  msg[19] = 'a';
-  msg[20] = 'b';
-  msg[21] = 'o';
-  msg[22] = 'r';
-  msg[23] = 't';
-  msg[24] = ':';
-  msg[25] = ' ';
-  msg[26] = '\0';
+  BuildSelectionPrompt(msg, sizeof(msg), file_count, "\r\nPlease select a file");
   Serial_PutString((uint8_t *)msg);
 
   __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -1000,34 +937,7 @@ void SPIFlashDownload(void)
     Serial_PutString((uint8_t *)msg);
   }
 
-  Serial_PutString((uint8_t *)"\r\nPlease select a file (1-");
-  msg[0] = '0' + file_count;
-  msg[1] = ')';
-  msg[2] = ' ';
-  msg[3] = 'o';
-  msg[4] = 'r';
-  msg[5] = ' ';
-  msg[6] = 'p';
-  msg[7] = 'r';
-  msg[8] = 'e';
-  msg[9] = 's';
-  msg[10] = 's';
-  msg[11] = ' ';
-  msg[12] = '\'';
-  msg[13] = 'a';
-  msg[14] = '\'';
-  msg[15] = ' ';
-  msg[16] = 't';
-  msg[17] = 'o';
-  msg[18] = ' ';
-  msg[19] = 'a';
-  msg[20] = 'b';
-  msg[21] = 'o';
-  msg[22] = 'r';
-  msg[23] = 't';
-  msg[24] = ':';
-  msg[25] = ' ';
-  msg[26] = '\0';
+  BuildSelectionPrompt(msg, sizeof(msg), file_count, "\r\nPlease select a file");
   Serial_PutString((uint8_t *)msg);
 
   __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -1329,34 +1239,7 @@ static void DecryptAESFile(void)
     return;
   }
 
-  Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt (1-");
-  msg[0] = '0' + aes_file_count;
-  msg[1] = ')';
-  msg[2] = ' ';
-  msg[3] = 'o';
-  msg[4] = 'r';
-  msg[5] = ' ';
-  msg[6] = 'p';
-  msg[7] = 'r';
-  msg[8] = 'e';
-  msg[9] = 's';
-  msg[10] = 's';
-  msg[11] = ' ';
-  msg[12] = '\'';
-  msg[13] = 'a';
-  msg[14] = '\'';
-  msg[15] = ' ';
-  msg[16] = 't';
-  msg[17] = 'o';
-  msg[18] = ' ';
-  msg[19] = 'a';
-  msg[20] = 'b';
-  msg[21] = 'o';
-  msg[22] = 'r';
-  msg[23] = 't';
-  msg[24] = ':';
-  msg[25] = ' ';
-  msg[26] = '\0';
+  BuildSelectionPrompt(msg, sizeof(msg), aes_file_count, "\r\nPlease select a file to decrypt");
   Serial_PutString((uint8_t *)msg);
 
   __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -1526,34 +1409,7 @@ static void DecryptAndDownloadMenu(void)
       return;
     }
 
-    Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt and download (1-");
-    msg[0] = '0' + aes_file_count;
-    msg[1] = ')';
-    msg[2] = ' ';
-    msg[3] = 'o';
-    msg[4] = 'r';
-    msg[5] = ' ';
-    msg[6] = 'p';
-    msg[7] = 'r';
-    msg[8] = 'e';
-    msg[9] = 's';
-    msg[10] = 's';
-    msg[11] = ' ';
-    msg[12] = '\'';
-    msg[13] = 'a';
-    msg[14] = '\'';
-    msg[15] = ' ';
-    msg[16] = 't';
-    msg[17] = 'o';
-    msg[18] = ' ';
-    msg[19] = 'a';
-    msg[20] = 'b';
-    msg[21] = 'o';
-    msg[22] = 'r';
-    msg[23] = 't';
-    msg[24] = ':';
-    msg[25] = ' ';
-    msg[26] = '\0';
+    BuildSelectionPrompt(msg, sizeof(msg), aes_file_count, "\r\nPlease select a file to decrypt and download");
     Serial_PutString((uint8_t *)msg);
 
     __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
@@ -1673,34 +1529,7 @@ static void DecryptAndDownloadMenu(void)
       return;
     }
 
-    Serial_PutString((uint8_t *)"\r\nPlease select a file to decrypt and download (1-");
-    msg[0] = '0' + lfs_aes_file_count;
-    msg[1] = ')';
-    msg[2] = ' ';
-    msg[3] = 'o';
-    msg[4] = 'r';
-    msg[5] = ' ';
-    msg[6] = 'p';
-    msg[7] = 'r';
-    msg[8] = 'e';
-    msg[9] = 's';
-    msg[10] = 's';
-    msg[11] = ' ';
-    msg[12] = '\'';
-    msg[13] = 'a';
-    msg[14] = '\'';
-    msg[15] = ' ';
-    msg[16] = 't';
-    msg[17] = 'o';
-    msg[18] = ' ';
-    msg[19] = 'a';
-    msg[20] = 'b';
-    msg[21] = 'o';
-    msg[22] = 'r';
-    msg[23] = 't';
-    msg[24] = ':';
-    msg[25] = ' ';
-    msg[26] = '\0';
+    BuildSelectionPrompt(msg, sizeof(msg), lfs_aes_file_count, "\r\nPlease select a file to decrypt and download");
     Serial_PutString((uint8_t *)msg);
 
     __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
