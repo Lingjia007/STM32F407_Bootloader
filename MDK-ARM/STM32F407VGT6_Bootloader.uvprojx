@@ -340,7 +340,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../LED;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bootloader_Core;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../IAP;..\Middlewares\Third_Party\LittleFs;..\utils</IncludePath>
+              <IncludePath>../Core/Inc;../LED;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bootloader_Core;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../IAP;..\Middlewares\Third_Party\LittleFs;..\Utils</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -3820,22 +3820,32 @@
           </Files>
         </Group>
         <Group>
-          <GroupName>utils</GroupName>
+          <GroupName>Utils</GroupName>
           <Files>
             <File>
               <FileName>aes.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\utils\aes.c</FilePath>
+              <FilePath>..\Utils\aes.c</FilePath>
             </File>
             <File>
               <FileName>aes_decrypt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\utils\aes_decrypt.c</FilePath>
+              <FilePath>..\Utils\aes_decrypt.c</FilePath>
+            </File>
+            <File>
+              <FileName>bsdiff.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Utils\bsdiff.c</FilePath>
+            </File>
+            <File>
+              <FileName>bspatch.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Utils\bspatch.c</FilePath>
             </File>
             <File>
               <FileName>hkdf.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\utils\hkdf.c</FilePath>
+              <FilePath>..\Utils\hkdf.c</FilePath>
             </File>
           </Files>
         </Group>

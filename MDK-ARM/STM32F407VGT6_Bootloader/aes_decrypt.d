@@ -1,5 +1,5 @@
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\utils\aes_decrypt.c
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\utils\aes_decrypt.h
+stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes_decrypt.c
+stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes_decrypt.h
 stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
 stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/FatFs/src/ff.h
 stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/FatFs/src/integer.h
@@ -53,5 +53,5 @@ stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\.
 stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
 stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
 stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\utils\aes.h
+stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes.h
 stm32f407vgt6_bootloader\aes_decrypt.o: ../IAP/flash_if.h

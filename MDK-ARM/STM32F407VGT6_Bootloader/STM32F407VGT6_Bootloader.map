@@ -2486,6 +2486,19 @@ Section Cross References
     aes_decrypt.o(i.aes_decrypt_to_flash_lfs) refers to aes.o(i.AES_CBC_decrypt_buffer) for AES_CBC_decrypt_buffer
     aes_decrypt.o(i.aes_decrypt_to_flash_lfs) refers to stm32f4xx_hal_flash.o(i.HAL_FLASH_Program) for HAL_FLASH_Program
     aes_decrypt.o(i.aes_decrypt_to_flash_lfs) refers to aes_decrypt.o(.bss) for .bss
+    bsdiff.o(i.bsdiff) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    bsdiff.o(i.bsdiff) refers to bsdiff.o(i.bsdiff_internal) for bsdiff_internal
+    bsdiff.o(i.bsdiff_internal) refers to bsdiff.o(i.qsufsort) for qsufsort
+    bsdiff.o(i.bsdiff_internal) refers to bsdiff.o(i.search) for search
+    bsdiff.o(i.bsdiff_internal) refers to bsdiff.o(i.offtout) for offtout
+    bsdiff.o(i.bsdiff_internal) refers to bsdiff.o(i.writedata) for writedata
+    bsdiff.o(i.offtout) refers to llsdiv.o(.text) for __aeabi_ldivmod
+    bsdiff.o(i.qsufsort) refers to bsdiff.o(i.split) for split
+    bsdiff.o(i.search) refers to bsdiff.o(i.matchlen) for matchlen
+    bsdiff.o(i.search) refers to llsdiv.o(.text) for __aeabi_ldivmod
+    bsdiff.o(i.search) refers to memcmp.o(.text) for memcmp
+    bsdiff.o(i.split) refers to llsdiv.o(.text) for __aeabi_ldivmod
+    bspatch.o(i.bspatch) refers to bspatch.o(i.offtin) for offtin
     hkdf.o(i.hkdf) refers to hkdf.o(i.hkdf_extract) for hkdf_extract
     hkdf.o(i.hkdf) refers to hkdf.o(i.hkdf_expand) for hkdf_expand
     hkdf.o(i.hkdf) refers to hkdf.o(i.secure_zero) for secure_zero
@@ -2572,6 +2585,7 @@ Section Cross References
     heap2mt.o(i._realloc$realtime$concurrent) refers to h1_alloc.o(.text) for malloc
     heap2mt.o(i._realloc$realtime$concurrent) refers to fdtree.o(i._FDTree_Delete) for _FDTree_Delete
     heap2mt.o(i._realloc$realtime$concurrent) refers to rt_memcpy_w.o(.text) for __aeabi_memcpy4
+    llsdiv.o(.text) refers to lludivv7m.o(.text) for __aeabi_uldivmod
     __2printf.o(.text) refers to _printf_char_file.o(.text) for _printf_char_file
     __2printf.o(.text) refers to usart.o(.data) for __stdout
     __2snprintf.o(.text) refers to _printf_char_common.o(.text) for _printf_char_common
@@ -3526,6 +3540,16 @@ Removing Unused input sections from the image.
     Removing aes_decrypt.o(.rrx_text), (6 bytes).
     Removing aes_decrypt.o(i.aes_decrypt_buffer), (98 bytes).
     Removing aes_decrypt.o(i.aes_decrypt_file_lfs), (384 bytes).
+    Removing bsdiff.o(i.bsdiff), (120 bytes).
+    Removing bsdiff.o(i.bsdiff_internal), (1236 bytes).
+    Removing bsdiff.o(i.matchlen), (52 bytes).
+    Removing bsdiff.o(i.offtout), (270 bytes).
+    Removing bsdiff.o(i.qsufsort), (630 bytes).
+    Removing bsdiff.o(i.search), (272 bytes).
+    Removing bsdiff.o(i.split), (930 bytes).
+    Removing bsdiff.o(i.writedata), (102 bytes).
+    Removing bspatch.o(i.bspatch), (334 bytes).
+    Removing bspatch.o(i.offtin), (136 bytes).
     Removing hkdf.o(i.hkdf), (52 bytes).
     Removing hkdf.o(i.hkdf_expand), (150 bytes).
     Removing hkdf.o(i.hkdf_extract), (52 bytes).
@@ -3537,7 +3561,7 @@ Removing Unused input sections from the image.
     Removing hkdf.o(i.sha256_update), (78 bytes).
     Removing hkdf.o(.constdata), (256 bytes).
 
-763 unused section(s) (total 50136 bytes) removed from the image.
+773 unused section(s) (total 54218 bytes) removed from the image.
 
 ==============================================================================
 
@@ -3603,75 +3627,76 @@ Image Symbol Table
     ../USB_DEVICE/App/usbd_desc.c            0x00000000   Number         0  usbd_desc.o ABSOLUTE
     ../USB_DEVICE/App/usbd_storage_if.c      0x00000000   Number         0  usbd_storage_if.o ABSOLUTE
     ../USB_DEVICE/Target/usbd_conf.c         0x00000000   Number         0  usbd_conf.o ABSOLUTE
-    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardshut.o ABSOLUTE
-    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit3.o ABSOLUTE
     ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit2.o ABSOLUTE
     ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit1.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardinit3.o ABSOLUTE
+    ../clib/angel/boardlib.s                 0x00000000   Number         0  boardshut.o ABSOLUTE
     ../clib/angel/dczerorl2.s                0x00000000   Number         0  __dczerorl2.o ABSOLUTE
     ../clib/angel/handlers.s                 0x00000000   Number         0  __scatter_zi.o ABSOLUTE
-    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit.o ABSOLUTE
+    ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry4.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  __rtentry2.o ABSOLUTE
     ../clib/angel/kernel.s                   0x00000000   Number         0  rtexit2.o ABSOLUTE
-    ../clib/angel/rt.s                       0x00000000   Number         0  aeabi_ldiv0.o ABSOLUTE
+    ../clib/angel/rt.s                       0x00000000   Number         0  rt_div0.o ABSOLUTE
+    ../clib/angel/rt.s                       0x00000000   Number         0  rt_raise.o ABSOLUTE
     ../clib/angel/rt.s                       0x00000000   Number         0  rt_heap_descriptor_intlibspace.o ABSOLUTE
     ../clib/angel/rt.s                       0x00000000   Number         0  rt_heap_descriptor.o ABSOLUTE
     ../clib/angel/rt.s                       0x00000000   Number         0  aeabi_ldiv0_sigfpe.o ABSOLUTE
-    ../clib/angel/rt.s                       0x00000000   Number         0  rt_raise.o ABSOLUTE
-    ../clib/angel/rt.s                       0x00000000   Number         0  rt_div0.o ABSOLUTE
+    ../clib/angel/rt.s                       0x00000000   Number         0  aeabi_ldiv0.o ABSOLUTE
     ../clib/angel/scatter.s                  0x00000000   Number         0  __scatter.o ABSOLUTE
     ../clib/angel/startup.s                  0x00000000   Number         0  __main.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  use_no_semi.o ABSOLUTE
     ../clib/angel/sys.s                      0x00000000   Number         0  indicate_semi.o ABSOLUTE
+    ../clib/angel/sys.s                      0x00000000   Number         0  sys_stackheap_outer.o ABSOLUTE
     ../clib/angel/sys.s                      0x00000000   Number         0  libspace.o ABSOLUTE
     ../clib/angel/sys.s                      0x00000000   Number         0  mutex_dummy.o ABSOLUTE
-    ../clib/angel/sys.s                      0x00000000   Number         0  use_no_semi.o ABSOLUTE
-    ../clib/angel/sys.s                      0x00000000   Number         0  sys_stackheap_outer.o ABSOLUTE
     ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_wrch.o ABSOLUTE
     ../clib/angel/sysapp.c                   0x00000000   Number         0  sys_command.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
+    ../clib/armsys.c                         0x00000000   Number         0  _get_argv_nomalloc.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  no_argv.o ABSOLUTE
     ../clib/armsys.c                         0x00000000   Number         0  _get_argv.o ABSOLUTE
-    ../clib/armsys.c                         0x00000000   Number         0  _get_argv_nomalloc.o ABSOLUTE
-    ../clib/armsys.c                         0x00000000   Number         0  argv_veneer.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_alloc_mt.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_final.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_final_mt.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_free_mt.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_init_mt.o ABSOLUTE
     ../clib/heap1.c                          0x00000000   Number         0  h1_init.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_alloc.o ABSOLUTE
-    ../clib/heap1.c                          0x00000000   Number         0  h1_extend_mt.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_final_mt.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_final.o ABSOLUTE
     ../clib/heap1.c                          0x00000000   Number         0  h1_extend.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_init_mt.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_extend_mt.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_alloc.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_alloc_mt.o ABSOLUTE
     ../clib/heap1.c                          0x00000000   Number         0  h1_free.o ABSOLUTE
+    ../clib/heap1.c                          0x00000000   Number         0  h1_free_mt.o ABSOLUTE
     ../clib/heap2.c                          0x00000000   Number         0  heap2.o ABSOLUTE
-    ../clib/heap2.c                          0x00000000   Number         0  heap2mt.o ABSOLUTE
     ../clib/heap2.c                          0x00000000   Number         0  fdtree.o ABSOLUTE
+    ../clib/heap2.c                          0x00000000   Number         0  heap2mt.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc1.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  hrguard.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc1.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  term_alloc.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc2.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  malloc.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  heapstubs.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  init_alloc.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  hguard.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  free.o ABSOLUTE
     ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc2.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc2.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc1.o ABSOLUTE
-    ../clib/heapalloc.c                      0x00000000   Number         0  maybetermalloc1.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  init_alloc.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  heapstubs.o ABSOLUTE
+    ../clib/heapalloc.c                      0x00000000   Number         0  hguard.o ABSOLUTE
     ../clib/heapaux.c                        0x00000000   Number         0  heapauxa.o ABSOLUTE
     ../clib/heapaux.c                        0x00000000   Number         0  heapauxi.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libinit.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libshutdown2.o ABSOLUTE
-    ../clib/libinit.s                        0x00000000   Number         0  libshutdown.o ABSOLUTE
     ../clib/libinit.s                        0x00000000   Number         0  libinit2.o ABSOLUTE
+    ../clib/libinit.s                        0x00000000   Number         0  libshutdown.o ABSOLUTE
     ../clib/longlong.s                       0x00000000   Number         0  lludivv7m.o ABSOLUTE
+    ../clib/longlong.s                       0x00000000   Number         0  llsdiv.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  strncpy.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  strcmpv7m.o ABSOLUTE
+    ../clib/memcpset.s                       0x00000000   Number         0  rt_memclr_w.o ABSOLUTE
     ../clib/memcpset.s                       0x00000000   Number         0  rt_memclr.o ABSOLUTE
     ../clib/memcpset.s                       0x00000000   Number         0  aeabi_memset.o ABSOLUTE
     ../clib/memcpset.s                       0x00000000   Number         0  rt_memcpy_w.o ABSOLUTE
-    ../clib/memcpset.s                       0x00000000   Number         0  strcmpv7m.o ABSOLUTE
     ../clib/memcpset.s                       0x00000000   Number         0  rt_memcpy_v6.o ABSOLUTE
-    ../clib/memcpset.s                       0x00000000   Number         0  strncpy.o ABSOLUTE
-    ../clib/memcpset.s                       0x00000000   Number         0  rt_memclr_w.o ABSOLUTE
     ../clib/misc.s                           0x00000000   Number         0  printf_stubs.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_pad.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  __printf.o ABSOLUTE
@@ -3681,11 +3706,12 @@ Image Symbol Table
     ../clib/printf.c                         0x00000000   Number         0  __2printf.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  __printf_nopercent.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_char_file.o ABSOLUTE
+    ../clib/printf.c                         0x00000000   Number         0  _printf_char.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _snputc.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _sputc.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_char_common.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_intcommon.o ABSOLUTE
-    ../clib/printf.c                         0x00000000   Number         0  _printf_char.o ABSOLUTE
+    ../clib/printf.c                         0x00000000   Number         0  _printf_hex_int_ll.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  __printf_flags_ss_wp.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  __printf_ss_wp.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  __printf_flags_wp.o ABSOLUTE
@@ -3697,47 +3723,46 @@ Image Symbol Table
     ../clib/printf.c                         0x00000000   Number         0  _printf_hex_ll_ptr.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_hex_int_ptr.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_hex_ptr.o ABSOLUTE
-    ../clib/printf.c                         0x00000000   Number         0  _printf_hex_int_ll.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_hex_int.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_hex_ll.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_dec.o ABSOLUTE
     ../clib/printf.c                         0x00000000   Number         0  _printf_str.o ABSOLUTE
-    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_x.o ABSOLUTE
-    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_s.o ABSOLUTE
-    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_percent.o ABSOLUTE
-    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_u.o ABSOLUTE
     ../clib/printf_percent.s                 0x00000000   Number         0  _printf_d.o ABSOLUTE
     ../clib/printf_percent.s                 0x00000000   Number         0  _printf_percent_end.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_other.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_segv_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_cppl_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_inner.o ABSOLUTE
+    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_s.o ABSOLUTE
+    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_x.o ABSOLUTE
+    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_percent.o ABSOLUTE
+    ../clib/printf_percent.s                 0x00000000   Number         0  _printf_u.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_formal.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_exit.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  __raise.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_formal.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_general.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_exit.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_outer.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  __raise.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_outer.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_formal.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_formal.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_outer.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_pvfn_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_stak_inner.o ABSOLUTE
     ../clib/signal.c                         0x00000000   Number         0  defsig_rtred_inner.o ABSOLUTE
-    ../clib/signal.c                         0x00000000   Number         0  defsig_fpe_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_stak_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_pvfn_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_other.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_cppl_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_segv_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_inner.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_outer.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_rtmem_outer.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_formal.o ABSOLUTE
+    ../clib/signal.c                         0x00000000   Number         0  defsig_abrt_inner.o ABSOLUTE
     ../clib/signal.s                         0x00000000   Number         0  defsig.o ABSOLUTE
-    ../clib/stdio.c                          0x00000000   Number         0  ferror.o ABSOLUTE
     ../clib/stdio.c                          0x00000000   Number         0  ferror_locked.o ABSOLUTE
-    ../clib/stdlib.c                         0x00000000   Number         0  abort.o ABSOLUTE
+    ../clib/stdio.c                          0x00000000   Number         0  ferror.o ABSOLUTE
     ../clib/stdlib.c                         0x00000000   Number         0  exit.o ABSOLUTE
-    ../clib/string.c                         0x00000000   Number         0  strlen.o ABSOLUTE
-    ../clib/string.c                         0x00000000   Number         0  strcpy.o ABSOLUTE
+    ../clib/stdlib.c                         0x00000000   Number         0  abort.o ABSOLUTE
     ../clib/string.c                         0x00000000   Number         0  strstr.o ABSOLUTE
+    ../clib/string.c                         0x00000000   Number         0  strcpy.o ABSOLUTE
+    ../clib/string.c                         0x00000000   Number         0  strlen.o ABSOLUTE
     ../clib/string.c                         0x00000000   Number         0  strcat.o ABSOLUTE
-    ../clib/string.c                         0x00000000   Number         0  strspn.o ABSOLUTE
-    ../clib/string.c                         0x00000000   Number         0  strcspn.o ABSOLUTE
     ../clib/string.c                         0x00000000   Number         0  strchr.o ABSOLUTE
+    ../clib/string.c                         0x00000000   Number         0  strcspn.o ABSOLUTE
+    ../clib/string.c                         0x00000000   Number         0  strspn.o ABSOLUTE
     ../clib/string.c                         0x00000000   Number         0  memcmp.o ABSOLUTE
     ../fplib/fpinit.s                        0x00000000   Number         0  fpinit.o ABSOLUTE
     ..\Bootloader_Core\bootloader_core.c     0x00000000   Number         0  bootloader_core.o ABSOLUTE
@@ -3806,6 +3831,11 @@ Image Symbol Table
     ..\USB_DEVICE\App\usbd_desc.c            0x00000000   Number         0  usbd_desc.o ABSOLUTE
     ..\USB_DEVICE\App\usbd_storage_if.c      0x00000000   Number         0  usbd_storage_if.o ABSOLUTE
     ..\USB_DEVICE\Target\usbd_conf.c         0x00000000   Number         0  usbd_conf.o ABSOLUTE
+    ..\Utils\aes.c                           0x00000000   Number         0  aes.o ABSOLUTE
+    ..\Utils\aes_decrypt.c                   0x00000000   Number         0  aes_decrypt.o ABSOLUTE
+    ..\Utils\bsdiff.c                        0x00000000   Number         0  bsdiff.o ABSOLUTE
+    ..\Utils\bspatch.c                       0x00000000   Number         0  bspatch.o ABSOLUTE
+    ..\Utils\hkdf.c                          0x00000000   Number         0  hkdf.o ABSOLUTE
     ..\\Bootloader_Core\\bootloader_core.c   0x00000000   Number         0  bootloader_core.o ABSOLUTE
     ..\\IAP\\common.c                        0x00000000   Number         0  common.o ABSOLUTE
     ..\\IAP\\flash_if.c                      0x00000000   Number         0  flash_if.o ABSOLUTE
@@ -3814,10 +3844,7 @@ Image Symbol Table
     ..\\LED\\led.c                           0x00000000   Number         0  led.o ABSOLUTE
     ..\\Middlewares\\Third_Party\\LittleFs\\lfs_spi_flash_adapter.c 0x00000000   Number         0  lfs_spi_flash_adapter.o ABSOLUTE
     ..\\Middlewares\\Third_Party\\LittleFs\\w25q128.c 0x00000000   Number         0  w25q128.o ABSOLUTE
-    ..\\utils\\aes_decrypt.c                 0x00000000   Number         0  aes_decrypt.o ABSOLUTE
-    ..\utils\aes.c                           0x00000000   Number         0  aes.o ABSOLUTE
-    ..\utils\aes_decrypt.c                   0x00000000   Number         0  aes_decrypt.o ABSOLUTE
-    ..\utils\hkdf.c                          0x00000000   Number         0  hkdf.o ABSOLUTE
+    ..\\Utils\\aes_decrypt.c                 0x00000000   Number         0  aes_decrypt.o ABSOLUTE
     dc.s                                     0x00000000   Number         0  dc.o ABSOLUTE
     startup_stm32f407xx.s                    0x00000000   Number         0  startup_stm32f407xx.o ABSOLUTE
     RESET                                    0x08000000   Section      392  startup_stm32f407xx.o(RESET)
@@ -3923,8 +3950,8 @@ Image Symbol Table
     .text                                    0x08000df0   Section        0  defsig_abrt_inner.o(.text)
     .text                                    0x08000e20   Section        0  defsig_rtmem_outer.o(.text)
     .text                                    0x08000e2e   Section        2  use_no_semi.o(.text)
-    .text                                    0x08000e30   Section        0  indicate_semi.o(.text)
     .text                                    0x08000e30   Section       74  sys_stackheap_outer.o(.text)
+    .text                                    0x08000e30   Section        0  indicate_semi.o(.text)
     .text                                    0x08000e7a   Section        0  exit.o(.text)
     .text                                    0x08000e8c   Section        0  defsig_general.o(.text)
     .text                                    0x08000ec0   Section        0  defsig_rtmem_inner.o(.text)
@@ -4490,328 +4517,328 @@ Image Symbol Table
     i.internal_flash_tgt_open                0x0800e4dc   Section        0  bootloader_core.o(i.internal_flash_tgt_open)
     i.internal_flash_tgt_write               0x0800e550   Section        0  bootloader_core.o(i.internal_flash_tgt_write)
     i.jump_to_app                            0x0800e5c8   Section        0  bootloader_core.o(i.jump_to_app)
-    i.ld_clust                               0x0800e610   Section        0  ff.o(i.ld_clust)
-    ld_clust                                 0x0800e611   Thumb Code    38  ff.o(i.ld_clust)
-    i.ld_dword                               0x0800e636   Section        0  ff.o(i.ld_dword)
-    ld_dword                                 0x0800e637   Thumb Code    22  ff.o(i.ld_dword)
-    i.ld_word                                0x0800e64c   Section        0  ff.o(i.ld_word)
-    ld_word                                  0x0800e64d   Thumb Code    10  ff.o(i.ld_word)
-    i.led_control_task                       0x0800e658   Section        0  led.o(i.led_control_task)
-    i.lfs_aligndown                          0x0800e694   Section        0  lfs.o(i.lfs_aligndown)
-    lfs_aligndown                            0x0800e695   Thumb Code    12  lfs.o(i.lfs_aligndown)
-    i.lfs_alignup                            0x0800e6a0   Section        0  lfs.o(i.lfs_alignup)
-    lfs_alignup                              0x0800e6a1   Thumb Code    18  lfs.o(i.lfs_alignup)
-    i.lfs_alloc                              0x0800e6b4   Section        0  lfs.o(i.lfs_alloc)
-    lfs_alloc                                0x0800e6b5   Thumb Code   162  lfs.o(i.lfs_alloc)
-    i.lfs_alloc_drop                         0x0800e7b0   Section        0  lfs.o(i.lfs_alloc_drop)
-    lfs_alloc_drop                           0x0800e7b1   Thumb Code    12  lfs.o(i.lfs_alloc_drop)
-    i.lfs_alloc_lookahead                    0x0800e7bc   Section        0  lfs.o(i.lfs_alloc_lookahead)
-    lfs_alloc_lookahead                      0x0800e7bd   Thumb Code    46  lfs.o(i.lfs_alloc_lookahead)
-    i.lfs_alloc_scan                         0x0800e7ec   Section        0  lfs.o(i.lfs_alloc_scan)
-    lfs_alloc_scan                           0x0800e7ed   Thumb Code    80  lfs.o(i.lfs_alloc_scan)
-    i.lfs_bd_cmp                             0x0800e840   Section        0  lfs.o(i.lfs_bd_cmp)
-    lfs_bd_cmp                               0x0800e841   Thumb Code   102  lfs.o(i.lfs_bd_cmp)
-    i.lfs_bd_crc                             0x0800e8a6   Section        0  lfs.o(i.lfs_bd_crc)
-    lfs_bd_crc                               0x0800e8a7   Thumb Code    90  lfs.o(i.lfs_bd_crc)
-    i.lfs_bd_erase                           0x0800e900   Section        0  lfs.o(i.lfs_bd_erase)
-    lfs_bd_erase                             0x0800e901   Thumb Code    24  lfs.o(i.lfs_bd_erase)
-    i.lfs_bd_flush                           0x0800e918   Section        0  lfs.o(i.lfs_bd_flush)
-    lfs_bd_flush                             0x0800e919   Thumb Code   132  lfs.o(i.lfs_bd_flush)
-    i.lfs_bd_prog                            0x0800e99c   Section        0  lfs.o(i.lfs_bd_prog)
-    lfs_bd_prog                              0x0800e99d   Thumb Code   178  lfs.o(i.lfs_bd_prog)
-    i.lfs_bd_read                            0x0800ea4e   Section        0  lfs.o(i.lfs_bd_read)
-    lfs_bd_read                              0x0800ea4f   Thumb Code   320  lfs.o(i.lfs_bd_read)
-    i.lfs_bd_sync                            0x0800eb8e   Section        0  lfs.o(i.lfs_bd_sync)
-    lfs_bd_sync                              0x0800eb8f   Thumb Code    36  lfs.o(i.lfs_bd_sync)
-    i.lfs_cache_zero                         0x0800ebb2   Section        0  lfs.o(i.lfs_cache_zero)
-    lfs_cache_zero                           0x0800ebb3   Thumb Code    24  lfs.o(i.lfs_cache_zero)
-    i.lfs_crc                                0x0800ebcc   Section        0  lfs_util.o(i.lfs_crc)
-    i.lfs_ctz                                0x0800ec04   Section        0  lfs.o(i.lfs_ctz)
-    lfs_ctz                                  0x0800ec05   Thumb Code    14  lfs.o(i.lfs_ctz)
-    i.lfs_ctz_extend                         0x0800ec14   Section        0  lfs.o(i.lfs_ctz_extend)
-    lfs_ctz_extend                           0x0800ec15   Thumb Code   326  lfs.o(i.lfs_ctz_extend)
-    i.lfs_ctz_find                           0x0800edb0   Section        0  lfs.o(i.lfs_ctz_find)
-    lfs_ctz_find                             0x0800edb1   Thumb Code   148  lfs.o(i.lfs_ctz_find)
-    i.lfs_ctz_fromle32                       0x0800ee44   Section        0  lfs.o(i.lfs_ctz_fromle32)
-    lfs_ctz_fromle32                         0x0800ee45   Thumb Code    22  lfs.o(i.lfs_ctz_fromle32)
-    i.lfs_ctz_index                          0x0800ee5a   Section        0  lfs.o(i.lfs_ctz_index)
-    lfs_ctz_index                            0x0800ee5b   Thumb Code    64  lfs.o(i.lfs_ctz_index)
-    i.lfs_ctz_traverse                       0x0800ee9c   Section        0  lfs.o(i.lfs_ctz_traverse)
-    lfs_ctz_traverse                         0x0800ee9d   Thumb Code   156  lfs.o(i.lfs_ctz_traverse)
-    i.lfs_deinit                             0x0800ef38   Section        0  lfs.o(i.lfs_deinit)
-    lfs_deinit                               0x0800ef39   Thumb Code    44  lfs.o(i.lfs_deinit)
-    i.lfs_dir_alloc                          0x0800ef64   Section        0  lfs.o(i.lfs_dir_alloc)
-    lfs_dir_alloc                            0x0800ef65   Thumb Code   148  lfs.o(i.lfs_dir_alloc)
-    i.lfs_dir_close                          0x0800eff8   Section        0  lfs.o(i.lfs_dir_close)
-    i.lfs_dir_commit                         0x0800f002   Section        0  lfs.o(i.lfs_dir_commit)
-    lfs_dir_commit                           0x0800f003   Thumb Code    32  lfs.o(i.lfs_dir_commit)
-    i.lfs_dir_commit_commit                  0x0800f022   Section        0  lfs.o(i.lfs_dir_commit_commit)
-    lfs_dir_commit_commit                    0x0800f023   Thumb Code    16  lfs.o(i.lfs_dir_commit_commit)
-    i.lfs_dir_commit_size                    0x0800f032   Section        0  lfs.o(i.lfs_dir_commit_size)
-    lfs_dir_commit_size                      0x0800f033   Thumb Code    20  lfs.o(i.lfs_dir_commit_size)
-    i.lfs_dir_commitattr                     0x0800f046   Section        0  lfs.o(i.lfs_dir_commitattr)
-    lfs_dir_commitattr                       0x0800f047   Thumb Code   170  lfs.o(i.lfs_dir_commitattr)
-    i.lfs_dir_commitcrc                      0x0800f0f0   Section        0  lfs.o(i.lfs_dir_commitcrc)
-    lfs_dir_commitcrc                        0x0800f0f1   Thumb Code   470  lfs.o(i.lfs_dir_commitcrc)
-    i.lfs_dir_commitprog                     0x0800f2d4   Section        0  lfs.o(i.lfs_dir_commitprog)
-    lfs_dir_commitprog                       0x0800f2d5   Thumb Code    58  lfs.o(i.lfs_dir_commitprog)
-    i.lfs_dir_compact                        0x0800f310   Section        0  lfs.o(i.lfs_dir_compact)
-    lfs_dir_compact                          0x0800f311   Thumb Code   542  lfs.o(i.lfs_dir_compact)
-    i.lfs_dir_drop                           0x0800f5d0   Section        0  lfs.o(i.lfs_dir_drop)
-    lfs_dir_drop                             0x0800f5d1   Thumb Code    76  lfs.o(i.lfs_dir_drop)
-    i.lfs_dir_fetch                          0x0800f620   Section        0  lfs.o(i.lfs_dir_fetch)
-    lfs_dir_fetch                            0x0800f621   Thumb Code    22  lfs.o(i.lfs_dir_fetch)
-    i.lfs_dir_fetchmatch                     0x0800f638   Section        0  lfs.o(i.lfs_dir_fetchmatch)
-    lfs_dir_fetchmatch                       0x0800f639   Thumb Code  1088  lfs.o(i.lfs_dir_fetchmatch)
-    i.lfs_dir_find                           0x0800faec   Section        0  lfs.o(i.lfs_dir_find)
-    lfs_dir_find                             0x0800faed   Thumb Code   336  lfs.o(i.lfs_dir_find)
-    i.lfs_dir_find_match                     0x0800fc58   Section        0  lfs.o(i.lfs_dir_find_match)
-    lfs_dir_find_match                       0x0800fc59   Thumb Code    82  lfs.o(i.lfs_dir_find_match)
-    i.lfs_dir_get                            0x0800fcaa   Section        0  lfs.o(i.lfs_dir_get)
-    lfs_dir_get                              0x0800fcab   Thumb Code    20  lfs.o(i.lfs_dir_get)
-    i.lfs_dir_getgstate                      0x0800fcc0   Section        0  lfs.o(i.lfs_dir_getgstate)
-    lfs_dir_getgstate                        0x0800fcc1   Thumb Code    70  lfs.o(i.lfs_dir_getgstate)
-    i.lfs_dir_getinfo                        0x0800fd0c   Section        0  lfs.o(i.lfs_dir_getinfo)
-    lfs_dir_getinfo                          0x0800fd0d   Thumb Code   126  lfs.o(i.lfs_dir_getinfo)
-    i.lfs_dir_getread                        0x0800fd9c   Section        0  lfs.o(i.lfs_dir_getread)
-    lfs_dir_getread                          0x0800fd9d   Thumb Code   226  lfs.o(i.lfs_dir_getread)
-    i.lfs_dir_getslice                       0x0800fe80   Section        0  lfs.o(i.lfs_dir_getslice)
-    lfs_dir_getslice                         0x0800fe81   Thumb Code   290  lfs.o(i.lfs_dir_getslice)
-    i.lfs_dir_needsrelocation                0x0800ffb0   Section        0  lfs.o(i.lfs_dir_needsrelocation)
-    lfs_dir_needsrelocation                  0x0800ffb1   Thumb Code    36  lfs.o(i.lfs_dir_needsrelocation)
-    i.lfs_dir_open                           0x0800ffd4   Section        0  lfs.o(i.lfs_dir_open)
-    i.lfs_dir_open_                          0x0800fff8   Section        0  lfs.o(i.lfs_dir_open_)
-    lfs_dir_open_                            0x0800fff9   Thumb Code   134  lfs.o(i.lfs_dir_open_)
-    i.lfs_dir_orphaningcommit                0x08010088   Section        0  lfs.o(i.lfs_dir_orphaningcommit)
-    lfs_dir_orphaningcommit                  0x08010089   Thumb Code   848  lfs.o(i.lfs_dir_orphaningcommit)
-    i.lfs_dir_read                           0x08010488   Section        0  lfs.o(i.lfs_dir_read)
-    i.lfs_dir_read_                          0x0801048c   Section        0  lfs.o(i.lfs_dir_read_)
-    lfs_dir_read_                            0x0801048d   Thumb Code   130  lfs.o(i.lfs_dir_read_)
-    i.lfs_dir_relocatingcommit               0x08010518   Section        0  lfs.o(i.lfs_dir_relocatingcommit)
-    lfs_dir_relocatingcommit                 0x08010519   Thumb Code   738  lfs.o(i.lfs_dir_relocatingcommit)
-    i.lfs_dir_split                          0x08010808   Section        0  lfs.o(i.lfs_dir_split)
-    lfs_dir_split                            0x08010809   Thumb Code   112  lfs.o(i.lfs_dir_split)
-    i.lfs_dir_splittingcompact               0x08010878   Section        0  lfs.o(i.lfs_dir_splittingcompact)
-    lfs_dir_splittingcompact                 0x08010879   Thumb Code   346  lfs.o(i.lfs_dir_splittingcompact)
-    i.lfs_dir_traverse                       0x08010a98   Section        0  lfs.o(i.lfs_dir_traverse)
-    lfs_dir_traverse                         0x08010a99   Thumb Code   644  lfs.o(i.lfs_dir_traverse)
-    i.lfs_dir_traverse_filter                0x08010d2c   Section        0  lfs.o(i.lfs_dir_traverse_filter)
-    lfs_dir_traverse_filter                  0x08010d2d   Thumb Code   102  lfs.o(i.lfs_dir_traverse_filter)
-    i.lfs_file_close                         0x08010da4   Section        0  lfs.o(i.lfs_file_close)
-    i.lfs_file_close_                        0x08010dc2   Section        0  lfs.o(i.lfs_file_close_)
-    lfs_file_close_                          0x08010dc3   Thumb Code    36  lfs.o(i.lfs_file_close_)
-    i.lfs_file_flush                         0x08010de8   Section        0  lfs.o(i.lfs_file_flush)
-    lfs_file_flush                           0x08010de9   Thumb Code   230  lfs.o(i.lfs_file_flush)
-    i.lfs_file_flushedread                   0x08010f28   Section        0  lfs.o(i.lfs_file_flushedread)
-    lfs_file_flushedread                     0x08010f29   Thumb Code   226  lfs.o(i.lfs_file_flushedread)
-    i.lfs_file_flushedwrite                  0x08011014   Section        0  lfs.o(i.lfs_file_flushedwrite)
-    lfs_file_flushedwrite                    0x08011015   Thumb Code   294  lfs.o(i.lfs_file_flushedwrite)
-    i.lfs_file_open                          0x0801113c   Section        0  lfs.o(i.lfs_file_open)
-    i.lfs_file_opencfg_                      0x08011168   Section        0  lfs.o(i.lfs_file_opencfg_)
-    lfs_file_opencfg_                        0x08011169   Thumb Code   564  lfs.o(i.lfs_file_opencfg_)
-    i.lfs_file_outline                       0x080113b0   Section        0  lfs.o(i.lfs_file_outline)
-    lfs_file_outline                         0x080113b1   Thumb Code    34  lfs.o(i.lfs_file_outline)
-    i.lfs_file_read                          0x080113d2   Section        0  lfs.o(i.lfs_file_read)
-    i.lfs_file_relocate                      0x08011414   Section        0  lfs.o(i.lfs_file_relocate)
-    lfs_file_relocate                        0x08011415   Thumb Code   228  lfs.o(i.lfs_file_relocate)
-    i.lfs_file_seek                          0x08011554   Section        0  lfs.o(i.lfs_file_seek)
-    i.lfs_file_seek_                         0x0801157c   Section        0  lfs.o(i.lfs_file_seek_)
-    lfs_file_seek_                           0x0801157d   Thumb Code   140  lfs.o(i.lfs_file_seek_)
-    i.lfs_file_size_                         0x08011608   Section        0  lfs.o(i.lfs_file_size_)
-    lfs_file_size_                           0x08011609   Thumb Code    18  lfs.o(i.lfs_file_size_)
-    i.lfs_file_sync                          0x0801161a   Section        0  lfs.o(i.lfs_file_sync)
-    i.lfs_file_sync_                         0x08011638   Section        0  lfs.o(i.lfs_file_sync_)
-    lfs_file_sync_                           0x08011639   Thumb Code   192  lfs.o(i.lfs_file_sync_)
-    i.lfs_file_write                         0x080116f8   Section        0  lfs.o(i.lfs_file_write)
-    i.lfs_file_write_                        0x08011720   Section        0  lfs.o(i.lfs_file_write_)
-    lfs_file_write_                          0x08011721   Thumb Code   144  lfs.o(i.lfs_file_write_)
-    i.lfs_format                             0x080117b0   Section        0  lfs.o(i.lfs_format)
-    i.lfs_format_                            0x080117b4   Section        0  lfs.o(i.lfs_format_)
-    lfs_format_                              0x080117b5   Thumb Code   188  lfs.o(i.lfs_format_)
-    i.lfs_frombe32                           0x0801187c   Section        0  lfs.o(i.lfs_frombe32)
-    lfs_frombe32                             0x0801187d   Thumb Code    20  lfs.o(i.lfs_frombe32)
-    i.lfs_fromle32                           0x08011890   Section        0  lfs.o(i.lfs_fromle32)
-    lfs_fromle32                             0x08011891   Thumb Code    18  lfs.o(i.lfs_fromle32)
-    i.lfs_fs_demove                          0x080118a4   Section        0  lfs.o(i.lfs_fs_demove)
-    lfs_fs_demove                            0x080118a5   Thumb Code   126  lfs.o(i.lfs_fs_demove)
-    i.lfs_fs_deorphan                        0x08011988   Section        0  lfs.o(i.lfs_fs_deorphan)
-    lfs_fs_deorphan                          0x08011989   Thumb Code   444  lfs.o(i.lfs_fs_deorphan)
-    i.lfs_fs_desuperblock                    0x08011bf4   Section        0  lfs.o(i.lfs_fs_desuperblock)
-    lfs_fs_desuperblock                      0x08011bf5   Thumb Code   124  lfs.o(i.lfs_fs_desuperblock)
-    i.lfs_fs_forceconsistency                0x08011cb0   Section        0  lfs.o(i.lfs_fs_forceconsistency)
-    lfs_fs_forceconsistency                  0x08011cb1   Thumb Code    36  lfs.o(i.lfs_fs_forceconsistency)
-    i.lfs_fs_parent                          0x08011cd4   Section        0  lfs.o(i.lfs_fs_parent)
-    lfs_fs_parent                            0x08011cd5   Thumb Code   124  lfs.o(i.lfs_fs_parent)
-    i.lfs_fs_parent_match                    0x08011d60   Section        0  lfs.o(i.lfs_fs_parent_match)
-    lfs_fs_parent_match                      0x08011d61   Thumb Code    62  lfs.o(i.lfs_fs_parent_match)
-    i.lfs_fs_pred                            0x08011da0   Section        0  lfs.o(i.lfs_fs_pred)
-    lfs_fs_pred                              0x08011da1   Thumb Code    96  lfs.o(i.lfs_fs_pred)
-    i.lfs_fs_prepmove                        0x08011e04   Section        0  lfs.o(i.lfs_fs_prepmove)
-    lfs_fs_prepmove                          0x08011e05   Thumb Code    54  lfs.o(i.lfs_fs_prepmove)
-    i.lfs_fs_preporphans                     0x08011e44   Section        0  lfs.o(i.lfs_fs_preporphans)
-    lfs_fs_preporphans                       0x08011e45   Thumb Code    48  lfs.o(i.lfs_fs_preporphans)
-    i.lfs_fs_size_                           0x08011e74   Section        0  lfs.o(i.lfs_fs_size_)
-    lfs_fs_size_                             0x08011e75   Thumb Code    24  lfs.o(i.lfs_fs_size_)
-    i.lfs_fs_size_count                      0x08011e90   Section        0  lfs.o(i.lfs_fs_size_count)
-    lfs_fs_size_count                        0x08011e91   Thumb Code    10  lfs.o(i.lfs_fs_size_count)
-    i.lfs_fs_traverse_                       0x08011e9c   Section        0  lfs.o(i.lfs_fs_traverse_)
-    lfs_fs_traverse_                         0x08011e9d   Thumb Code   330  lfs.o(i.lfs_fs_traverse_)
-    i.lfs_gstate_hasmove                     0x08011ff4   Section        0  lfs.o(i.lfs_gstate_hasmove)
-    lfs_gstate_hasmove                       0x08011ff5   Thumb Code    12  lfs.o(i.lfs_gstate_hasmove)
-    i.lfs_gstate_hasmovehere                 0x08012000   Section        0  lfs.o(i.lfs_gstate_hasmovehere)
-    lfs_gstate_hasmovehere                   0x08012001   Thumb Code    26  lfs.o(i.lfs_gstate_hasmovehere)
-    i.lfs_gstate_iszero                      0x0801201a   Section        0  lfs.o(i.lfs_gstate_iszero)
-    lfs_gstate_iszero                        0x0801201b   Thumb Code    20  lfs.o(i.lfs_gstate_iszero)
-    i.lfs_gstate_tole32                      0x0801202e   Section        0  lfs.o(i.lfs_gstate_tole32)
-    lfs_gstate_tole32                        0x0801202f   Thumb Code    30  lfs.o(i.lfs_gstate_tole32)
-    i.lfs_gstate_xor                         0x0801204c   Section        0  lfs.o(i.lfs_gstate_xor)
-    lfs_gstate_xor                           0x0801204d   Thumb Code    26  lfs.o(i.lfs_gstate_xor)
-    i.lfs_init                               0x08012068   Section        0  lfs.o(i.lfs_init)
-    lfs_init                                 0x08012069   Thumb Code   464  lfs.o(i.lfs_init)
-    i.lfs_malloc                             0x0801223c   Section        0  lfs.o(i.lfs_malloc)
-    lfs_malloc                               0x0801223d   Thumb Code     4  lfs.o(i.lfs_malloc)
-    i.lfs_min                                0x08012240   Section        0  lfs.o(i.lfs_min)
-    lfs_min                                  0x08012241   Thumb Code     8  lfs.o(i.lfs_min)
-    i.lfs_mlist_isopen                       0x08012248   Section        0  lfs.o(i.lfs_mlist_isopen)
-    lfs_mlist_isopen                         0x08012249   Thumb Code    22  lfs.o(i.lfs_mlist_isopen)
-    i.lfs_mlist_remove                       0x0801225e   Section        0  lfs.o(i.lfs_mlist_remove)
-    lfs_mlist_remove                         0x0801225f   Thumb Code    24  lfs.o(i.lfs_mlist_remove)
-    i.lfs_mount                              0x08012276   Section        0  lfs.o(i.lfs_mount)
-    i.lfs_mount_                             0x0801227c   Section        0  lfs.o(i.lfs_mount_)
-    lfs_mount_                               0x0801227d   Thumb Code   560  lfs.o(i.lfs_mount_)
-    i.lfs_pair_cmp                           0x08012684   Section        0  lfs.o(i.lfs_pair_cmp)
-    lfs_pair_cmp                             0x08012685   Thumb Code    34  lfs.o(i.lfs_pair_cmp)
-    i.lfs_pair_fromle32                      0x080126a6   Section        0  lfs.o(i.lfs_pair_fromle32)
-    lfs_pair_fromle32                        0x080126a7   Thumb Code    22  lfs.o(i.lfs_pair_fromle32)
-    i.lfs_pair_isnull                        0x080126bc   Section        0  lfs.o(i.lfs_pair_isnull)
-    lfs_pair_isnull                          0x080126bd   Thumb Code    20  lfs.o(i.lfs_pair_isnull)
-    i.lfs_pair_issync                        0x080126d0   Section        0  lfs.o(i.lfs_pair_issync)
-    lfs_pair_issync                          0x080126d1   Thumb Code    36  lfs.o(i.lfs_pair_issync)
-    i.lfs_pair_tole32                        0x080126f4   Section        0  lfs.o(i.lfs_pair_tole32)
-    lfs_pair_tole32                          0x080126f5   Thumb Code    22  lfs.o(i.lfs_pair_tole32)
-    i.lfs_path_isdir                         0x0801270a   Section        0  lfs.o(i.lfs_path_isdir)
-    lfs_path_isdir                           0x0801270b   Thumb Code    18  lfs.o(i.lfs_path_isdir)
-    i.lfs_path_islast                        0x0801271c   Section        0  lfs.o(i.lfs_path_islast)
-    lfs_path_islast                          0x0801271d   Thumb Code    32  lfs.o(i.lfs_path_islast)
-    i.lfs_path_namelen                       0x08012740   Section        0  lfs.o(i.lfs_path_namelen)
-    lfs_path_namelen                         0x08012741   Thumb Code     6  lfs.o(i.lfs_path_namelen)
-    i.lfs_popc                               0x0801274c   Section        0  lfs.o(i.lfs_popc)
-    lfs_popc                                 0x0801274d   Thumb Code    46  lfs.o(i.lfs_popc)
-    i.lfs_remove                             0x0801277a   Section        0  lfs.o(i.lfs_remove)
-    i.lfs_remove_                            0x08012780   Section        0  lfs.o(i.lfs_remove_)
-    lfs_remove_                              0x08012781   Thumb Code   254  lfs.o(i.lfs_remove_)
-    i.lfs_spi_flash_erase                    0x0801288c   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_erase)
-    lfs_spi_flash_erase                      0x0801288d   Thumb Code    24  lfs_spi_flash_adapter.o(i.lfs_spi_flash_erase)
-    i.lfs_spi_flash_init                     0x080128a4   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_init)
-    i.lfs_spi_flash_mount                    0x080128c4   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_mount)
-    i.lfs_spi_flash_prog                     0x080128f8   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_prog)
-    lfs_spi_flash_prog                       0x080128f9   Thumb Code   116  lfs_spi_flash_adapter.o(i.lfs_spi_flash_prog)
-    i.lfs_spi_flash_read                     0x08012970   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_read)
-    lfs_spi_flash_read                       0x08012971   Thumb Code    42  lfs_spi_flash_adapter.o(i.lfs_spi_flash_read)
-    i.lfs_spi_flash_sync                     0x0801299a   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_sync)
-    lfs_spi_flash_sync                       0x0801299b   Thumb Code    10  lfs_spi_flash_adapter.o(i.lfs_spi_flash_sync)
-    i.lfs_spi_flash_unmount                  0x080129a4   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_unmount)
-    i.lfs_src_close                          0x080129b0   Section        0  bootloader_core.o(i.lfs_src_close)
-    i.lfs_src_open                           0x080129d8   Section        0  bootloader_core.o(i.lfs_src_open)
-    i.lfs_src_read                           0x08012a60   Section        0  bootloader_core.o(i.lfs_src_read)
-    i.lfs_stat                               0x08012a98   Section        0  lfs.o(i.lfs_stat)
-    i.lfs_superblock_fromle32                0x08012ade   Section        0  lfs.o(i.lfs_superblock_fromle32)
-    lfs_superblock_fromle32                  0x08012adf   Thumb Code    54  lfs.o(i.lfs_superblock_fromle32)
-    i.lfs_superblock_tole32                  0x08012b14   Section        0  lfs.o(i.lfs_superblock_tole32)
-    lfs_superblock_tole32                    0x08012b15   Thumb Code    54  lfs.o(i.lfs_superblock_tole32)
-    i.lfs_tag_dsize                          0x08012b4a   Section        0  lfs.o(i.lfs_tag_dsize)
-    lfs_tag_dsize                            0x08012b4b   Thumb Code    18  lfs.o(i.lfs_tag_dsize)
-    i.lfs_tag_isdelete                       0x08012b5c   Section        0  lfs.o(i.lfs_tag_isdelete)
-    lfs_tag_isdelete                         0x08012b5d   Thumb Code    16  lfs.o(i.lfs_tag_isdelete)
-    i.lfs_tgt_close                          0x08012b6c   Section        0  bootloader_core.o(i.lfs_tgt_close)
-    i.lfs_tgt_open                           0x08012bac   Section        0  bootloader_core.o(i.lfs_tgt_open)
-    i.lfs_tgt_write                          0x08012c1c   Section        0  bootloader_core.o(i.lfs_tgt_write)
-    i.lfs_tole32                             0x08012c7c   Section        0  lfs.o(i.lfs_tole32)
-    lfs_tole32                               0x08012c7d   Thumb Code     4  lfs.o(i.lfs_tole32)
-    i.lfs_tortoise_detectcycles              0x08012c80   Section        0  lfs.o(i.lfs_tortoise_detectcycles)
-    lfs_tortoise_detectcycles                0x08012c81   Thumb Code    66  lfs.o(i.lfs_tortoise_detectcycles)
-    i.lfs_unmount                            0x08012d20   Section        0  lfs.o(i.lfs_unmount)
-    i.lfs_unmount_                           0x08012d24   Section        0  lfs.o(i.lfs_unmount_)
-    lfs_unmount_                             0x08012d25   Thumb Code     4  lfs.o(i.lfs_unmount_)
-    i.main                                   0x08012d28   Section        0  main.o(i.main)
-    i.mem_cpy                                0x08012ef0   Section        0  ff.o(i.mem_cpy)
-    mem_cpy                                  0x08012ef1   Thumb Code    18  ff.o(i.mem_cpy)
-    i.mem_set                                0x08012f04   Section        0  ff.o(i.mem_set)
-    mem_set                                  0x08012f05   Thumb Code    14  ff.o(i.mem_set)
-    i.move_window                            0x08012f12   Section        0  ff.o(i.move_window)
-    move_window                              0x08012f13   Thumb Code    50  ff.o(i.move_window)
-    i.pick_lfn                               0x08012f44   Section        0  ff.o(i.pick_lfn)
-    pick_lfn                                 0x08012f45   Thumb Code   110  ff.o(i.pick_lfn)
-    i.put_fat                                0x08012fb8   Section        0  ff.o(i.put_fat)
-    put_fat                                  0x08012fb9   Thumb Code   234  ff.o(i.put_fat)
-    i.remove_chain                           0x080130a2   Section        0  ff.o(i.remove_chain)
-    remove_chain                             0x080130a3   Thumb Code   116  ff.o(i.remove_chain)
-    i.scan_lfs_files                         0x08013118   Section        0  menu.o(i.scan_lfs_files)
-    scan_lfs_files                           0x08013119   Thumb Code   116  menu.o(i.scan_lfs_files)
-    i.scan_sd_card_files                     0x080131c4   Section        0  menu.o(i.scan_sd_card_files)
-    scan_sd_card_files                       0x080131c5   Thumb Code   112  menu.o(i.scan_sd_card_files)
-    i.spi_read_write_byte                    0x0801326c   Section        0  w25q128.o(i.spi_read_write_byte)
-    i.st_clust                               0x08013294   Section        0  ff.o(i.st_clust)
-    st_clust                                 0x08013295   Thumb Code    40  ff.o(i.st_clust)
-    i.st_dword                               0x080132bc   Section        0  ff.o(i.st_dword)
-    st_dword                                 0x080132bd   Thumb Code    16  ff.o(i.st_dword)
-    i.st_word                                0x080132cc   Section        0  ff.o(i.st_word)
-    st_word                                  0x080132cd   Thumb Code     8  ff.o(i.st_word)
-    i.sum_sfn                                0x080132d4   Section        0  ff.o(i.sum_sfn)
-    sum_sfn                                  0x080132d5   Thumb Code    26  ff.o(i.sum_sfn)
-    i.sync_fs                                0x080132f0   Section        0  ff.o(i.sync_fs)
-    sync_fs                                  0x080132f1   Thumb Code   126  ff.o(i.sync_fs)
-    i.sync_window                            0x08013378   Section        0  ff.o(i.sync_window)
-    sync_window                              0x08013379   Thumb Code    82  ff.o(i.sync_window)
-    i.uart_wait_command                      0x080133cc   Section        0  usart.o(i.uart_wait_command)
-    i.validate                               0x080133e8   Section        0  ff.o(i.validate)
-    validate                                 0x080133e9   Thumb Code    52  ff.o(i.validate)
-    i.w25q128_init                           0x0801341c   Section        0  w25q128.o(i.w25q128_init)
-    i.xtime                                  0x0801342c   Section        0  aes.o(i.xtime)
-    xtime                                    0x0801342d   Thumb Code    18  aes.o(i.xtime)
-    x$fpl$fpinit                             0x0801343e   Section       10  fpinit.o(x$fpl$fpinit)
-    $v0                                      0x0801343e   Number         0  fpinit.o(x$fpl$fpinit)
-    .constdata                               0x08013448   Section       16  system_stm32f4xx.o(.constdata)
-    .constdata                               0x08013458   Section        8  system_stm32f4xx.o(.constdata)
-    .constdata                               0x08013460   Section       96  menu.o(.constdata)
-    .constdata                               0x080134c0   Section        8  stm32f4xx_hal_dma.o(.constdata)
-    flagBitshiftOffset                       0x080134c0   Data           8  stm32f4xx_hal_dma.o(.constdata)
-    .constdata                               0x080134c8   Section       12  bootloader_core.o(.constdata)
-    .constdata                               0x080134d4   Section       12  bootloader_core.o(.constdata)
+    i.ld_clust                               0x0800e628   Section        0  ff.o(i.ld_clust)
+    ld_clust                                 0x0800e629   Thumb Code    38  ff.o(i.ld_clust)
+    i.ld_dword                               0x0800e64e   Section        0  ff.o(i.ld_dword)
+    ld_dword                                 0x0800e64f   Thumb Code    22  ff.o(i.ld_dword)
+    i.ld_word                                0x0800e664   Section        0  ff.o(i.ld_word)
+    ld_word                                  0x0800e665   Thumb Code    10  ff.o(i.ld_word)
+    i.led_control_task                       0x0800e670   Section        0  led.o(i.led_control_task)
+    i.lfs_aligndown                          0x0800e6ac   Section        0  lfs.o(i.lfs_aligndown)
+    lfs_aligndown                            0x0800e6ad   Thumb Code    12  lfs.o(i.lfs_aligndown)
+    i.lfs_alignup                            0x0800e6b8   Section        0  lfs.o(i.lfs_alignup)
+    lfs_alignup                              0x0800e6b9   Thumb Code    18  lfs.o(i.lfs_alignup)
+    i.lfs_alloc                              0x0800e6cc   Section        0  lfs.o(i.lfs_alloc)
+    lfs_alloc                                0x0800e6cd   Thumb Code   162  lfs.o(i.lfs_alloc)
+    i.lfs_alloc_drop                         0x0800e7c8   Section        0  lfs.o(i.lfs_alloc_drop)
+    lfs_alloc_drop                           0x0800e7c9   Thumb Code    12  lfs.o(i.lfs_alloc_drop)
+    i.lfs_alloc_lookahead                    0x0800e7d4   Section        0  lfs.o(i.lfs_alloc_lookahead)
+    lfs_alloc_lookahead                      0x0800e7d5   Thumb Code    46  lfs.o(i.lfs_alloc_lookahead)
+    i.lfs_alloc_scan                         0x0800e804   Section        0  lfs.o(i.lfs_alloc_scan)
+    lfs_alloc_scan                           0x0800e805   Thumb Code    80  lfs.o(i.lfs_alloc_scan)
+    i.lfs_bd_cmp                             0x0800e858   Section        0  lfs.o(i.lfs_bd_cmp)
+    lfs_bd_cmp                               0x0800e859   Thumb Code   102  lfs.o(i.lfs_bd_cmp)
+    i.lfs_bd_crc                             0x0800e8be   Section        0  lfs.o(i.lfs_bd_crc)
+    lfs_bd_crc                               0x0800e8bf   Thumb Code    90  lfs.o(i.lfs_bd_crc)
+    i.lfs_bd_erase                           0x0800e918   Section        0  lfs.o(i.lfs_bd_erase)
+    lfs_bd_erase                             0x0800e919   Thumb Code    24  lfs.o(i.lfs_bd_erase)
+    i.lfs_bd_flush                           0x0800e930   Section        0  lfs.o(i.lfs_bd_flush)
+    lfs_bd_flush                             0x0800e931   Thumb Code   132  lfs.o(i.lfs_bd_flush)
+    i.lfs_bd_prog                            0x0800e9b4   Section        0  lfs.o(i.lfs_bd_prog)
+    lfs_bd_prog                              0x0800e9b5   Thumb Code   178  lfs.o(i.lfs_bd_prog)
+    i.lfs_bd_read                            0x0800ea66   Section        0  lfs.o(i.lfs_bd_read)
+    lfs_bd_read                              0x0800ea67   Thumb Code   320  lfs.o(i.lfs_bd_read)
+    i.lfs_bd_sync                            0x0800eba6   Section        0  lfs.o(i.lfs_bd_sync)
+    lfs_bd_sync                              0x0800eba7   Thumb Code    36  lfs.o(i.lfs_bd_sync)
+    i.lfs_cache_zero                         0x0800ebca   Section        0  lfs.o(i.lfs_cache_zero)
+    lfs_cache_zero                           0x0800ebcb   Thumb Code    24  lfs.o(i.lfs_cache_zero)
+    i.lfs_crc                                0x0800ebe4   Section        0  lfs_util.o(i.lfs_crc)
+    i.lfs_ctz                                0x0800ec1c   Section        0  lfs.o(i.lfs_ctz)
+    lfs_ctz                                  0x0800ec1d   Thumb Code    14  lfs.o(i.lfs_ctz)
+    i.lfs_ctz_extend                         0x0800ec2c   Section        0  lfs.o(i.lfs_ctz_extend)
+    lfs_ctz_extend                           0x0800ec2d   Thumb Code   326  lfs.o(i.lfs_ctz_extend)
+    i.lfs_ctz_find                           0x0800edc8   Section        0  lfs.o(i.lfs_ctz_find)
+    lfs_ctz_find                             0x0800edc9   Thumb Code   148  lfs.o(i.lfs_ctz_find)
+    i.lfs_ctz_fromle32                       0x0800ee5c   Section        0  lfs.o(i.lfs_ctz_fromle32)
+    lfs_ctz_fromle32                         0x0800ee5d   Thumb Code    22  lfs.o(i.lfs_ctz_fromle32)
+    i.lfs_ctz_index                          0x0800ee72   Section        0  lfs.o(i.lfs_ctz_index)
+    lfs_ctz_index                            0x0800ee73   Thumb Code    64  lfs.o(i.lfs_ctz_index)
+    i.lfs_ctz_traverse                       0x0800eeb4   Section        0  lfs.o(i.lfs_ctz_traverse)
+    lfs_ctz_traverse                         0x0800eeb5   Thumb Code   156  lfs.o(i.lfs_ctz_traverse)
+    i.lfs_deinit                             0x0800ef50   Section        0  lfs.o(i.lfs_deinit)
+    lfs_deinit                               0x0800ef51   Thumb Code    44  lfs.o(i.lfs_deinit)
+    i.lfs_dir_alloc                          0x0800ef7c   Section        0  lfs.o(i.lfs_dir_alloc)
+    lfs_dir_alloc                            0x0800ef7d   Thumb Code   148  lfs.o(i.lfs_dir_alloc)
+    i.lfs_dir_close                          0x0800f010   Section        0  lfs.o(i.lfs_dir_close)
+    i.lfs_dir_commit                         0x0800f01a   Section        0  lfs.o(i.lfs_dir_commit)
+    lfs_dir_commit                           0x0800f01b   Thumb Code    32  lfs.o(i.lfs_dir_commit)
+    i.lfs_dir_commit_commit                  0x0800f03a   Section        0  lfs.o(i.lfs_dir_commit_commit)
+    lfs_dir_commit_commit                    0x0800f03b   Thumb Code    16  lfs.o(i.lfs_dir_commit_commit)
+    i.lfs_dir_commit_size                    0x0800f04a   Section        0  lfs.o(i.lfs_dir_commit_size)
+    lfs_dir_commit_size                      0x0800f04b   Thumb Code    20  lfs.o(i.lfs_dir_commit_size)
+    i.lfs_dir_commitattr                     0x0800f05e   Section        0  lfs.o(i.lfs_dir_commitattr)
+    lfs_dir_commitattr                       0x0800f05f   Thumb Code   170  lfs.o(i.lfs_dir_commitattr)
+    i.lfs_dir_commitcrc                      0x0800f108   Section        0  lfs.o(i.lfs_dir_commitcrc)
+    lfs_dir_commitcrc                        0x0800f109   Thumb Code   470  lfs.o(i.lfs_dir_commitcrc)
+    i.lfs_dir_commitprog                     0x0800f2ec   Section        0  lfs.o(i.lfs_dir_commitprog)
+    lfs_dir_commitprog                       0x0800f2ed   Thumb Code    58  lfs.o(i.lfs_dir_commitprog)
+    i.lfs_dir_compact                        0x0800f328   Section        0  lfs.o(i.lfs_dir_compact)
+    lfs_dir_compact                          0x0800f329   Thumb Code   542  lfs.o(i.lfs_dir_compact)
+    i.lfs_dir_drop                           0x0800f5e8   Section        0  lfs.o(i.lfs_dir_drop)
+    lfs_dir_drop                             0x0800f5e9   Thumb Code    76  lfs.o(i.lfs_dir_drop)
+    i.lfs_dir_fetch                          0x0800f638   Section        0  lfs.o(i.lfs_dir_fetch)
+    lfs_dir_fetch                            0x0800f639   Thumb Code    22  lfs.o(i.lfs_dir_fetch)
+    i.lfs_dir_fetchmatch                     0x0800f650   Section        0  lfs.o(i.lfs_dir_fetchmatch)
+    lfs_dir_fetchmatch                       0x0800f651   Thumb Code  1088  lfs.o(i.lfs_dir_fetchmatch)
+    i.lfs_dir_find                           0x0800fb04   Section        0  lfs.o(i.lfs_dir_find)
+    lfs_dir_find                             0x0800fb05   Thumb Code   336  lfs.o(i.lfs_dir_find)
+    i.lfs_dir_find_match                     0x0800fc70   Section        0  lfs.o(i.lfs_dir_find_match)
+    lfs_dir_find_match                       0x0800fc71   Thumb Code    82  lfs.o(i.lfs_dir_find_match)
+    i.lfs_dir_get                            0x0800fcc2   Section        0  lfs.o(i.lfs_dir_get)
+    lfs_dir_get                              0x0800fcc3   Thumb Code    20  lfs.o(i.lfs_dir_get)
+    i.lfs_dir_getgstate                      0x0800fcd8   Section        0  lfs.o(i.lfs_dir_getgstate)
+    lfs_dir_getgstate                        0x0800fcd9   Thumb Code    70  lfs.o(i.lfs_dir_getgstate)
+    i.lfs_dir_getinfo                        0x0800fd24   Section        0  lfs.o(i.lfs_dir_getinfo)
+    lfs_dir_getinfo                          0x0800fd25   Thumb Code   126  lfs.o(i.lfs_dir_getinfo)
+    i.lfs_dir_getread                        0x0800fdb4   Section        0  lfs.o(i.lfs_dir_getread)
+    lfs_dir_getread                          0x0800fdb5   Thumb Code   226  lfs.o(i.lfs_dir_getread)
+    i.lfs_dir_getslice                       0x0800fe98   Section        0  lfs.o(i.lfs_dir_getslice)
+    lfs_dir_getslice                         0x0800fe99   Thumb Code   290  lfs.o(i.lfs_dir_getslice)
+    i.lfs_dir_needsrelocation                0x0800ffc8   Section        0  lfs.o(i.lfs_dir_needsrelocation)
+    lfs_dir_needsrelocation                  0x0800ffc9   Thumb Code    36  lfs.o(i.lfs_dir_needsrelocation)
+    i.lfs_dir_open                           0x0800ffec   Section        0  lfs.o(i.lfs_dir_open)
+    i.lfs_dir_open_                          0x08010010   Section        0  lfs.o(i.lfs_dir_open_)
+    lfs_dir_open_                            0x08010011   Thumb Code   134  lfs.o(i.lfs_dir_open_)
+    i.lfs_dir_orphaningcommit                0x080100a0   Section        0  lfs.o(i.lfs_dir_orphaningcommit)
+    lfs_dir_orphaningcommit                  0x080100a1   Thumb Code   848  lfs.o(i.lfs_dir_orphaningcommit)
+    i.lfs_dir_read                           0x080104a0   Section        0  lfs.o(i.lfs_dir_read)
+    i.lfs_dir_read_                          0x080104a4   Section        0  lfs.o(i.lfs_dir_read_)
+    lfs_dir_read_                            0x080104a5   Thumb Code   130  lfs.o(i.lfs_dir_read_)
+    i.lfs_dir_relocatingcommit               0x08010530   Section        0  lfs.o(i.lfs_dir_relocatingcommit)
+    lfs_dir_relocatingcommit                 0x08010531   Thumb Code   738  lfs.o(i.lfs_dir_relocatingcommit)
+    i.lfs_dir_split                          0x08010820   Section        0  lfs.o(i.lfs_dir_split)
+    lfs_dir_split                            0x08010821   Thumb Code   112  lfs.o(i.lfs_dir_split)
+    i.lfs_dir_splittingcompact               0x08010890   Section        0  lfs.o(i.lfs_dir_splittingcompact)
+    lfs_dir_splittingcompact                 0x08010891   Thumb Code   346  lfs.o(i.lfs_dir_splittingcompact)
+    i.lfs_dir_traverse                       0x08010ab0   Section        0  lfs.o(i.lfs_dir_traverse)
+    lfs_dir_traverse                         0x08010ab1   Thumb Code   644  lfs.o(i.lfs_dir_traverse)
+    i.lfs_dir_traverse_filter                0x08010d44   Section        0  lfs.o(i.lfs_dir_traverse_filter)
+    lfs_dir_traverse_filter                  0x08010d45   Thumb Code   102  lfs.o(i.lfs_dir_traverse_filter)
+    i.lfs_file_close                         0x08010dbc   Section        0  lfs.o(i.lfs_file_close)
+    i.lfs_file_close_                        0x08010dda   Section        0  lfs.o(i.lfs_file_close_)
+    lfs_file_close_                          0x08010ddb   Thumb Code    36  lfs.o(i.lfs_file_close_)
+    i.lfs_file_flush                         0x08010e00   Section        0  lfs.o(i.lfs_file_flush)
+    lfs_file_flush                           0x08010e01   Thumb Code   230  lfs.o(i.lfs_file_flush)
+    i.lfs_file_flushedread                   0x08010f40   Section        0  lfs.o(i.lfs_file_flushedread)
+    lfs_file_flushedread                     0x08010f41   Thumb Code   226  lfs.o(i.lfs_file_flushedread)
+    i.lfs_file_flushedwrite                  0x0801102c   Section        0  lfs.o(i.lfs_file_flushedwrite)
+    lfs_file_flushedwrite                    0x0801102d   Thumb Code   294  lfs.o(i.lfs_file_flushedwrite)
+    i.lfs_file_open                          0x08011154   Section        0  lfs.o(i.lfs_file_open)
+    i.lfs_file_opencfg_                      0x08011180   Section        0  lfs.o(i.lfs_file_opencfg_)
+    lfs_file_opencfg_                        0x08011181   Thumb Code   564  lfs.o(i.lfs_file_opencfg_)
+    i.lfs_file_outline                       0x080113c8   Section        0  lfs.o(i.lfs_file_outline)
+    lfs_file_outline                         0x080113c9   Thumb Code    34  lfs.o(i.lfs_file_outline)
+    i.lfs_file_read                          0x080113ea   Section        0  lfs.o(i.lfs_file_read)
+    i.lfs_file_relocate                      0x0801142c   Section        0  lfs.o(i.lfs_file_relocate)
+    lfs_file_relocate                        0x0801142d   Thumb Code   228  lfs.o(i.lfs_file_relocate)
+    i.lfs_file_seek                          0x0801156c   Section        0  lfs.o(i.lfs_file_seek)
+    i.lfs_file_seek_                         0x08011594   Section        0  lfs.o(i.lfs_file_seek_)
+    lfs_file_seek_                           0x08011595   Thumb Code   140  lfs.o(i.lfs_file_seek_)
+    i.lfs_file_size_                         0x08011620   Section        0  lfs.o(i.lfs_file_size_)
+    lfs_file_size_                           0x08011621   Thumb Code    18  lfs.o(i.lfs_file_size_)
+    i.lfs_file_sync                          0x08011632   Section        0  lfs.o(i.lfs_file_sync)
+    i.lfs_file_sync_                         0x08011650   Section        0  lfs.o(i.lfs_file_sync_)
+    lfs_file_sync_                           0x08011651   Thumb Code   192  lfs.o(i.lfs_file_sync_)
+    i.lfs_file_write                         0x08011710   Section        0  lfs.o(i.lfs_file_write)
+    i.lfs_file_write_                        0x08011738   Section        0  lfs.o(i.lfs_file_write_)
+    lfs_file_write_                          0x08011739   Thumb Code   144  lfs.o(i.lfs_file_write_)
+    i.lfs_format                             0x080117c8   Section        0  lfs.o(i.lfs_format)
+    i.lfs_format_                            0x080117cc   Section        0  lfs.o(i.lfs_format_)
+    lfs_format_                              0x080117cd   Thumb Code   188  lfs.o(i.lfs_format_)
+    i.lfs_frombe32                           0x08011894   Section        0  lfs.o(i.lfs_frombe32)
+    lfs_frombe32                             0x08011895   Thumb Code    20  lfs.o(i.lfs_frombe32)
+    i.lfs_fromle32                           0x080118a8   Section        0  lfs.o(i.lfs_fromle32)
+    lfs_fromle32                             0x080118a9   Thumb Code    18  lfs.o(i.lfs_fromle32)
+    i.lfs_fs_demove                          0x080118bc   Section        0  lfs.o(i.lfs_fs_demove)
+    lfs_fs_demove                            0x080118bd   Thumb Code   126  lfs.o(i.lfs_fs_demove)
+    i.lfs_fs_deorphan                        0x080119a0   Section        0  lfs.o(i.lfs_fs_deorphan)
+    lfs_fs_deorphan                          0x080119a1   Thumb Code   444  lfs.o(i.lfs_fs_deorphan)
+    i.lfs_fs_desuperblock                    0x08011c0c   Section        0  lfs.o(i.lfs_fs_desuperblock)
+    lfs_fs_desuperblock                      0x08011c0d   Thumb Code   124  lfs.o(i.lfs_fs_desuperblock)
+    i.lfs_fs_forceconsistency                0x08011cc8   Section        0  lfs.o(i.lfs_fs_forceconsistency)
+    lfs_fs_forceconsistency                  0x08011cc9   Thumb Code    36  lfs.o(i.lfs_fs_forceconsistency)
+    i.lfs_fs_parent                          0x08011cec   Section        0  lfs.o(i.lfs_fs_parent)
+    lfs_fs_parent                            0x08011ced   Thumb Code   124  lfs.o(i.lfs_fs_parent)
+    i.lfs_fs_parent_match                    0x08011d78   Section        0  lfs.o(i.lfs_fs_parent_match)
+    lfs_fs_parent_match                      0x08011d79   Thumb Code    62  lfs.o(i.lfs_fs_parent_match)
+    i.lfs_fs_pred                            0x08011db8   Section        0  lfs.o(i.lfs_fs_pred)
+    lfs_fs_pred                              0x08011db9   Thumb Code    96  lfs.o(i.lfs_fs_pred)
+    i.lfs_fs_prepmove                        0x08011e1c   Section        0  lfs.o(i.lfs_fs_prepmove)
+    lfs_fs_prepmove                          0x08011e1d   Thumb Code    54  lfs.o(i.lfs_fs_prepmove)
+    i.lfs_fs_preporphans                     0x08011e5c   Section        0  lfs.o(i.lfs_fs_preporphans)
+    lfs_fs_preporphans                       0x08011e5d   Thumb Code    48  lfs.o(i.lfs_fs_preporphans)
+    i.lfs_fs_size_                           0x08011e8c   Section        0  lfs.o(i.lfs_fs_size_)
+    lfs_fs_size_                             0x08011e8d   Thumb Code    24  lfs.o(i.lfs_fs_size_)
+    i.lfs_fs_size_count                      0x08011ea8   Section        0  lfs.o(i.lfs_fs_size_count)
+    lfs_fs_size_count                        0x08011ea9   Thumb Code    10  lfs.o(i.lfs_fs_size_count)
+    i.lfs_fs_traverse_                       0x08011eb4   Section        0  lfs.o(i.lfs_fs_traverse_)
+    lfs_fs_traverse_                         0x08011eb5   Thumb Code   330  lfs.o(i.lfs_fs_traverse_)
+    i.lfs_gstate_hasmove                     0x0801200c   Section        0  lfs.o(i.lfs_gstate_hasmove)
+    lfs_gstate_hasmove                       0x0801200d   Thumb Code    12  lfs.o(i.lfs_gstate_hasmove)
+    i.lfs_gstate_hasmovehere                 0x08012018   Section        0  lfs.o(i.lfs_gstate_hasmovehere)
+    lfs_gstate_hasmovehere                   0x08012019   Thumb Code    26  lfs.o(i.lfs_gstate_hasmovehere)
+    i.lfs_gstate_iszero                      0x08012032   Section        0  lfs.o(i.lfs_gstate_iszero)
+    lfs_gstate_iszero                        0x08012033   Thumb Code    20  lfs.o(i.lfs_gstate_iszero)
+    i.lfs_gstate_tole32                      0x08012046   Section        0  lfs.o(i.lfs_gstate_tole32)
+    lfs_gstate_tole32                        0x08012047   Thumb Code    30  lfs.o(i.lfs_gstate_tole32)
+    i.lfs_gstate_xor                         0x08012064   Section        0  lfs.o(i.lfs_gstate_xor)
+    lfs_gstate_xor                           0x08012065   Thumb Code    26  lfs.o(i.lfs_gstate_xor)
+    i.lfs_init                               0x08012080   Section        0  lfs.o(i.lfs_init)
+    lfs_init                                 0x08012081   Thumb Code   464  lfs.o(i.lfs_init)
+    i.lfs_malloc                             0x08012254   Section        0  lfs.o(i.lfs_malloc)
+    lfs_malloc                               0x08012255   Thumb Code     4  lfs.o(i.lfs_malloc)
+    i.lfs_min                                0x08012258   Section        0  lfs.o(i.lfs_min)
+    lfs_min                                  0x08012259   Thumb Code     8  lfs.o(i.lfs_min)
+    i.lfs_mlist_isopen                       0x08012260   Section        0  lfs.o(i.lfs_mlist_isopen)
+    lfs_mlist_isopen                         0x08012261   Thumb Code    22  lfs.o(i.lfs_mlist_isopen)
+    i.lfs_mlist_remove                       0x08012276   Section        0  lfs.o(i.lfs_mlist_remove)
+    lfs_mlist_remove                         0x08012277   Thumb Code    24  lfs.o(i.lfs_mlist_remove)
+    i.lfs_mount                              0x0801228e   Section        0  lfs.o(i.lfs_mount)
+    i.lfs_mount_                             0x08012294   Section        0  lfs.o(i.lfs_mount_)
+    lfs_mount_                               0x08012295   Thumb Code   560  lfs.o(i.lfs_mount_)
+    i.lfs_pair_cmp                           0x0801269c   Section        0  lfs.o(i.lfs_pair_cmp)
+    lfs_pair_cmp                             0x0801269d   Thumb Code    34  lfs.o(i.lfs_pair_cmp)
+    i.lfs_pair_fromle32                      0x080126be   Section        0  lfs.o(i.lfs_pair_fromle32)
+    lfs_pair_fromle32                        0x080126bf   Thumb Code    22  lfs.o(i.lfs_pair_fromle32)
+    i.lfs_pair_isnull                        0x080126d4   Section        0  lfs.o(i.lfs_pair_isnull)
+    lfs_pair_isnull                          0x080126d5   Thumb Code    20  lfs.o(i.lfs_pair_isnull)
+    i.lfs_pair_issync                        0x080126e8   Section        0  lfs.o(i.lfs_pair_issync)
+    lfs_pair_issync                          0x080126e9   Thumb Code    36  lfs.o(i.lfs_pair_issync)
+    i.lfs_pair_tole32                        0x0801270c   Section        0  lfs.o(i.lfs_pair_tole32)
+    lfs_pair_tole32                          0x0801270d   Thumb Code    22  lfs.o(i.lfs_pair_tole32)
+    i.lfs_path_isdir                         0x08012722   Section        0  lfs.o(i.lfs_path_isdir)
+    lfs_path_isdir                           0x08012723   Thumb Code    18  lfs.o(i.lfs_path_isdir)
+    i.lfs_path_islast                        0x08012734   Section        0  lfs.o(i.lfs_path_islast)
+    lfs_path_islast                          0x08012735   Thumb Code    32  lfs.o(i.lfs_path_islast)
+    i.lfs_path_namelen                       0x08012758   Section        0  lfs.o(i.lfs_path_namelen)
+    lfs_path_namelen                         0x08012759   Thumb Code     6  lfs.o(i.lfs_path_namelen)
+    i.lfs_popc                               0x08012764   Section        0  lfs.o(i.lfs_popc)
+    lfs_popc                                 0x08012765   Thumb Code    46  lfs.o(i.lfs_popc)
+    i.lfs_remove                             0x08012792   Section        0  lfs.o(i.lfs_remove)
+    i.lfs_remove_                            0x08012798   Section        0  lfs.o(i.lfs_remove_)
+    lfs_remove_                              0x08012799   Thumb Code   254  lfs.o(i.lfs_remove_)
+    i.lfs_spi_flash_erase                    0x080128a4   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_erase)
+    lfs_spi_flash_erase                      0x080128a5   Thumb Code    24  lfs_spi_flash_adapter.o(i.lfs_spi_flash_erase)
+    i.lfs_spi_flash_init                     0x080128bc   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_init)
+    i.lfs_spi_flash_mount                    0x080128dc   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_mount)
+    i.lfs_spi_flash_prog                     0x08012910   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_prog)
+    lfs_spi_flash_prog                       0x08012911   Thumb Code   116  lfs_spi_flash_adapter.o(i.lfs_spi_flash_prog)
+    i.lfs_spi_flash_read                     0x08012988   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_read)
+    lfs_spi_flash_read                       0x08012989   Thumb Code    42  lfs_spi_flash_adapter.o(i.lfs_spi_flash_read)
+    i.lfs_spi_flash_sync                     0x080129b2   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_sync)
+    lfs_spi_flash_sync                       0x080129b3   Thumb Code    10  lfs_spi_flash_adapter.o(i.lfs_spi_flash_sync)
+    i.lfs_spi_flash_unmount                  0x080129bc   Section        0  lfs_spi_flash_adapter.o(i.lfs_spi_flash_unmount)
+    i.lfs_src_close                          0x080129c8   Section        0  bootloader_core.o(i.lfs_src_close)
+    i.lfs_src_open                           0x080129f0   Section        0  bootloader_core.o(i.lfs_src_open)
+    i.lfs_src_read                           0x08012a78   Section        0  bootloader_core.o(i.lfs_src_read)
+    i.lfs_stat                               0x08012ab0   Section        0  lfs.o(i.lfs_stat)
+    i.lfs_superblock_fromle32                0x08012af6   Section        0  lfs.o(i.lfs_superblock_fromle32)
+    lfs_superblock_fromle32                  0x08012af7   Thumb Code    54  lfs.o(i.lfs_superblock_fromle32)
+    i.lfs_superblock_tole32                  0x08012b2c   Section        0  lfs.o(i.lfs_superblock_tole32)
+    lfs_superblock_tole32                    0x08012b2d   Thumb Code    54  lfs.o(i.lfs_superblock_tole32)
+    i.lfs_tag_dsize                          0x08012b62   Section        0  lfs.o(i.lfs_tag_dsize)
+    lfs_tag_dsize                            0x08012b63   Thumb Code    18  lfs.o(i.lfs_tag_dsize)
+    i.lfs_tag_isdelete                       0x08012b74   Section        0  lfs.o(i.lfs_tag_isdelete)
+    lfs_tag_isdelete                         0x08012b75   Thumb Code    16  lfs.o(i.lfs_tag_isdelete)
+    i.lfs_tgt_close                          0x08012b84   Section        0  bootloader_core.o(i.lfs_tgt_close)
+    i.lfs_tgt_open                           0x08012bc4   Section        0  bootloader_core.o(i.lfs_tgt_open)
+    i.lfs_tgt_write                          0x08012c34   Section        0  bootloader_core.o(i.lfs_tgt_write)
+    i.lfs_tole32                             0x08012c94   Section        0  lfs.o(i.lfs_tole32)
+    lfs_tole32                               0x08012c95   Thumb Code     4  lfs.o(i.lfs_tole32)
+    i.lfs_tortoise_detectcycles              0x08012c98   Section        0  lfs.o(i.lfs_tortoise_detectcycles)
+    lfs_tortoise_detectcycles                0x08012c99   Thumb Code    66  lfs.o(i.lfs_tortoise_detectcycles)
+    i.lfs_unmount                            0x08012d38   Section        0  lfs.o(i.lfs_unmount)
+    i.lfs_unmount_                           0x08012d3c   Section        0  lfs.o(i.lfs_unmount_)
+    lfs_unmount_                             0x08012d3d   Thumb Code     4  lfs.o(i.lfs_unmount_)
+    i.main                                   0x08012d40   Section        0  main.o(i.main)
+    i.mem_cpy                                0x08012f08   Section        0  ff.o(i.mem_cpy)
+    mem_cpy                                  0x08012f09   Thumb Code    18  ff.o(i.mem_cpy)
+    i.mem_set                                0x08012f1c   Section        0  ff.o(i.mem_set)
+    mem_set                                  0x08012f1d   Thumb Code    14  ff.o(i.mem_set)
+    i.move_window                            0x08012f2a   Section        0  ff.o(i.move_window)
+    move_window                              0x08012f2b   Thumb Code    50  ff.o(i.move_window)
+    i.pick_lfn                               0x08012f5c   Section        0  ff.o(i.pick_lfn)
+    pick_lfn                                 0x08012f5d   Thumb Code   110  ff.o(i.pick_lfn)
+    i.put_fat                                0x08012fd0   Section        0  ff.o(i.put_fat)
+    put_fat                                  0x08012fd1   Thumb Code   234  ff.o(i.put_fat)
+    i.remove_chain                           0x080130ba   Section        0  ff.o(i.remove_chain)
+    remove_chain                             0x080130bb   Thumb Code   116  ff.o(i.remove_chain)
+    i.scan_lfs_files                         0x08013130   Section        0  menu.o(i.scan_lfs_files)
+    scan_lfs_files                           0x08013131   Thumb Code   116  menu.o(i.scan_lfs_files)
+    i.scan_sd_card_files                     0x080131dc   Section        0  menu.o(i.scan_sd_card_files)
+    scan_sd_card_files                       0x080131dd   Thumb Code   112  menu.o(i.scan_sd_card_files)
+    i.spi_read_write_byte                    0x08013284   Section        0  w25q128.o(i.spi_read_write_byte)
+    i.st_clust                               0x080132ac   Section        0  ff.o(i.st_clust)
+    st_clust                                 0x080132ad   Thumb Code    40  ff.o(i.st_clust)
+    i.st_dword                               0x080132d4   Section        0  ff.o(i.st_dword)
+    st_dword                                 0x080132d5   Thumb Code    16  ff.o(i.st_dword)
+    i.st_word                                0x080132e4   Section        0  ff.o(i.st_word)
+    st_word                                  0x080132e5   Thumb Code     8  ff.o(i.st_word)
+    i.sum_sfn                                0x080132ec   Section        0  ff.o(i.sum_sfn)
+    sum_sfn                                  0x080132ed   Thumb Code    26  ff.o(i.sum_sfn)
+    i.sync_fs                                0x08013308   Section        0  ff.o(i.sync_fs)
+    sync_fs                                  0x08013309   Thumb Code   126  ff.o(i.sync_fs)
+    i.sync_window                            0x08013390   Section        0  ff.o(i.sync_window)
+    sync_window                              0x08013391   Thumb Code    82  ff.o(i.sync_window)
+    i.uart_wait_command                      0x080133e4   Section        0  usart.o(i.uart_wait_command)
+    i.validate                               0x08013400   Section        0  ff.o(i.validate)
+    validate                                 0x08013401   Thumb Code    52  ff.o(i.validate)
+    i.w25q128_init                           0x08013434   Section        0  w25q128.o(i.w25q128_init)
+    i.xtime                                  0x08013444   Section        0  aes.o(i.xtime)
+    xtime                                    0x08013445   Thumb Code    18  aes.o(i.xtime)
+    x$fpl$fpinit                             0x08013456   Section       10  fpinit.o(x$fpl$fpinit)
+    $v0                                      0x08013456   Number         0  fpinit.o(x$fpl$fpinit)
+    .constdata                               0x08013460   Section       16  system_stm32f4xx.o(.constdata)
+    .constdata                               0x08013470   Section        8  system_stm32f4xx.o(.constdata)
+    .constdata                               0x08013478   Section       96  menu.o(.constdata)
+    .constdata                               0x080134d8   Section        8  stm32f4xx_hal_dma.o(.constdata)
+    flagBitshiftOffset                       0x080134d8   Data           8  stm32f4xx_hal_dma.o(.constdata)
     .constdata                               0x080134e0   Section       12  bootloader_core.o(.constdata)
     .constdata                               0x080134ec   Section       12  bootloader_core.o(.constdata)
-    .constdata                               0x080134f8   Section       20  sd_diskio.o(.constdata)
-    .constdata                               0x0801350c   Section      170  ff.o(.constdata)
-    ExCvt                                    0x0801350c   Data         128  ff.o(.constdata)
-    LfnOfs                                   0x0801358c   Data          13  ff.o(.constdata)
-    cst                                      0x0801359a   Data          14  ff.o(.constdata)
-    cst32                                    0x080135a8   Data          14  ff.o(.constdata)
-    .constdata                               0x080135b6   Section      942  ccsbcs.o(.constdata)
-    Tbl                                      0x080135b6   Data         256  ccsbcs.o(.constdata)
-    cvt1                                     0x080136b6   Data         498  ccsbcs.o(.constdata)
-    cvt2                                     0x080138a8   Data         188  ccsbcs.o(.constdata)
-    .constdata                               0x08013964   Section      520  lfs.o(.constdata)
-    <Data1>                                  0x080139ac   Data          12  lfs.o(.constdata)
-    <Data2>                                  0x080139d0   Data          12  lfs.o(.constdata)
-    defaults                                 0x080139f4   Data          12  lfs.o(.constdata)
-    <Data3>                                  0x08013a54   Data          12  lfs.o(.constdata)
-    <Data4>                                  0x08013a60   Data          12  lfs.o(.constdata)
-    <Data5>                                  0x08013a6c   Data          12  lfs.o(.constdata)
-    .constdata                               0x08013b6c   Section       84  lfs_spi_flash_adapter.o(.constdata)
-    .constdata                               0x08013bc0   Section       64  lfs_util.o(.constdata)
-    rtable                                   0x08013bc0   Data          64  lfs_util.o(.constdata)
-    .constdata                               0x08013c00   Section       36  usbd_storage_if.o(.constdata)
-    .constdata                               0x08013c24   Section      523  aes.o(.constdata)
-    sbox                                     0x08013c24   Data         256  aes.o(.constdata)
-    rsbox                                    0x08013d24   Data         256  aes.o(.constdata)
-    Rcon                                     0x08013e24   Data          11  aes.o(.constdata)
-    .constdata                               0x08013e2f   Section       40  _printf_hex_int.o(.constdata)
-    uc_hextab                                0x08013e2f   Data          20  _printf_hex_int.o(.constdata)
-    lc_hextab                                0x08013e43   Data          20  _printf_hex_int.o(.constdata)
-    .constdata                               0x08013e57   Section       17  __printf_flags_ss_wp.o(.constdata)
-    maptable                                 0x08013e57   Data          17  __printf_flags_ss_wp.o(.constdata)
-    .conststring                             0x08013e68   Section      529  menu.o(.conststring)
-    .conststring                             0x0801407c   Section       77  lfs.o(.conststring)
+    .constdata                               0x080134f8   Section       12  bootloader_core.o(.constdata)
+    .constdata                               0x08013504   Section       12  bootloader_core.o(.constdata)
+    .constdata                               0x08013510   Section       20  sd_diskio.o(.constdata)
+    .constdata                               0x08013524   Section      170  ff.o(.constdata)
+    ExCvt                                    0x08013524   Data         128  ff.o(.constdata)
+    LfnOfs                                   0x080135a4   Data          13  ff.o(.constdata)
+    cst                                      0x080135b2   Data          14  ff.o(.constdata)
+    cst32                                    0x080135c0   Data          14  ff.o(.constdata)
+    .constdata                               0x080135ce   Section      942  ccsbcs.o(.constdata)
+    Tbl                                      0x080135ce   Data         256  ccsbcs.o(.constdata)
+    cvt1                                     0x080136ce   Data         498  ccsbcs.o(.constdata)
+    cvt2                                     0x080138c0   Data         188  ccsbcs.o(.constdata)
+    .constdata                               0x0801397c   Section      520  lfs.o(.constdata)
+    <Data1>                                  0x080139c4   Data          12  lfs.o(.constdata)
+    <Data2>                                  0x080139e8   Data          12  lfs.o(.constdata)
+    defaults                                 0x08013a0c   Data          12  lfs.o(.constdata)
+    <Data3>                                  0x08013a6c   Data          12  lfs.o(.constdata)
+    <Data4>                                  0x08013a78   Data          12  lfs.o(.constdata)
+    <Data5>                                  0x08013a84   Data          12  lfs.o(.constdata)
+    .constdata                               0x08013b84   Section       84  lfs_spi_flash_adapter.o(.constdata)
+    .constdata                               0x08013bd8   Section       64  lfs_util.o(.constdata)
+    rtable                                   0x08013bd8   Data          64  lfs_util.o(.constdata)
+    .constdata                               0x08013c18   Section       36  usbd_storage_if.o(.constdata)
+    .constdata                               0x08013c3c   Section      523  aes.o(.constdata)
+    sbox                                     0x08013c3c   Data         256  aes.o(.constdata)
+    rsbox                                    0x08013d3c   Data         256  aes.o(.constdata)
+    Rcon                                     0x08013e3c   Data          11  aes.o(.constdata)
+    .constdata                               0x08013e47   Section       40  _printf_hex_int.o(.constdata)
+    uc_hextab                                0x08013e47   Data          20  _printf_hex_int.o(.constdata)
+    lc_hextab                                0x08013e5b   Data          20  _printf_hex_int.o(.constdata)
+    .constdata                               0x08013e6f   Section       17  __printf_flags_ss_wp.o(.constdata)
+    maptable                                 0x08013e6f   Data          17  __printf_flags_ss_wp.o(.constdata)
+    .conststring                             0x08013e80   Section      529  menu.o(.conststring)
+    .conststring                             0x08014094   Section       77  lfs.o(.conststring)
     .data                                    0x20000000   Section        1  usart.o(.data)
     .data                                    0x20000004   Section        4  usart.o(.data)
     .data                                    0x20000008   Section        4  system_stm32f4xx.o(.data)
@@ -5495,50 +5522,50 @@ Image Symbol Table
     internal_flash_tgt_close                 0x0800e4c5   Thumb Code    20  bootloader_core.o(i.internal_flash_tgt_close)
     internal_flash_tgt_open                  0x0800e4dd   Thumb Code   102  bootloader_core.o(i.internal_flash_tgt_open)
     internal_flash_tgt_write                 0x0800e551   Thumb Code   110  bootloader_core.o(i.internal_flash_tgt_write)
-    jump_to_app                              0x0800e5c9   Thumb Code    66  bootloader_core.o(i.jump_to_app)
-    led_control_task                         0x0800e659   Thumb Code    52  led.o(i.led_control_task)
-    lfs_crc                                  0x0800ebcd   Thumb Code    50  lfs_util.o(i.lfs_crc)
-    lfs_dir_close                            0x0800eff9   Thumb Code    10  lfs.o(i.lfs_dir_close)
-    lfs_dir_open                             0x0800ffd5   Thumb Code    34  lfs.o(i.lfs_dir_open)
-    lfs_dir_read                             0x08010489   Thumb Code     4  lfs.o(i.lfs_dir_read)
-    lfs_file_close                           0x08010da5   Thumb Code    30  lfs.o(i.lfs_file_close)
-    lfs_file_open                            0x0801113d   Thumb Code    40  lfs.o(i.lfs_file_open)
-    lfs_file_read                            0x080113d3   Thumb Code    66  lfs.o(i.lfs_file_read)
-    lfs_file_seek                            0x08011555   Thumb Code    40  lfs.o(i.lfs_file_seek)
-    lfs_file_sync                            0x0801161b   Thumb Code    30  lfs.o(i.lfs_file_sync)
-    lfs_file_write                           0x080116f9   Thumb Code    40  lfs.o(i.lfs_file_write)
-    lfs_format                               0x080117b1   Thumb Code     4  lfs.o(i.lfs_format)
-    lfs_mount                                0x08012277   Thumb Code     4  lfs.o(i.lfs_mount)
-    lfs_remove                               0x0801277b   Thumb Code     4  lfs.o(i.lfs_remove)
-    lfs_spi_flash_init                       0x080128a5   Thumb Code    30  lfs_spi_flash_adapter.o(i.lfs_spi_flash_init)
-    lfs_spi_flash_mount                      0x080128c5   Thumb Code    44  lfs_spi_flash_adapter.o(i.lfs_spi_flash_mount)
-    lfs_spi_flash_unmount                    0x080129a5   Thumb Code     8  lfs_spi_flash_adapter.o(i.lfs_spi_flash_unmount)
-    lfs_src_close                            0x080129b1   Thumb Code    36  bootloader_core.o(i.lfs_src_close)
-    lfs_src_open                             0x080129d9   Thumb Code   128  bootloader_core.o(i.lfs_src_open)
-    lfs_src_read                             0x08012a61   Thumb Code    52  bootloader_core.o(i.lfs_src_read)
-    lfs_stat                                 0x08012a99   Thumb Code    70  lfs.o(i.lfs_stat)
-    lfs_tgt_close                            0x08012b6d   Thumb Code    58  bootloader_core.o(i.lfs_tgt_close)
-    lfs_tgt_open                             0x08012bad   Thumb Code   104  bootloader_core.o(i.lfs_tgt_open)
-    lfs_tgt_write                            0x08012c1d   Thumb Code    90  bootloader_core.o(i.lfs_tgt_write)
-    lfs_unmount                              0x08012d21   Thumb Code     4  lfs.o(i.lfs_unmount)
-    main                                     0x08012d29   Thumb Code   214  main.o(i.main)
-    spi_read_write_byte                      0x0801326d   Thumb Code    34  w25q128.o(i.spi_read_write_byte)
-    uart_wait_command                        0x080133cd   Thumb Code    24  usart.o(i.uart_wait_command)
-    w25q128_init                             0x0801341d   Thumb Code    10  w25q128.o(i.w25q128_init)
-    _fp_init                                 0x0801343f   Thumb Code    10  fpinit.o(x$fpl$fpinit)
-    __fplib_config_fpu_vfp                   0x08013447   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    __fplib_config_pureend_doubles           0x08013447   Thumb Code     0  fpinit.o(x$fpl$fpinit)
-    AHBPrescTable                            0x08013448   Data          16  system_stm32f4xx.o(.constdata)
-    APBPrescTable                            0x08013458   Data           8  system_stm32f4xx.o(.constdata)
-    internal_flash_target_if                 0x080134c8   Data          12  bootloader_core.o(.constdata)
-    fatfs_source_if                          0x080134d4   Data          12  bootloader_core.o(.constdata)
-    lfs_source_if                            0x080134e0   Data          12  bootloader_core.o(.constdata)
-    lfs_target_if                            0x080134ec   Data          12  bootloader_core.o(.constdata)
-    SD_Driver                                0x080134f8   Data          20  sd_diskio.o(.constdata)
-    lfs_spi_flash_cfg                        0x08013b6c   Data          84  lfs_spi_flash_adapter.o(.constdata)
-    STORAGE_Inquirydata_FS                   0x08013c00   Data          36  usbd_storage_if.o(.constdata)
-    Region$$Table$$Base                      0x080140cc   Number         0  anon$$obj.o(Region$$Table)
-    Region$$Table$$Limit                     0x080140ec   Number         0  anon$$obj.o(Region$$Table)
+    jump_to_app                              0x0800e5c9   Thumb Code    88  bootloader_core.o(i.jump_to_app)
+    led_control_task                         0x0800e671   Thumb Code    52  led.o(i.led_control_task)
+    lfs_crc                                  0x0800ebe5   Thumb Code    50  lfs_util.o(i.lfs_crc)
+    lfs_dir_close                            0x0800f011   Thumb Code    10  lfs.o(i.lfs_dir_close)
+    lfs_dir_open                             0x0800ffed   Thumb Code    34  lfs.o(i.lfs_dir_open)
+    lfs_dir_read                             0x080104a1   Thumb Code     4  lfs.o(i.lfs_dir_read)
+    lfs_file_close                           0x08010dbd   Thumb Code    30  lfs.o(i.lfs_file_close)
+    lfs_file_open                            0x08011155   Thumb Code    40  lfs.o(i.lfs_file_open)
+    lfs_file_read                            0x080113eb   Thumb Code    66  lfs.o(i.lfs_file_read)
+    lfs_file_seek                            0x0801156d   Thumb Code    40  lfs.o(i.lfs_file_seek)
+    lfs_file_sync                            0x08011633   Thumb Code    30  lfs.o(i.lfs_file_sync)
+    lfs_file_write                           0x08011711   Thumb Code    40  lfs.o(i.lfs_file_write)
+    lfs_format                               0x080117c9   Thumb Code     4  lfs.o(i.lfs_format)
+    lfs_mount                                0x0801228f   Thumb Code     4  lfs.o(i.lfs_mount)
+    lfs_remove                               0x08012793   Thumb Code     4  lfs.o(i.lfs_remove)
+    lfs_spi_flash_init                       0x080128bd   Thumb Code    30  lfs_spi_flash_adapter.o(i.lfs_spi_flash_init)
+    lfs_spi_flash_mount                      0x080128dd   Thumb Code    44  lfs_spi_flash_adapter.o(i.lfs_spi_flash_mount)
+    lfs_spi_flash_unmount                    0x080129bd   Thumb Code     8  lfs_spi_flash_adapter.o(i.lfs_spi_flash_unmount)
+    lfs_src_close                            0x080129c9   Thumb Code    36  bootloader_core.o(i.lfs_src_close)
+    lfs_src_open                             0x080129f1   Thumb Code   128  bootloader_core.o(i.lfs_src_open)
+    lfs_src_read                             0x08012a79   Thumb Code    52  bootloader_core.o(i.lfs_src_read)
+    lfs_stat                                 0x08012ab1   Thumb Code    70  lfs.o(i.lfs_stat)
+    lfs_tgt_close                            0x08012b85   Thumb Code    58  bootloader_core.o(i.lfs_tgt_close)
+    lfs_tgt_open                             0x08012bc5   Thumb Code   104  bootloader_core.o(i.lfs_tgt_open)
+    lfs_tgt_write                            0x08012c35   Thumb Code    90  bootloader_core.o(i.lfs_tgt_write)
+    lfs_unmount                              0x08012d39   Thumb Code     4  lfs.o(i.lfs_unmount)
+    main                                     0x08012d41   Thumb Code   214  main.o(i.main)
+    spi_read_write_byte                      0x08013285   Thumb Code    34  w25q128.o(i.spi_read_write_byte)
+    uart_wait_command                        0x080133e5   Thumb Code    24  usart.o(i.uart_wait_command)
+    w25q128_init                             0x08013435   Thumb Code    10  w25q128.o(i.w25q128_init)
+    _fp_init                                 0x08013457   Thumb Code    10  fpinit.o(x$fpl$fpinit)
+    __fplib_config_fpu_vfp                   0x0801345f   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    __fplib_config_pureend_doubles           0x0801345f   Thumb Code     0  fpinit.o(x$fpl$fpinit)
+    AHBPrescTable                            0x08013460   Data          16  system_stm32f4xx.o(.constdata)
+    APBPrescTable                            0x08013470   Data           8  system_stm32f4xx.o(.constdata)
+    internal_flash_target_if                 0x080134e0   Data          12  bootloader_core.o(.constdata)
+    fatfs_source_if                          0x080134ec   Data          12  bootloader_core.o(.constdata)
+    lfs_source_if                            0x080134f8   Data          12  bootloader_core.o(.constdata)
+    lfs_target_if                            0x08013504   Data          12  bootloader_core.o(.constdata)
+    SD_Driver                                0x08013510   Data          20  sd_diskio.o(.constdata)
+    lfs_spi_flash_cfg                        0x08013b84   Data          84  lfs_spi_flash_adapter.o(.constdata)
+    STORAGE_Inquirydata_FS                   0x08013c18   Data          36  usbd_storage_if.o(.constdata)
+    Region$$Table$$Base                      0x080140e4   Number         0  anon$$obj.o(Region$$Table)
+    Region$$Table$$Limit                     0x08014104   Number         0  anon$$obj.o(Region$$Table)
     cmd                                      0x20000000   Data           1  usart.o(.data)
     __stdout                                 0x20000004   Data           4  usart.o(.data)
     SystemCoreClock                          0x20000008   Data           4  system_stm32f4xx.o(.data)
@@ -5592,129 +5619,129 @@ Memory Map of the image
 
   Image Entry point : 0x08000189
 
-  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x000142ec, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x000141a0])
+  Load Region LR_IROM1 (Base: 0x08000000, Size: 0x00014304, Max: 0x00100000, ABSOLUTE, COMPRESSED[0x000141b8])
 
-    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x000140ec, Max: 0x00100000, ABSOLUTE)
+    Execution Region ER_IROM1 (Exec base: 0x08000000, Load base: 0x08000000, Size: 0x00014104, Max: 0x00100000, ABSOLUTE)
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
     0x08000000   0x08000000   0x00000188   Data   RO            3    RESET               startup_stm32f407xx.o
-    0x08000188   0x08000188   0x00000008   Code   RO         8658  * !!!main             c_w.l(__main.o)
-    0x08000190   0x08000190   0x00000034   Code   RO         8894    !!!scatter          c_w.l(__scatter.o)
-    0x080001c4   0x080001c4   0x0000005a   Code   RO         8892    !!dczerorl2         c_w.l(__dczerorl2.o)
+    0x08000188   0x08000188   0x00000008   Code   RO         8733  * !!!main             c_w.l(__main.o)
+    0x08000190   0x08000190   0x00000034   Code   RO         8969    !!!scatter          c_w.l(__scatter.o)
+    0x080001c4   0x080001c4   0x0000005a   Code   RO         8967    !!dczerorl2         c_w.l(__dczerorl2.o)
     0x0800021e   0x0800021e   0x00000002   PAD
-    0x08000220   0x08000220   0x0000001c   Code   RO         8896    !!handler_zi        c_w.l(__scatter_zi.o)
-    0x0800023c   0x0800023c   0x00000000   Code   RO         8623    .ARM.Collect$$_printf_percent$$00000000  c_w.l(_printf_percent.o)
-    0x0800023c   0x0800023c   0x00000006   Code   RO         8621    .ARM.Collect$$_printf_percent$$00000009  c_w.l(_printf_d.o)
-    0x08000242   0x08000242   0x00000006   Code   RO         8622    .ARM.Collect$$_printf_percent$$0000000A  c_w.l(_printf_u.o)
-    0x08000248   0x08000248   0x00000006   Code   RO         8620    .ARM.Collect$$_printf_percent$$0000000C  c_w.l(_printf_x.o)
-    0x0800024e   0x0800024e   0x00000006   Code   RO         8619    .ARM.Collect$$_printf_percent$$00000014  c_w.l(_printf_s.o)
-    0x08000254   0x08000254   0x00000004   Code   RO         8704    .ARM.Collect$$_printf_percent$$00000017  c_w.l(_printf_percent_end.o)
-    0x08000258   0x08000258   0x00000002   Code   RO         8837    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
-    0x0800025a   0x0800025a   0x00000004   Code   RO         8711    .ARM.Collect$$libinit$$00000001  c_w.l(libinit2.o)
-    0x0800025e   0x0800025e   0x00000000   Code   RO         8714    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
-    0x0800025e   0x0800025e   0x00000008   Code   RO         8715    .ARM.Collect$$libinit$$00000005  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8717    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8719    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8721    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8724    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8726    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8728    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8730    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8732    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8734    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8736    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8738    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8740    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8742    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8744    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8748    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8750    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8752    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000000   Code   RO         8754    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
-    0x08000266   0x08000266   0x00000002   Code   RO         8755    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
-    0x08000268   0x08000268   0x00000002   Code   RO         8889    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8851    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8853    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8855    .ARM.Collect$$libshutdown$$00000006  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8858    .ARM.Collect$$libshutdown$$00000009  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8861    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8863    .ARM.Collect$$libshutdown$$0000000E  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000000   Code   RO         8866    .ARM.Collect$$libshutdown$$00000011  c_w.l(libshutdown2.o)
-    0x0800026a   0x0800026a   0x00000002   Code   RO         8867    .ARM.Collect$$libshutdown$$00000012  c_w.l(libshutdown2.o)
-    0x0800026c   0x0800026c   0x00000000   Code   RO         8662    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
-    0x0800026c   0x0800026c   0x00000000   Code   RO         8762    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
-    0x0800026c   0x0800026c   0x00000006   Code   RO         8774    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
-    0x08000272   0x08000272   0x00000000   Code   RO         8764    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
-    0x08000272   0x08000272   0x00000004   Code   RO         8765    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
-    0x08000276   0x08000276   0x00000000   Code   RO         8767    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
-    0x08000276   0x08000276   0x00000008   Code   RO         8768    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
-    0x0800027e   0x0800027e   0x00000002   Code   RO         8840    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
-    0x08000280   0x08000280   0x00000000   Code   RO         8869    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
-    0x08000280   0x08000280   0x00000004   Code   RO         8870    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
-    0x08000284   0x08000284   0x00000006   Code   RO         8871    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
+    0x08000220   0x08000220   0x0000001c   Code   RO         8971    !!handler_zi        c_w.l(__scatter_zi.o)
+    0x0800023c   0x0800023c   0x00000000   Code   RO         8698    .ARM.Collect$$_printf_percent$$00000000  c_w.l(_printf_percent.o)
+    0x0800023c   0x0800023c   0x00000006   Code   RO         8696    .ARM.Collect$$_printf_percent$$00000009  c_w.l(_printf_d.o)
+    0x08000242   0x08000242   0x00000006   Code   RO         8697    .ARM.Collect$$_printf_percent$$0000000A  c_w.l(_printf_u.o)
+    0x08000248   0x08000248   0x00000006   Code   RO         8695    .ARM.Collect$$_printf_percent$$0000000C  c_w.l(_printf_x.o)
+    0x0800024e   0x0800024e   0x00000006   Code   RO         8694    .ARM.Collect$$_printf_percent$$00000014  c_w.l(_printf_s.o)
+    0x08000254   0x08000254   0x00000004   Code   RO         8779    .ARM.Collect$$_printf_percent$$00000017  c_w.l(_printf_percent_end.o)
+    0x08000258   0x08000258   0x00000002   Code   RO         8912    .ARM.Collect$$libinit$$00000000  c_w.l(libinit.o)
+    0x0800025a   0x0800025a   0x00000004   Code   RO         8786    .ARM.Collect$$libinit$$00000001  c_w.l(libinit2.o)
+    0x0800025e   0x0800025e   0x00000000   Code   RO         8789    .ARM.Collect$$libinit$$00000004  c_w.l(libinit2.o)
+    0x0800025e   0x0800025e   0x00000008   Code   RO         8790    .ARM.Collect$$libinit$$00000005  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8792    .ARM.Collect$$libinit$$0000000A  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8794    .ARM.Collect$$libinit$$0000000C  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8796    .ARM.Collect$$libinit$$0000000E  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8799    .ARM.Collect$$libinit$$00000011  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8801    .ARM.Collect$$libinit$$00000013  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8803    .ARM.Collect$$libinit$$00000015  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8805    .ARM.Collect$$libinit$$00000017  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8807    .ARM.Collect$$libinit$$00000019  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8809    .ARM.Collect$$libinit$$0000001B  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8811    .ARM.Collect$$libinit$$0000001D  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8813    .ARM.Collect$$libinit$$0000001F  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8815    .ARM.Collect$$libinit$$00000021  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8817    .ARM.Collect$$libinit$$00000023  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8819    .ARM.Collect$$libinit$$00000025  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8823    .ARM.Collect$$libinit$$0000002C  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8825    .ARM.Collect$$libinit$$0000002E  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8827    .ARM.Collect$$libinit$$00000030  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000000   Code   RO         8829    .ARM.Collect$$libinit$$00000032  c_w.l(libinit2.o)
+    0x08000266   0x08000266   0x00000002   Code   RO         8830    .ARM.Collect$$libinit$$00000033  c_w.l(libinit2.o)
+    0x08000268   0x08000268   0x00000002   Code   RO         8964    .ARM.Collect$$libshutdown$$00000000  c_w.l(libshutdown.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8926    .ARM.Collect$$libshutdown$$00000002  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8928    .ARM.Collect$$libshutdown$$00000004  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8930    .ARM.Collect$$libshutdown$$00000006  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8933    .ARM.Collect$$libshutdown$$00000009  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8936    .ARM.Collect$$libshutdown$$0000000C  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8938    .ARM.Collect$$libshutdown$$0000000E  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000000   Code   RO         8941    .ARM.Collect$$libshutdown$$00000011  c_w.l(libshutdown2.o)
+    0x0800026a   0x0800026a   0x00000002   Code   RO         8942    .ARM.Collect$$libshutdown$$00000012  c_w.l(libshutdown2.o)
+    0x0800026c   0x0800026c   0x00000000   Code   RO         8737    .ARM.Collect$$rtentry$$00000000  c_w.l(__rtentry.o)
+    0x0800026c   0x0800026c   0x00000000   Code   RO         8837    .ARM.Collect$$rtentry$$00000002  c_w.l(__rtentry2.o)
+    0x0800026c   0x0800026c   0x00000006   Code   RO         8849    .ARM.Collect$$rtentry$$00000004  c_w.l(__rtentry4.o)
+    0x08000272   0x08000272   0x00000000   Code   RO         8839    .ARM.Collect$$rtentry$$00000009  c_w.l(__rtentry2.o)
+    0x08000272   0x08000272   0x00000004   Code   RO         8840    .ARM.Collect$$rtentry$$0000000A  c_w.l(__rtentry2.o)
+    0x08000276   0x08000276   0x00000000   Code   RO         8842    .ARM.Collect$$rtentry$$0000000C  c_w.l(__rtentry2.o)
+    0x08000276   0x08000276   0x00000008   Code   RO         8843    .ARM.Collect$$rtentry$$0000000D  c_w.l(__rtentry2.o)
+    0x0800027e   0x0800027e   0x00000002   Code   RO         8915    .ARM.Collect$$rtexit$$00000000  c_w.l(rtexit.o)
+    0x08000280   0x08000280   0x00000000   Code   RO         8944    .ARM.Collect$$rtexit$$00000002  c_w.l(rtexit2.o)
+    0x08000280   0x08000280   0x00000004   Code   RO         8945    .ARM.Collect$$rtexit$$00000003  c_w.l(rtexit2.o)
+    0x08000284   0x08000284   0x00000006   Code   RO         8946    .ARM.Collect$$rtexit$$00000004  c_w.l(rtexit2.o)
     0x0800028a   0x0800028a   0x00000002   PAD
-    0x0800028c   0x0800028c   0x00000000   Code   RO         8782    .emb_text           c_w.l(maybetermalloc1.o)
+    0x0800028c   0x0800028c   0x00000000   Code   RO         8857    .emb_text           c_w.l(maybetermalloc1.o)
     0x0800028c   0x0800028c   0x00000040   Code   RO            4    .text               startup_stm32f407xx.o
-    0x080002cc   0x080002cc   0x0000005e   Code   RO         8502    .text               c_w.l(h1_alloc.o)
-    0x0800032a   0x0800032a   0x0000004e   Code   RO         8504    .text               c_w.l(h1_free.o)
-    0x08000378   0x08000378   0x000000ee   Code   RO         8560    .text               c_w.l(lludivv7m.o)
+    0x080002cc   0x080002cc   0x0000005e   Code   RO         8575    .text               c_w.l(h1_alloc.o)
+    0x0800032a   0x0800032a   0x0000004e   Code   RO         8577    .text               c_w.l(h1_free.o)
+    0x08000378   0x08000378   0x000000ee   Code   RO         8633    .text               c_w.l(lludivv7m.o)
     0x08000466   0x08000466   0x00000002   PAD
-    0x08000468   0x08000468   0x00000018   Code   RO         8566    .text               c_w.l(noretval__2printf.o)
-    0x08000480   0x08000480   0x00000034   Code   RO         8568    .text               c_w.l(noretval__2snprintf.o)
-    0x080004b4   0x080004b4   0x0000004e   Code   RO         8572    .text               c_w.l(_printf_pad.o)
-    0x08000502   0x08000502   0x00000052   Code   RO         8574    .text               c_w.l(_printf_str.o)
-    0x08000554   0x08000554   0x00000078   Code   RO         8576    .text               c_w.l(_printf_dec.o)
-    0x080005cc   0x080005cc   0x00000058   Code   RO         8581    .text               c_w.l(_printf_hex_int.o)
-    0x08000624   0x08000624   0x00000188   Code   RO         8616    .text               c_w.l(__printf_flags_ss_wp.o)
-    0x080007ac   0x080007ac   0x00000016   Code   RO         8624    .text               c_w.l(abort.o)
-    0x080007c2   0x080007c2   0x00000014   Code   RO         8626    .text               c_w.l(strchr.o)
-    0x080007d6   0x080007d6   0x00000020   Code   RO         8628    .text               c_w.l(strcspn.o)
-    0x080007f6   0x080007f6   0x0000001c   Code   RO         8630    .text               c_w.l(strspn.o)
-    0x08000812   0x08000812   0x00000024   Code   RO         8632    .text               c_w.l(strstr.o)
-    0x08000836   0x08000836   0x00000058   Code   RO         8634    .text               c_w.l(memcmp.o)
-    0x0800088e   0x0800088e   0x00000048   Code   RO         8636    .text               c_w.l(strcpy.o)
-    0x080008d6   0x080008d6   0x0000003e   Code   RO         8638    .text               c_w.l(strlen.o)
-    0x08000914   0x08000914   0x00000018   Code   RO         8640    .text               c_w.l(strcat.o)
-    0x0800092c   0x0800092c   0x0000008a   Code   RO         8642    .text               c_w.l(rt_memcpy_v6.o)
-    0x080009b6   0x080009b6   0x00000064   Code   RO         8644    .text               c_w.l(rt_memcpy_w.o)
-    0x08000a1a   0x08000a1a   0x00000010   Code   RO         8646    .text               c_w.l(aeabi_memset.o)
-    0x08000a2a   0x08000a2a   0x00000044   Code   RO         8648    .text               c_w.l(rt_memclr.o)
-    0x08000a6e   0x08000a6e   0x0000004e   Code   RO         8650    .text               c_w.l(rt_memclr_w.o)
-    0x08000abc   0x08000abc   0x00000056   Code   RO         8652    .text               c_w.l(strncpy.o)
+    0x08000468   0x08000468   0x00000018   Code   RO         8641    .text               c_w.l(noretval__2printf.o)
+    0x08000480   0x08000480   0x00000034   Code   RO         8643    .text               c_w.l(noretval__2snprintf.o)
+    0x080004b4   0x080004b4   0x0000004e   Code   RO         8647    .text               c_w.l(_printf_pad.o)
+    0x08000502   0x08000502   0x00000052   Code   RO         8649    .text               c_w.l(_printf_str.o)
+    0x08000554   0x08000554   0x00000078   Code   RO         8651    .text               c_w.l(_printf_dec.o)
+    0x080005cc   0x080005cc   0x00000058   Code   RO         8656    .text               c_w.l(_printf_hex_int.o)
+    0x08000624   0x08000624   0x00000188   Code   RO         8691    .text               c_w.l(__printf_flags_ss_wp.o)
+    0x080007ac   0x080007ac   0x00000016   Code   RO         8699    .text               c_w.l(abort.o)
+    0x080007c2   0x080007c2   0x00000014   Code   RO         8701    .text               c_w.l(strchr.o)
+    0x080007d6   0x080007d6   0x00000020   Code   RO         8703    .text               c_w.l(strcspn.o)
+    0x080007f6   0x080007f6   0x0000001c   Code   RO         8705    .text               c_w.l(strspn.o)
+    0x08000812   0x08000812   0x00000024   Code   RO         8707    .text               c_w.l(strstr.o)
+    0x08000836   0x08000836   0x00000058   Code   RO         8709    .text               c_w.l(memcmp.o)
+    0x0800088e   0x0800088e   0x00000048   Code   RO         8711    .text               c_w.l(strcpy.o)
+    0x080008d6   0x080008d6   0x0000003e   Code   RO         8713    .text               c_w.l(strlen.o)
+    0x08000914   0x08000914   0x00000018   Code   RO         8715    .text               c_w.l(strcat.o)
+    0x0800092c   0x0800092c   0x0000008a   Code   RO         8717    .text               c_w.l(rt_memcpy_v6.o)
+    0x080009b6   0x080009b6   0x00000064   Code   RO         8719    .text               c_w.l(rt_memcpy_w.o)
+    0x08000a1a   0x08000a1a   0x00000010   Code   RO         8721    .text               c_w.l(aeabi_memset.o)
+    0x08000a2a   0x08000a2a   0x00000044   Code   RO         8723    .text               c_w.l(rt_memclr.o)
+    0x08000a6e   0x08000a6e   0x0000004e   Code   RO         8725    .text               c_w.l(rt_memclr_w.o)
+    0x08000abc   0x08000abc   0x00000056   Code   RO         8727    .text               c_w.l(strncpy.o)
     0x08000b12   0x08000b12   0x00000002   PAD
-    0x08000b14   0x08000b14   0x00000080   Code   RO         8654    .text               c_w.l(strcmpv7m.o)
-    0x08000b94   0x08000b94   0x00000006   Code   RO         8656    .text               c_w.l(heapauxi.o)
+    0x08000b14   0x08000b14   0x00000080   Code   RO         8729    .text               c_w.l(strcmpv7m.o)
+    0x08000b94   0x08000b94   0x00000006   Code   RO         8731    .text               c_w.l(heapauxi.o)
     0x08000b9a   0x08000b9a   0x00000002   PAD
-    0x08000b9c   0x08000b9c   0x00000008   Code   RO         8670    .text               c_w.l(rt_heap_descriptor_intlibspace.o)
-    0x08000ba4   0x08000ba4   0x00000004   Code   RO         8672    .text               c_w.l(hguard.o)
-    0x08000ba8   0x08000ba8   0x0000008a   Code   RO         8674    .text               c_w.l(init_alloc.o)
-    0x08000c32   0x08000c32   0x0000000e   Code   RO         8678    .text               c_w.l(h1_init.o)
-    0x08000c40   0x08000c40   0x000000b2   Code   RO         8692    .text               c_w.l(_printf_intcommon.o)
+    0x08000b9c   0x08000b9c   0x00000008   Code   RO         8745    .text               c_w.l(rt_heap_descriptor_intlibspace.o)
+    0x08000ba4   0x08000ba4   0x00000004   Code   RO         8747    .text               c_w.l(hguard.o)
+    0x08000ba8   0x08000ba8   0x0000008a   Code   RO         8749    .text               c_w.l(init_alloc.o)
+    0x08000c32   0x08000c32   0x0000000e   Code   RO         8753    .text               c_w.l(h1_init.o)
+    0x08000c40   0x08000c40   0x000000b2   Code   RO         8767    .text               c_w.l(_printf_intcommon.o)
     0x08000cf2   0x08000cf2   0x00000002   PAD
-    0x08000cf4   0x08000cf4   0x00000030   Code   RO         8694    .text               c_w.l(_printf_char_common.o)
-    0x08000d24   0x08000d24   0x0000000a   Code   RO         8696    .text               c_w.l(_sputc.o)
-    0x08000d2e   0x08000d2e   0x00000010   Code   RO         8698    .text               c_w.l(_snputc.o)
-    0x08000d3e   0x08000d3e   0x0000002c   Code   RO         8700    .text               c_w.l(_printf_char.o)
+    0x08000cf4   0x08000cf4   0x00000030   Code   RO         8769    .text               c_w.l(_printf_char_common.o)
+    0x08000d24   0x08000d24   0x0000000a   Code   RO         8771    .text               c_w.l(_sputc.o)
+    0x08000d2e   0x08000d2e   0x00000010   Code   RO         8773    .text               c_w.l(_snputc.o)
+    0x08000d3e   0x08000d3e   0x0000002c   Code   RO         8775    .text               c_w.l(_printf_char.o)
     0x08000d6a   0x08000d6a   0x00000002   PAD
-    0x08000d6c   0x08000d6c   0x00000024   Code   RO         8702    .text               c_w.l(_printf_char_file.o)
-    0x08000d90   0x08000d90   0x0000000e   Code   RO         8705    .text               c_w.l(defsig_abrt_outer.o)
+    0x08000d6c   0x08000d6c   0x00000024   Code   RO         8777    .text               c_w.l(_printf_char_file.o)
+    0x08000d90   0x08000d90   0x0000000e   Code   RO         8780    .text               c_w.l(defsig_abrt_outer.o)
     0x08000d9e   0x08000d9e   0x00000002   PAD
-    0x08000da0   0x08000da0   0x00000008   Code   RO         8758    .text               c_w.l(libspace.o)
-    0x08000da8   0x08000da8   0x00000034   Code   RO         8784    .text               c_w.l(h1_extend.o)
-    0x08000ddc   0x08000ddc   0x00000008   Code   RO         8790    .text               c_w.l(ferror.o)
-    0x08000de4   0x08000de4   0x0000000a   Code   RO         8794    .text               c_w.l(defsig_exit.o)
+    0x08000da0   0x08000da0   0x00000008   Code   RO         8833    .text               c_w.l(libspace.o)
+    0x08000da8   0x08000da8   0x00000034   Code   RO         8859    .text               c_w.l(h1_extend.o)
+    0x08000ddc   0x08000ddc   0x00000008   Code   RO         8865    .text               c_w.l(ferror.o)
+    0x08000de4   0x08000de4   0x0000000a   Code   RO         8869    .text               c_w.l(defsig_exit.o)
     0x08000dee   0x08000dee   0x00000002   PAD
-    0x08000df0   0x08000df0   0x00000030   Code   RO         8796    .text               c_w.l(defsig_abrt_inner.o)
-    0x08000e20   0x08000e20   0x0000000e   Code   RO         8798    .text               c_w.l(defsig_rtmem_outer.o)
-    0x08000e2e   0x08000e2e   0x00000002   Code   RO         8809    .text               c_w.l(use_no_semi.o)
-    0x08000e30   0x08000e30   0x00000000   Code   RO         8811    .text               c_w.l(indicate_semi.o)
-    0x08000e30   0x08000e30   0x0000004a   Code   RO         8812    .text               c_w.l(sys_stackheap_outer.o)
-    0x08000e7a   0x08000e7a   0x00000012   Code   RO         8816    .text               c_w.l(exit.o)
-    0x08000e8c   0x08000e8c   0x00000032   Code   RO         8820    .text               c_w.l(defsig_general.o)
+    0x08000df0   0x08000df0   0x00000030   Code   RO         8871    .text               c_w.l(defsig_abrt_inner.o)
+    0x08000e20   0x08000e20   0x0000000e   Code   RO         8873    .text               c_w.l(defsig_rtmem_outer.o)
+    0x08000e2e   0x08000e2e   0x00000002   Code   RO         8884    .text               c_w.l(use_no_semi.o)
+    0x08000e30   0x08000e30   0x00000000   Code   RO         8886    .text               c_w.l(indicate_semi.o)
+    0x08000e30   0x08000e30   0x0000004a   Code   RO         8887    .text               c_w.l(sys_stackheap_outer.o)
+    0x08000e7a   0x08000e7a   0x00000012   Code   RO         8891    .text               c_w.l(exit.o)
+    0x08000e8c   0x08000e8c   0x00000032   Code   RO         8895    .text               c_w.l(defsig_general.o)
     0x08000ebe   0x08000ebe   0x00000002   PAD
-    0x08000ec0   0x08000ec0   0x00000050   Code   RO         8826    .text               c_w.l(defsig_rtmem_inner.o)
-    0x08000f10   0x08000f10   0x0000000e   Code   RO         8838    .text               c_w.l(sys_wrch.o)
+    0x08000ec0   0x08000ec0   0x00000050   Code   RO         8901    .text               c_w.l(defsig_rtmem_inner.o)
+    0x08000f10   0x08000f10   0x0000000e   Code   RO         8913    .text               c_w.l(sys_wrch.o)
     0x08000f1e   0x08000f1e   0x00000042   Code   RO         8280    i.AES_CBC_decrypt_buffer  aes.o
     0x08000f60   0x08000f60   0x0000001a   Code   RO         8287    i.AES_init_ctx_iv   aes.o
     0x08000f7a   0x08000f7a   0x00000030   Code   RO         8288    i.AddRoundKey       aes.o
@@ -6150,7 +6177,7 @@ Memory Map of the image
     0x0800c0bc   0x0800c0bc   0x00000194   Code   RO         1009    i.Ymodem_Receive    ymodem.o
     0x0800c250   0x0800c250   0x000002c8   Code   RO         1010    i.Ymodem_Transmit   ymodem.o
     0x0800c518   0x0800c518   0x00000020   Code   RO         2441    i.__NVIC_SetPriority  stm32f4xx_hal_cortex.o
-    0x0800c538   0x0800c538   0x0000000e   Code   RO         8609    i._is_digit         c_w.l(__printf_wp.o)
+    0x0800c538   0x0800c538   0x0000000e   Code   RO         8684    i._is_digit         c_w.l(__printf_wp.o)
     0x0800c546   0x0800c546   0x00000002   Code   RO          519    i._sys_exit         usart.o
     0x0800c548   0x0800c548   0x00000178   Code   RO         8386    i.aes_decrypt_file_fatfs  aes_decrypt.o
     0x0800c6c0   0x0800c6c0   0x00000198   Code   RO         8388    i.aes_decrypt_to_flash_fatfs  aes_decrypt.o
@@ -6211,212 +6238,212 @@ Memory Map of the image
     0x0800e4c4   0x0800e4c4   0x00000018   Code   RO         5425    i.internal_flash_tgt_close  bootloader_core.o
     0x0800e4dc   0x0800e4dc   0x00000074   Code   RO         5426    i.internal_flash_tgt_open  bootloader_core.o
     0x0800e550   0x0800e550   0x00000078   Code   RO         5427    i.internal_flash_tgt_write  bootloader_core.o
-    0x0800e5c8   0x0800e5c8   0x00000048   Code   RO         5428    i.jump_to_app       bootloader_core.o
-    0x0800e610   0x0800e610   0x00000026   Code   RO         5918    i.ld_clust          ff.o
-    0x0800e636   0x0800e636   0x00000016   Code   RO         5919    i.ld_dword          ff.o
-    0x0800e64c   0x0800e64c   0x0000000a   Code   RO         5920    i.ld_word           ff.o
-    0x0800e656   0x0800e656   0x00000002   PAD
-    0x0800e658   0x0800e658   0x0000003c   Code   RO         1066    i.led_control_task  led.o
-    0x0800e694   0x0800e694   0x0000000c   Code   RO         6346    i.lfs_aligndown     lfs.o
-    0x0800e6a0   0x0800e6a0   0x00000012   Code   RO         6347    i.lfs_alignup       lfs.o
-    0x0800e6b2   0x0800e6b2   0x00000002   PAD
-    0x0800e6b4   0x0800e6b4   0x000000fc   Code   RO         6348    i.lfs_alloc         lfs.o
-    0x0800e7b0   0x0800e7b0   0x0000000c   Code   RO         6349    i.lfs_alloc_drop    lfs.o
-    0x0800e7bc   0x0800e7bc   0x0000002e   Code   RO         6350    i.lfs_alloc_lookahead  lfs.o
-    0x0800e7ea   0x0800e7ea   0x00000002   PAD
-    0x0800e7ec   0x0800e7ec   0x00000054   Code   RO         6351    i.lfs_alloc_scan    lfs.o
-    0x0800e840   0x0800e840   0x00000066   Code   RO         6352    i.lfs_bd_cmp        lfs.o
-    0x0800e8a6   0x0800e8a6   0x0000005a   Code   RO         6353    i.lfs_bd_crc        lfs.o
-    0x0800e900   0x0800e900   0x00000018   Code   RO         6354    i.lfs_bd_erase      lfs.o
-    0x0800e918   0x0800e918   0x00000084   Code   RO         6355    i.lfs_bd_flush      lfs.o
-    0x0800e99c   0x0800e99c   0x000000b2   Code   RO         6356    i.lfs_bd_prog       lfs.o
-    0x0800ea4e   0x0800ea4e   0x00000140   Code   RO         6357    i.lfs_bd_read       lfs.o
-    0x0800eb8e   0x0800eb8e   0x00000024   Code   RO         6358    i.lfs_bd_sync       lfs.o
-    0x0800ebb2   0x0800ebb2   0x00000018   Code   RO         6359    i.lfs_cache_zero    lfs.o
-    0x0800ebca   0x0800ebca   0x00000002   PAD
-    0x0800ebcc   0x0800ebcc   0x00000038   Code   RO         7201    i.lfs_crc           lfs_util.o
-    0x0800ec04   0x0800ec04   0x0000000e   Code   RO         6361    i.lfs_ctz           lfs.o
-    0x0800ec12   0x0800ec12   0x00000002   PAD
-    0x0800ec14   0x0800ec14   0x0000019c   Code   RO         6362    i.lfs_ctz_extend    lfs.o
-    0x0800edb0   0x0800edb0   0x00000094   Code   RO         6363    i.lfs_ctz_find      lfs.o
-    0x0800ee44   0x0800ee44   0x00000016   Code   RO         6364    i.lfs_ctz_fromle32  lfs.o
-    0x0800ee5a   0x0800ee5a   0x00000040   Code   RO         6365    i.lfs_ctz_index     lfs.o
-    0x0800ee9a   0x0800ee9a   0x00000002   PAD
-    0x0800ee9c   0x0800ee9c   0x0000009c   Code   RO         6366    i.lfs_ctz_traverse  lfs.o
-    0x0800ef38   0x0800ef38   0x0000002c   Code   RO         6367    i.lfs_deinit        lfs.o
-    0x0800ef64   0x0800ef64   0x00000094   Code   RO         6368    i.lfs_dir_alloc     lfs.o
-    0x0800eff8   0x0800eff8   0x0000000a   Code   RO         6369    i.lfs_dir_close     lfs.o
-    0x0800f002   0x0800f002   0x00000020   Code   RO         6370    i.lfs_dir_commit    lfs.o
-    0x0800f022   0x0800f022   0x00000010   Code   RO         6371    i.lfs_dir_commit_commit  lfs.o
-    0x0800f032   0x0800f032   0x00000014   Code   RO         6372    i.lfs_dir_commit_size  lfs.o
-    0x0800f046   0x0800f046   0x000000aa   Code   RO         6373    i.lfs_dir_commitattr  lfs.o
-    0x0800f0f0   0x0800f0f0   0x000001e4   Code   RO         6374    i.lfs_dir_commitcrc  lfs.o
-    0x0800f2d4   0x0800f2d4   0x0000003a   Code   RO         6375    i.lfs_dir_commitprog  lfs.o
-    0x0800f30e   0x0800f30e   0x00000002   PAD
-    0x0800f310   0x0800f310   0x000002c0   Code   RO         6376    i.lfs_dir_compact   lfs.o
-    0x0800f5d0   0x0800f5d0   0x00000050   Code   RO         6377    i.lfs_dir_drop      lfs.o
-    0x0800f620   0x0800f620   0x00000016   Code   RO         6378    i.lfs_dir_fetch     lfs.o
-    0x0800f636   0x0800f636   0x00000002   PAD
-    0x0800f638   0x0800f638   0x000004b4   Code   RO         6379    i.lfs_dir_fetchmatch  lfs.o
-    0x0800faec   0x0800faec   0x0000016c   Code   RO         6380    i.lfs_dir_find      lfs.o
-    0x0800fc58   0x0800fc58   0x00000052   Code   RO         6381    i.lfs_dir_find_match  lfs.o
-    0x0800fcaa   0x0800fcaa   0x00000014   Code   RO         6382    i.lfs_dir_get       lfs.o
-    0x0800fcbe   0x0800fcbe   0x00000002   PAD
-    0x0800fcc0   0x0800fcc0   0x0000004c   Code   RO         6383    i.lfs_dir_getgstate  lfs.o
-    0x0800fd0c   0x0800fd0c   0x00000090   Code   RO         6384    i.lfs_dir_getinfo   lfs.o
-    0x0800fd9c   0x0800fd9c   0x000000e2   Code   RO         6385    i.lfs_dir_getread   lfs.o
-    0x0800fe7e   0x0800fe7e   0x00000002   PAD
-    0x0800fe80   0x0800fe80   0x00000130   Code   RO         6386    i.lfs_dir_getslice  lfs.o
-    0x0800ffb0   0x0800ffb0   0x00000024   Code   RO         6387    i.lfs_dir_needsrelocation  lfs.o
-    0x0800ffd4   0x0800ffd4   0x00000022   Code   RO         6388    i.lfs_dir_open      lfs.o
-    0x0800fff6   0x0800fff6   0x00000002   PAD
-    0x0800fff8   0x0800fff8   0x00000090   Code   RO         6389    i.lfs_dir_open_     lfs.o
-    0x08010088   0x08010088   0x00000400   Code   RO         6390    i.lfs_dir_orphaningcommit  lfs.o
-    0x08010488   0x08010488   0x00000004   Code   RO         6391    i.lfs_dir_read      lfs.o
-    0x0801048c   0x0801048c   0x0000008c   Code   RO         6392    i.lfs_dir_read_     lfs.o
-    0x08010518   0x08010518   0x000002f0   Code   RO         6393    i.lfs_dir_relocatingcommit  lfs.o
-    0x08010808   0x08010808   0x00000070   Code   RO         6398    i.lfs_dir_split     lfs.o
-    0x08010878   0x08010878   0x00000220   Code   RO         6399    i.lfs_dir_splittingcompact  lfs.o
-    0x08010a98   0x08010a98   0x00000294   Code   RO         6401    i.lfs_dir_traverse  lfs.o
-    0x08010d2c   0x08010d2c   0x00000078   Code   RO         6402    i.lfs_dir_traverse_filter  lfs.o
-    0x08010da4   0x08010da4   0x0000001e   Code   RO         6403    i.lfs_file_close    lfs.o
-    0x08010dc2   0x08010dc2   0x00000024   Code   RO         6404    i.lfs_file_close_   lfs.o
-    0x08010de6   0x08010de6   0x00000002   PAD
-    0x08010de8   0x08010de8   0x00000140   Code   RO         6405    i.lfs_file_flush    lfs.o
-    0x08010f28   0x08010f28   0x000000ec   Code   RO         6406    i.lfs_file_flushedread  lfs.o
-    0x08011014   0x08011014   0x00000126   Code   RO         6407    i.lfs_file_flushedwrite  lfs.o
-    0x0801113a   0x0801113a   0x00000002   PAD
-    0x0801113c   0x0801113c   0x0000002c   Code   RO         6408    i.lfs_file_open     lfs.o
-    0x08011168   0x08011168   0x00000248   Code   RO         6410    i.lfs_file_opencfg_  lfs.o
-    0x080113b0   0x080113b0   0x00000022   Code   RO         6411    i.lfs_file_outline  lfs.o
-    0x080113d2   0x080113d2   0x00000042   Code   RO         6412    i.lfs_file_read     lfs.o
-    0x08011414   0x08011414   0x00000140   Code   RO         6413    i.lfs_file_relocate  lfs.o
-    0x08011554   0x08011554   0x00000028   Code   RO         6415    i.lfs_file_seek     lfs.o
-    0x0801157c   0x0801157c   0x0000008c   Code   RO         6416    i.lfs_file_seek_    lfs.o
-    0x08011608   0x08011608   0x00000012   Code   RO         6418    i.lfs_file_size_    lfs.o
-    0x0801161a   0x0801161a   0x0000001e   Code   RO         6419    i.lfs_file_sync     lfs.o
-    0x08011638   0x08011638   0x000000c0   Code   RO         6420    i.lfs_file_sync_    lfs.o
-    0x080116f8   0x080116f8   0x00000028   Code   RO         6424    i.lfs_file_write    lfs.o
-    0x08011720   0x08011720   0x00000090   Code   RO         6425    i.lfs_file_write_   lfs.o
-    0x080117b0   0x080117b0   0x00000004   Code   RO         6426    i.lfs_format        lfs.o
-    0x080117b4   0x080117b4   0x000000c8   Code   RO         6427    i.lfs_format_       lfs.o
-    0x0801187c   0x0801187c   0x00000014   Code   RO         6428    i.lfs_frombe32      lfs.o
-    0x08011890   0x08011890   0x00000012   Code   RO         6429    i.lfs_fromle32      lfs.o
-    0x080118a2   0x080118a2   0x00000002   PAD
-    0x080118a4   0x080118a4   0x000000e4   Code   RO         6430    i.lfs_fs_demove     lfs.o
-    0x08011988   0x08011988   0x0000026c   Code   RO         6431    i.lfs_fs_deorphan   lfs.o
-    0x08011bf4   0x08011bf4   0x000000bc   Code   RO         6432    i.lfs_fs_desuperblock  lfs.o
-    0x08011cb0   0x08011cb0   0x00000024   Code   RO         6433    i.lfs_fs_forceconsistency  lfs.o
-    0x08011cd4   0x08011cd4   0x0000008c   Code   RO         6439    i.lfs_fs_parent     lfs.o
-    0x08011d60   0x08011d60   0x0000003e   Code   RO         6440    i.lfs_fs_parent_match  lfs.o
-    0x08011d9e   0x08011d9e   0x00000002   PAD
-    0x08011da0   0x08011da0   0x00000064   Code   RO         6441    i.lfs_fs_pred       lfs.o
-    0x08011e04   0x08011e04   0x00000040   Code   RO         6442    i.lfs_fs_prepmove   lfs.o
-    0x08011e44   0x08011e44   0x00000030   Code   RO         6443    i.lfs_fs_preporphans  lfs.o
-    0x08011e74   0x08011e74   0x0000001c   Code   RO         6445    i.lfs_fs_size_      lfs.o
-    0x08011e90   0x08011e90   0x0000000a   Code   RO         6446    i.lfs_fs_size_count  lfs.o
-    0x08011e9a   0x08011e9a   0x00000002   PAD
-    0x08011e9c   0x08011e9c   0x00000158   Code   RO         6449    i.lfs_fs_traverse_  lfs.o
-    0x08011ff4   0x08011ff4   0x0000000c   Code   RO         6452    i.lfs_gstate_hasmove  lfs.o
-    0x08012000   0x08012000   0x0000001a   Code   RO         6453    i.lfs_gstate_hasmovehere  lfs.o
-    0x0801201a   0x0801201a   0x00000014   Code   RO         6454    i.lfs_gstate_iszero  lfs.o
-    0x0801202e   0x0801202e   0x0000001e   Code   RO         6455    i.lfs_gstate_tole32  lfs.o
-    0x0801204c   0x0801204c   0x0000001a   Code   RO         6456    i.lfs_gstate_xor    lfs.o
-    0x08012066   0x08012066   0x00000002   PAD
-    0x08012068   0x08012068   0x000001d4   Code   RO         6457    i.lfs_init          lfs.o
-    0x0801223c   0x0801223c   0x00000004   Code   RO         6458    i.lfs_malloc        lfs.o
-    0x08012240   0x08012240   0x00000008   Code   RO         6459    i.lfs_min           lfs.o
-    0x08012248   0x08012248   0x00000016   Code   RO         6462    i.lfs_mlist_isopen  lfs.o
-    0x0801225e   0x0801225e   0x00000018   Code   RO         6463    i.lfs_mlist_remove  lfs.o
-    0x08012276   0x08012276   0x00000004   Code   RO         6464    i.lfs_mount         lfs.o
-    0x0801227a   0x0801227a   0x00000002   PAD
-    0x0801227c   0x0801227c   0x00000408   Code   RO         6465    i.lfs_mount_        lfs.o
-    0x08012684   0x08012684   0x00000022   Code   RO         6466    i.lfs_pair_cmp      lfs.o
-    0x080126a6   0x080126a6   0x00000016   Code   RO         6467    i.lfs_pair_fromle32  lfs.o
-    0x080126bc   0x080126bc   0x00000014   Code   RO         6468    i.lfs_pair_isnull   lfs.o
-    0x080126d0   0x080126d0   0x00000024   Code   RO         6469    i.lfs_pair_issync   lfs.o
-    0x080126f4   0x080126f4   0x00000016   Code   RO         6470    i.lfs_pair_tole32   lfs.o
-    0x0801270a   0x0801270a   0x00000012   Code   RO         6471    i.lfs_path_isdir    lfs.o
-    0x0801271c   0x0801271c   0x00000024   Code   RO         6472    i.lfs_path_islast   lfs.o
-    0x08012740   0x08012740   0x0000000c   Code   RO         6473    i.lfs_path_namelen  lfs.o
-    0x0801274c   0x0801274c   0x0000002e   Code   RO         6474    i.lfs_popc          lfs.o
-    0x0801277a   0x0801277a   0x00000004   Code   RO         6475    i.lfs_remove        lfs.o
-    0x0801277e   0x0801277e   0x00000002   PAD
-    0x08012780   0x08012780   0x0000010c   Code   RO         6476    i.lfs_remove_       lfs.o
-    0x0801288c   0x0801288c   0x00000018   Code   RO         7129    i.lfs_spi_flash_erase  lfs_spi_flash_adapter.o
-    0x080128a4   0x080128a4   0x0000001e   Code   RO         7131    i.lfs_spi_flash_init  lfs_spi_flash_adapter.o
-    0x080128c2   0x080128c2   0x00000002   PAD
-    0x080128c4   0x080128c4   0x00000034   Code   RO         7132    i.lfs_spi_flash_mount  lfs_spi_flash_adapter.o
-    0x080128f8   0x080128f8   0x00000078   Code   RO         7133    i.lfs_spi_flash_prog  lfs_spi_flash_adapter.o
-    0x08012970   0x08012970   0x0000002a   Code   RO         7134    i.lfs_spi_flash_read  lfs_spi_flash_adapter.o
-    0x0801299a   0x0801299a   0x0000000a   Code   RO         7135    i.lfs_spi_flash_sync  lfs_spi_flash_adapter.o
-    0x080129a4   0x080129a4   0x0000000c   Code   RO         7136    i.lfs_spi_flash_unmount  lfs_spi_flash_adapter.o
-    0x080129b0   0x080129b0   0x00000028   Code   RO         5429    i.lfs_src_close     bootloader_core.o
-    0x080129d8   0x080129d8   0x00000088   Code   RO         5430    i.lfs_src_open      bootloader_core.o
-    0x08012a60   0x08012a60   0x00000038   Code   RO         5431    i.lfs_src_read      bootloader_core.o
-    0x08012a98   0x08012a98   0x00000046   Code   RO         6481    i.lfs_stat          lfs.o
-    0x08012ade   0x08012ade   0x00000036   Code   RO         6482    i.lfs_superblock_fromle32  lfs.o
-    0x08012b14   0x08012b14   0x00000036   Code   RO         6483    i.lfs_superblock_tole32  lfs.o
-    0x08012b4a   0x08012b4a   0x00000012   Code   RO         6484    i.lfs_tag_dsize     lfs.o
-    0x08012b5c   0x08012b5c   0x00000010   Code   RO         6485    i.lfs_tag_isdelete  lfs.o
-    0x08012b6c   0x08012b6c   0x00000040   Code   RO         5432    i.lfs_tgt_close     bootloader_core.o
-    0x08012bac   0x08012bac   0x00000070   Code   RO         5433    i.lfs_tgt_open      bootloader_core.o
-    0x08012c1c   0x08012c1c   0x00000060   Code   RO         5434    i.lfs_tgt_write     bootloader_core.o
-    0x08012c7c   0x08012c7c   0x00000004   Code   RO         6486    i.lfs_tole32        lfs.o
-    0x08012c80   0x08012c80   0x000000a0   Code   RO         6487    i.lfs_tortoise_detectcycles  lfs.o
-    0x08012d20   0x08012d20   0x00000004   Code   RO         6488    i.lfs_unmount       lfs.o
-    0x08012d24   0x08012d24   0x00000004   Code   RO         6489    i.lfs_unmount_      lfs.o
-    0x08012d28   0x08012d28   0x000001c8   Code   RO           16    i.main              main.o
-    0x08012ef0   0x08012ef0   0x00000012   Code   RO         5921    i.mem_cpy           ff.o
-    0x08012f02   0x08012f02   0x00000002   PAD
-    0x08012f04   0x08012f04   0x0000000e   Code   RO         5922    i.mem_set           ff.o
-    0x08012f12   0x08012f12   0x00000032   Code   RO         5923    i.move_window       ff.o
-    0x08012f44   0x08012f44   0x00000074   Code   RO         5924    i.pick_lfn          ff.o
-    0x08012fb8   0x08012fb8   0x000000ea   Code   RO         5925    i.put_fat           ff.o
-    0x080130a2   0x080130a2   0x00000074   Code   RO         5928    i.remove_chain      ff.o
-    0x08013116   0x08013116   0x00000002   PAD
-    0x08013118   0x08013118   0x000000ac   Code   RO          887    i.scan_lfs_files    menu.o
-    0x080131c4   0x080131c4   0x000000a8   Code   RO          888    i.scan_sd_card_files  menu.o
-    0x0801326c   0x0801326c   0x00000028   Code   RO         7223    i.spi_read_write_byte  w25q128.o
-    0x08013294   0x08013294   0x00000028   Code   RO         5929    i.st_clust          ff.o
-    0x080132bc   0x080132bc   0x00000010   Code   RO         5930    i.st_dword          ff.o
-    0x080132cc   0x080132cc   0x00000008   Code   RO         5931    i.st_word           ff.o
-    0x080132d4   0x080132d4   0x0000001a   Code   RO         5932    i.sum_sfn           ff.o
-    0x080132ee   0x080132ee   0x00000002   PAD
-    0x080132f0   0x080132f0   0x00000088   Code   RO         5933    i.sync_fs           ff.o
-    0x08013378   0x08013378   0x00000052   Code   RO         5934    i.sync_window       ff.o
-    0x080133ca   0x080133ca   0x00000002   PAD
-    0x080133cc   0x080133cc   0x0000001c   Code   RO          521    i.uart_wait_command  usart.o
-    0x080133e8   0x080133e8   0x00000034   Code   RO         5935    i.validate          ff.o
-    0x0801341c   0x0801341c   0x00000010   Code   RO         7224    i.w25q128_init      w25q128.o
-    0x0801342c   0x0801342c   0x00000012   Code   RO         8295    i.xtime             aes.o
-    0x0801343e   0x0801343e   0x0000000a   Code   RO         8807    x$fpl$fpinit        fz_wm.l(fpinit.o)
-    0x08013448   0x08013448   0x00000010   Data   RO          720    .constdata          system_stm32f4xx.o
-    0x08013458   0x08013458   0x00000008   Data   RO          721    .constdata          system_stm32f4xx.o
-    0x08013460   0x08013460   0x00000060   Data   RO          890    .constdata          menu.o
-    0x080134c0   0x080134c0   0x00000008   Data   RO         2155    .constdata          stm32f4xx_hal_dma.o
-    0x080134c8   0x080134c8   0x0000000c   Data   RO         5436    .constdata          bootloader_core.o
-    0x080134d4   0x080134d4   0x0000000c   Data   RO         5437    .constdata          bootloader_core.o
-    0x080134e0   0x080134e0   0x0000000c   Data   RO         5439    .constdata          bootloader_core.o
-    0x080134ec   0x080134ec   0x0000000c   Data   RO         5440    .constdata          bootloader_core.o
-    0x080134f8   0x080134f8   0x00000014   Data   RO         5683    .constdata          sd_diskio.o
-    0x0801350c   0x0801350c   0x000000aa   Data   RO         5937    .constdata          ff.o
-    0x080135b6   0x080135b6   0x000003ae   Data   RO         6319    .constdata          ccsbcs.o
-    0x08013964   0x08013964   0x00000208   Data   RO         6490    .constdata          lfs.o
-    0x08013b6c   0x08013b6c   0x00000054   Data   RO         7138    .constdata          lfs_spi_flash_adapter.o
-    0x08013bc0   0x08013bc0   0x00000040   Data   RO         7202    .constdata          lfs_util.o
-    0x08013c00   0x08013c00   0x00000024   Data   RO         7429    .constdata          usbd_storage_if.o
-    0x08013c24   0x08013c24   0x0000020b   Data   RO         8296    .constdata          aes.o
-    0x08013e2f   0x08013e2f   0x00000028   Data   RO         8582    .constdata          c_w.l(_printf_hex_int.o)
-    0x08013e57   0x08013e57   0x00000011   Data   RO         8617    .constdata          c_w.l(__printf_flags_ss_wp.o)
-    0x08013e68   0x08013e68   0x00000211   Data   RO          891    .conststring        menu.o
-    0x08014079   0x08014079   0x00000003   PAD
-    0x0801407c   0x0801407c   0x0000004d   Data   RO         6491    .conststring        lfs.o
-    0x080140c9   0x080140c9   0x00000003   PAD
-    0x080140cc   0x080140cc   0x00000020   Data   RO         8890    Region$$Table       anon$$obj.o
+    0x0800e5c8   0x0800e5c8   0x00000060   Code   RO         5428    i.jump_to_app       bootloader_core.o
+    0x0800e628   0x0800e628   0x00000026   Code   RO         5918    i.ld_clust          ff.o
+    0x0800e64e   0x0800e64e   0x00000016   Code   RO         5919    i.ld_dword          ff.o
+    0x0800e664   0x0800e664   0x0000000a   Code   RO         5920    i.ld_word           ff.o
+    0x0800e66e   0x0800e66e   0x00000002   PAD
+    0x0800e670   0x0800e670   0x0000003c   Code   RO         1066    i.led_control_task  led.o
+    0x0800e6ac   0x0800e6ac   0x0000000c   Code   RO         6346    i.lfs_aligndown     lfs.o
+    0x0800e6b8   0x0800e6b8   0x00000012   Code   RO         6347    i.lfs_alignup       lfs.o
+    0x0800e6ca   0x0800e6ca   0x00000002   PAD
+    0x0800e6cc   0x0800e6cc   0x000000fc   Code   RO         6348    i.lfs_alloc         lfs.o
+    0x0800e7c8   0x0800e7c8   0x0000000c   Code   RO         6349    i.lfs_alloc_drop    lfs.o
+    0x0800e7d4   0x0800e7d4   0x0000002e   Code   RO         6350    i.lfs_alloc_lookahead  lfs.o
+    0x0800e802   0x0800e802   0x00000002   PAD
+    0x0800e804   0x0800e804   0x00000054   Code   RO         6351    i.lfs_alloc_scan    lfs.o
+    0x0800e858   0x0800e858   0x00000066   Code   RO         6352    i.lfs_bd_cmp        lfs.o
+    0x0800e8be   0x0800e8be   0x0000005a   Code   RO         6353    i.lfs_bd_crc        lfs.o
+    0x0800e918   0x0800e918   0x00000018   Code   RO         6354    i.lfs_bd_erase      lfs.o
+    0x0800e930   0x0800e930   0x00000084   Code   RO         6355    i.lfs_bd_flush      lfs.o
+    0x0800e9b4   0x0800e9b4   0x000000b2   Code   RO         6356    i.lfs_bd_prog       lfs.o
+    0x0800ea66   0x0800ea66   0x00000140   Code   RO         6357    i.lfs_bd_read       lfs.o
+    0x0800eba6   0x0800eba6   0x00000024   Code   RO         6358    i.lfs_bd_sync       lfs.o
+    0x0800ebca   0x0800ebca   0x00000018   Code   RO         6359    i.lfs_cache_zero    lfs.o
+    0x0800ebe2   0x0800ebe2   0x00000002   PAD
+    0x0800ebe4   0x0800ebe4   0x00000038   Code   RO         7201    i.lfs_crc           lfs_util.o
+    0x0800ec1c   0x0800ec1c   0x0000000e   Code   RO         6361    i.lfs_ctz           lfs.o
+    0x0800ec2a   0x0800ec2a   0x00000002   PAD
+    0x0800ec2c   0x0800ec2c   0x0000019c   Code   RO         6362    i.lfs_ctz_extend    lfs.o
+    0x0800edc8   0x0800edc8   0x00000094   Code   RO         6363    i.lfs_ctz_find      lfs.o
+    0x0800ee5c   0x0800ee5c   0x00000016   Code   RO         6364    i.lfs_ctz_fromle32  lfs.o
+    0x0800ee72   0x0800ee72   0x00000040   Code   RO         6365    i.lfs_ctz_index     lfs.o
+    0x0800eeb2   0x0800eeb2   0x00000002   PAD
+    0x0800eeb4   0x0800eeb4   0x0000009c   Code   RO         6366    i.lfs_ctz_traverse  lfs.o
+    0x0800ef50   0x0800ef50   0x0000002c   Code   RO         6367    i.lfs_deinit        lfs.o
+    0x0800ef7c   0x0800ef7c   0x00000094   Code   RO         6368    i.lfs_dir_alloc     lfs.o
+    0x0800f010   0x0800f010   0x0000000a   Code   RO         6369    i.lfs_dir_close     lfs.o
+    0x0800f01a   0x0800f01a   0x00000020   Code   RO         6370    i.lfs_dir_commit    lfs.o
+    0x0800f03a   0x0800f03a   0x00000010   Code   RO         6371    i.lfs_dir_commit_commit  lfs.o
+    0x0800f04a   0x0800f04a   0x00000014   Code   RO         6372    i.lfs_dir_commit_size  lfs.o
+    0x0800f05e   0x0800f05e   0x000000aa   Code   RO         6373    i.lfs_dir_commitattr  lfs.o
+    0x0800f108   0x0800f108   0x000001e4   Code   RO         6374    i.lfs_dir_commitcrc  lfs.o
+    0x0800f2ec   0x0800f2ec   0x0000003a   Code   RO         6375    i.lfs_dir_commitprog  lfs.o
+    0x0800f326   0x0800f326   0x00000002   PAD
+    0x0800f328   0x0800f328   0x000002c0   Code   RO         6376    i.lfs_dir_compact   lfs.o
+    0x0800f5e8   0x0800f5e8   0x00000050   Code   RO         6377    i.lfs_dir_drop      lfs.o
+    0x0800f638   0x0800f638   0x00000016   Code   RO         6378    i.lfs_dir_fetch     lfs.o
+    0x0800f64e   0x0800f64e   0x00000002   PAD
+    0x0800f650   0x0800f650   0x000004b4   Code   RO         6379    i.lfs_dir_fetchmatch  lfs.o
+    0x0800fb04   0x0800fb04   0x0000016c   Code   RO         6380    i.lfs_dir_find      lfs.o
+    0x0800fc70   0x0800fc70   0x00000052   Code   RO         6381    i.lfs_dir_find_match  lfs.o
+    0x0800fcc2   0x0800fcc2   0x00000014   Code   RO         6382    i.lfs_dir_get       lfs.o
+    0x0800fcd6   0x0800fcd6   0x00000002   PAD
+    0x0800fcd8   0x0800fcd8   0x0000004c   Code   RO         6383    i.lfs_dir_getgstate  lfs.o
+    0x0800fd24   0x0800fd24   0x00000090   Code   RO         6384    i.lfs_dir_getinfo   lfs.o
+    0x0800fdb4   0x0800fdb4   0x000000e2   Code   RO         6385    i.lfs_dir_getread   lfs.o
+    0x0800fe96   0x0800fe96   0x00000002   PAD
+    0x0800fe98   0x0800fe98   0x00000130   Code   RO         6386    i.lfs_dir_getslice  lfs.o
+    0x0800ffc8   0x0800ffc8   0x00000024   Code   RO         6387    i.lfs_dir_needsrelocation  lfs.o
+    0x0800ffec   0x0800ffec   0x00000022   Code   RO         6388    i.lfs_dir_open      lfs.o
+    0x0801000e   0x0801000e   0x00000002   PAD
+    0x08010010   0x08010010   0x00000090   Code   RO         6389    i.lfs_dir_open_     lfs.o
+    0x080100a0   0x080100a0   0x00000400   Code   RO         6390    i.lfs_dir_orphaningcommit  lfs.o
+    0x080104a0   0x080104a0   0x00000004   Code   RO         6391    i.lfs_dir_read      lfs.o
+    0x080104a4   0x080104a4   0x0000008c   Code   RO         6392    i.lfs_dir_read_     lfs.o
+    0x08010530   0x08010530   0x000002f0   Code   RO         6393    i.lfs_dir_relocatingcommit  lfs.o
+    0x08010820   0x08010820   0x00000070   Code   RO         6398    i.lfs_dir_split     lfs.o
+    0x08010890   0x08010890   0x00000220   Code   RO         6399    i.lfs_dir_splittingcompact  lfs.o
+    0x08010ab0   0x08010ab0   0x00000294   Code   RO         6401    i.lfs_dir_traverse  lfs.o
+    0x08010d44   0x08010d44   0x00000078   Code   RO         6402    i.lfs_dir_traverse_filter  lfs.o
+    0x08010dbc   0x08010dbc   0x0000001e   Code   RO         6403    i.lfs_file_close    lfs.o
+    0x08010dda   0x08010dda   0x00000024   Code   RO         6404    i.lfs_file_close_   lfs.o
+    0x08010dfe   0x08010dfe   0x00000002   PAD
+    0x08010e00   0x08010e00   0x00000140   Code   RO         6405    i.lfs_file_flush    lfs.o
+    0x08010f40   0x08010f40   0x000000ec   Code   RO         6406    i.lfs_file_flushedread  lfs.o
+    0x0801102c   0x0801102c   0x00000126   Code   RO         6407    i.lfs_file_flushedwrite  lfs.o
+    0x08011152   0x08011152   0x00000002   PAD
+    0x08011154   0x08011154   0x0000002c   Code   RO         6408    i.lfs_file_open     lfs.o
+    0x08011180   0x08011180   0x00000248   Code   RO         6410    i.lfs_file_opencfg_  lfs.o
+    0x080113c8   0x080113c8   0x00000022   Code   RO         6411    i.lfs_file_outline  lfs.o
+    0x080113ea   0x080113ea   0x00000042   Code   RO         6412    i.lfs_file_read     lfs.o
+    0x0801142c   0x0801142c   0x00000140   Code   RO         6413    i.lfs_file_relocate  lfs.o
+    0x0801156c   0x0801156c   0x00000028   Code   RO         6415    i.lfs_file_seek     lfs.o
+    0x08011594   0x08011594   0x0000008c   Code   RO         6416    i.lfs_file_seek_    lfs.o
+    0x08011620   0x08011620   0x00000012   Code   RO         6418    i.lfs_file_size_    lfs.o
+    0x08011632   0x08011632   0x0000001e   Code   RO         6419    i.lfs_file_sync     lfs.o
+    0x08011650   0x08011650   0x000000c0   Code   RO         6420    i.lfs_file_sync_    lfs.o
+    0x08011710   0x08011710   0x00000028   Code   RO         6424    i.lfs_file_write    lfs.o
+    0x08011738   0x08011738   0x00000090   Code   RO         6425    i.lfs_file_write_   lfs.o
+    0x080117c8   0x080117c8   0x00000004   Code   RO         6426    i.lfs_format        lfs.o
+    0x080117cc   0x080117cc   0x000000c8   Code   RO         6427    i.lfs_format_       lfs.o
+    0x08011894   0x08011894   0x00000014   Code   RO         6428    i.lfs_frombe32      lfs.o
+    0x080118a8   0x080118a8   0x00000012   Code   RO         6429    i.lfs_fromle32      lfs.o
+    0x080118ba   0x080118ba   0x00000002   PAD
+    0x080118bc   0x080118bc   0x000000e4   Code   RO         6430    i.lfs_fs_demove     lfs.o
+    0x080119a0   0x080119a0   0x0000026c   Code   RO         6431    i.lfs_fs_deorphan   lfs.o
+    0x08011c0c   0x08011c0c   0x000000bc   Code   RO         6432    i.lfs_fs_desuperblock  lfs.o
+    0x08011cc8   0x08011cc8   0x00000024   Code   RO         6433    i.lfs_fs_forceconsistency  lfs.o
+    0x08011cec   0x08011cec   0x0000008c   Code   RO         6439    i.lfs_fs_parent     lfs.o
+    0x08011d78   0x08011d78   0x0000003e   Code   RO         6440    i.lfs_fs_parent_match  lfs.o
+    0x08011db6   0x08011db6   0x00000002   PAD
+    0x08011db8   0x08011db8   0x00000064   Code   RO         6441    i.lfs_fs_pred       lfs.o
+    0x08011e1c   0x08011e1c   0x00000040   Code   RO         6442    i.lfs_fs_prepmove   lfs.o
+    0x08011e5c   0x08011e5c   0x00000030   Code   RO         6443    i.lfs_fs_preporphans  lfs.o
+    0x08011e8c   0x08011e8c   0x0000001c   Code   RO         6445    i.lfs_fs_size_      lfs.o
+    0x08011ea8   0x08011ea8   0x0000000a   Code   RO         6446    i.lfs_fs_size_count  lfs.o
+    0x08011eb2   0x08011eb2   0x00000002   PAD
+    0x08011eb4   0x08011eb4   0x00000158   Code   RO         6449    i.lfs_fs_traverse_  lfs.o
+    0x0801200c   0x0801200c   0x0000000c   Code   RO         6452    i.lfs_gstate_hasmove  lfs.o
+    0x08012018   0x08012018   0x0000001a   Code   RO         6453    i.lfs_gstate_hasmovehere  lfs.o
+    0x08012032   0x08012032   0x00000014   Code   RO         6454    i.lfs_gstate_iszero  lfs.o
+    0x08012046   0x08012046   0x0000001e   Code   RO         6455    i.lfs_gstate_tole32  lfs.o
+    0x08012064   0x08012064   0x0000001a   Code   RO         6456    i.lfs_gstate_xor    lfs.o
+    0x0801207e   0x0801207e   0x00000002   PAD
+    0x08012080   0x08012080   0x000001d4   Code   RO         6457    i.lfs_init          lfs.o
+    0x08012254   0x08012254   0x00000004   Code   RO         6458    i.lfs_malloc        lfs.o
+    0x08012258   0x08012258   0x00000008   Code   RO         6459    i.lfs_min           lfs.o
+    0x08012260   0x08012260   0x00000016   Code   RO         6462    i.lfs_mlist_isopen  lfs.o
+    0x08012276   0x08012276   0x00000018   Code   RO         6463    i.lfs_mlist_remove  lfs.o
+    0x0801228e   0x0801228e   0x00000004   Code   RO         6464    i.lfs_mount         lfs.o
+    0x08012292   0x08012292   0x00000002   PAD
+    0x08012294   0x08012294   0x00000408   Code   RO         6465    i.lfs_mount_        lfs.o
+    0x0801269c   0x0801269c   0x00000022   Code   RO         6466    i.lfs_pair_cmp      lfs.o
+    0x080126be   0x080126be   0x00000016   Code   RO         6467    i.lfs_pair_fromle32  lfs.o
+    0x080126d4   0x080126d4   0x00000014   Code   RO         6468    i.lfs_pair_isnull   lfs.o
+    0x080126e8   0x080126e8   0x00000024   Code   RO         6469    i.lfs_pair_issync   lfs.o
+    0x0801270c   0x0801270c   0x00000016   Code   RO         6470    i.lfs_pair_tole32   lfs.o
+    0x08012722   0x08012722   0x00000012   Code   RO         6471    i.lfs_path_isdir    lfs.o
+    0x08012734   0x08012734   0x00000024   Code   RO         6472    i.lfs_path_islast   lfs.o
+    0x08012758   0x08012758   0x0000000c   Code   RO         6473    i.lfs_path_namelen  lfs.o
+    0x08012764   0x08012764   0x0000002e   Code   RO         6474    i.lfs_popc          lfs.o
+    0x08012792   0x08012792   0x00000004   Code   RO         6475    i.lfs_remove        lfs.o
+    0x08012796   0x08012796   0x00000002   PAD
+    0x08012798   0x08012798   0x0000010c   Code   RO         6476    i.lfs_remove_       lfs.o
+    0x080128a4   0x080128a4   0x00000018   Code   RO         7129    i.lfs_spi_flash_erase  lfs_spi_flash_adapter.o
+    0x080128bc   0x080128bc   0x0000001e   Code   RO         7131    i.lfs_spi_flash_init  lfs_spi_flash_adapter.o
+    0x080128da   0x080128da   0x00000002   PAD
+    0x080128dc   0x080128dc   0x00000034   Code   RO         7132    i.lfs_spi_flash_mount  lfs_spi_flash_adapter.o
+    0x08012910   0x08012910   0x00000078   Code   RO         7133    i.lfs_spi_flash_prog  lfs_spi_flash_adapter.o
+    0x08012988   0x08012988   0x0000002a   Code   RO         7134    i.lfs_spi_flash_read  lfs_spi_flash_adapter.o
+    0x080129b2   0x080129b2   0x0000000a   Code   RO         7135    i.lfs_spi_flash_sync  lfs_spi_flash_adapter.o
+    0x080129bc   0x080129bc   0x0000000c   Code   RO         7136    i.lfs_spi_flash_unmount  lfs_spi_flash_adapter.o
+    0x080129c8   0x080129c8   0x00000028   Code   RO         5429    i.lfs_src_close     bootloader_core.o
+    0x080129f0   0x080129f0   0x00000088   Code   RO         5430    i.lfs_src_open      bootloader_core.o
+    0x08012a78   0x08012a78   0x00000038   Code   RO         5431    i.lfs_src_read      bootloader_core.o
+    0x08012ab0   0x08012ab0   0x00000046   Code   RO         6481    i.lfs_stat          lfs.o
+    0x08012af6   0x08012af6   0x00000036   Code   RO         6482    i.lfs_superblock_fromle32  lfs.o
+    0x08012b2c   0x08012b2c   0x00000036   Code   RO         6483    i.lfs_superblock_tole32  lfs.o
+    0x08012b62   0x08012b62   0x00000012   Code   RO         6484    i.lfs_tag_dsize     lfs.o
+    0x08012b74   0x08012b74   0x00000010   Code   RO         6485    i.lfs_tag_isdelete  lfs.o
+    0x08012b84   0x08012b84   0x00000040   Code   RO         5432    i.lfs_tgt_close     bootloader_core.o
+    0x08012bc4   0x08012bc4   0x00000070   Code   RO         5433    i.lfs_tgt_open      bootloader_core.o
+    0x08012c34   0x08012c34   0x00000060   Code   RO         5434    i.lfs_tgt_write     bootloader_core.o
+    0x08012c94   0x08012c94   0x00000004   Code   RO         6486    i.lfs_tole32        lfs.o
+    0x08012c98   0x08012c98   0x000000a0   Code   RO         6487    i.lfs_tortoise_detectcycles  lfs.o
+    0x08012d38   0x08012d38   0x00000004   Code   RO         6488    i.lfs_unmount       lfs.o
+    0x08012d3c   0x08012d3c   0x00000004   Code   RO         6489    i.lfs_unmount_      lfs.o
+    0x08012d40   0x08012d40   0x000001c8   Code   RO           16    i.main              main.o
+    0x08012f08   0x08012f08   0x00000012   Code   RO         5921    i.mem_cpy           ff.o
+    0x08012f1a   0x08012f1a   0x00000002   PAD
+    0x08012f1c   0x08012f1c   0x0000000e   Code   RO         5922    i.mem_set           ff.o
+    0x08012f2a   0x08012f2a   0x00000032   Code   RO         5923    i.move_window       ff.o
+    0x08012f5c   0x08012f5c   0x00000074   Code   RO         5924    i.pick_lfn          ff.o
+    0x08012fd0   0x08012fd0   0x000000ea   Code   RO         5925    i.put_fat           ff.o
+    0x080130ba   0x080130ba   0x00000074   Code   RO         5928    i.remove_chain      ff.o
+    0x0801312e   0x0801312e   0x00000002   PAD
+    0x08013130   0x08013130   0x000000ac   Code   RO          887    i.scan_lfs_files    menu.o
+    0x080131dc   0x080131dc   0x000000a8   Code   RO          888    i.scan_sd_card_files  menu.o
+    0x08013284   0x08013284   0x00000028   Code   RO         7223    i.spi_read_write_byte  w25q128.o
+    0x080132ac   0x080132ac   0x00000028   Code   RO         5929    i.st_clust          ff.o
+    0x080132d4   0x080132d4   0x00000010   Code   RO         5930    i.st_dword          ff.o
+    0x080132e4   0x080132e4   0x00000008   Code   RO         5931    i.st_word           ff.o
+    0x080132ec   0x080132ec   0x0000001a   Code   RO         5932    i.sum_sfn           ff.o
+    0x08013306   0x08013306   0x00000002   PAD
+    0x08013308   0x08013308   0x00000088   Code   RO         5933    i.sync_fs           ff.o
+    0x08013390   0x08013390   0x00000052   Code   RO         5934    i.sync_window       ff.o
+    0x080133e2   0x080133e2   0x00000002   PAD
+    0x080133e4   0x080133e4   0x0000001c   Code   RO          521    i.uart_wait_command  usart.o
+    0x08013400   0x08013400   0x00000034   Code   RO         5935    i.validate          ff.o
+    0x08013434   0x08013434   0x00000010   Code   RO         7224    i.w25q128_init      w25q128.o
+    0x08013444   0x08013444   0x00000012   Code   RO         8295    i.xtime             aes.o
+    0x08013456   0x08013456   0x0000000a   Code   RO         8882    x$fpl$fpinit        fz_wm.l(fpinit.o)
+    0x08013460   0x08013460   0x00000010   Data   RO          720    .constdata          system_stm32f4xx.o
+    0x08013470   0x08013470   0x00000008   Data   RO          721    .constdata          system_stm32f4xx.o
+    0x08013478   0x08013478   0x00000060   Data   RO          890    .constdata          menu.o
+    0x080134d8   0x080134d8   0x00000008   Data   RO         2155    .constdata          stm32f4xx_hal_dma.o
+    0x080134e0   0x080134e0   0x0000000c   Data   RO         5436    .constdata          bootloader_core.o
+    0x080134ec   0x080134ec   0x0000000c   Data   RO         5437    .constdata          bootloader_core.o
+    0x080134f8   0x080134f8   0x0000000c   Data   RO         5439    .constdata          bootloader_core.o
+    0x08013504   0x08013504   0x0000000c   Data   RO         5440    .constdata          bootloader_core.o
+    0x08013510   0x08013510   0x00000014   Data   RO         5683    .constdata          sd_diskio.o
+    0x08013524   0x08013524   0x000000aa   Data   RO         5937    .constdata          ff.o
+    0x080135ce   0x080135ce   0x000003ae   Data   RO         6319    .constdata          ccsbcs.o
+    0x0801397c   0x0801397c   0x00000208   Data   RO         6490    .constdata          lfs.o
+    0x08013b84   0x08013b84   0x00000054   Data   RO         7138    .constdata          lfs_spi_flash_adapter.o
+    0x08013bd8   0x08013bd8   0x00000040   Data   RO         7202    .constdata          lfs_util.o
+    0x08013c18   0x08013c18   0x00000024   Data   RO         7429    .constdata          usbd_storage_if.o
+    0x08013c3c   0x08013c3c   0x0000020b   Data   RO         8296    .constdata          aes.o
+    0x08013e47   0x08013e47   0x00000028   Data   RO         8657    .constdata          c_w.l(_printf_hex_int.o)
+    0x08013e6f   0x08013e6f   0x00000011   Data   RO         8692    .constdata          c_w.l(__printf_flags_ss_wp.o)
+    0x08013e80   0x08013e80   0x00000211   Data   RO          891    .conststring        menu.o
+    0x08014091   0x08014091   0x00000003   PAD
+    0x08014094   0x08014094   0x0000004d   Data   RO         6491    .conststring        lfs.o
+    0x080140e1   0x080140e1   0x00000003   PAD
+    0x080140e4   0x080140e4   0x00000020   Data   RO         8965    Region$$Table       anon$$obj.o
 
 
-    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x080140ec, Size: 0x000075d0, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000b4])
+    Execution Region RW_IRAM1 (Exec base: 0x20000000, Load base: 0x08014104, Size: 0x000075d0, Max: 0x0001c000, ABSOLUTE, COMPRESSED[0x000000b4])
 
     Exec Addr    Load Addr    Size         Type   Attr      Idx    E Section Name        Object
 
@@ -6467,13 +6494,13 @@ Memory Map of the image
     0x20002be8        -       0x0000096c   Zero   RW         7514    .bss                usbd_conf.o
     0x20003554        -       0x00000018   Zero   RW         8189    .bss                usbd_msc_scsi.o
     0x2000356c        -       0x00001000   Zero   RW         8390    .bss                aes_decrypt.o
-    0x2000456c        -       0x00000060   Zero   RW         8759    .bss                c_w.l(libspace.o)
+    0x2000456c        -       0x00000060   Zero   RW         8834    .bss                c_w.l(libspace.o)
     0x200045cc   COMPRESSED   0x00000004   PAD
     0x200045d0        -       0x00001000   Zero   RW            2    HEAP                startup_stm32f407xx.o
     0x200055d0        -       0x00002000   Zero   RW            1    STACK               startup_stm32f407xx.o
 
 
-    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x080141a0, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
+    Execution Region RW_IRAM2 (Exec base: 0x2001c000, Load base: 0x080141b8, Size: 0x00000000, Max: 0x00004000, ABSOLUTE)
 
     **** No section assigned to this execution region ****
 
@@ -6487,7 +6514,7 @@ Image component sizes
 
       1464         12        523          0          0       6919   aes.o
       1212         32          0          0       4096       6905   aes_decrypt.o
-      1244         96         48        160       5712      20439   bootloader_core.o
+      1268         98         48        160       5712      20559   bootloader_core.o
        192         22          0          0          0       6130   bsp_driver_sd.o
        184         22        942          0          0       2275   ccsbcs.o
        436         30          0          0         72       6033   common.o
@@ -6549,7 +6576,7 @@ Image component sizes
       1376         34          0          4       1030       6928   ymodem.o
 
     ----------------------------------------------------------------------
-     75090      11280       3571        512      29548    1372491   Object Totals
+     75114      11282       3571        512      29548    1372611   Object Totals
          0          0         32          0          0          0   (incl. Generated)
        122          0          6         13          2          0   (incl. Padding)
 
@@ -6652,15 +6679,15 @@ Image component sizes
 
       Code (inc. data)   RO Data    RW Data    ZI Data      Debug   
 
-     78528      11430       3628        512      29648    1313871   Grand Totals
-     78528      11430       3628        180      29648    1313871   ELF Image Totals (compressed)
-     78528      11430       3628        180          0          0   ROM Totals
+     78552      11432       3628        512      29648    1313991   Grand Totals
+     78552      11432       3628        180      29648    1313991   ELF Image Totals (compressed)
+     78552      11432       3628        180          0          0   ROM Totals
 
 ==============================================================================
 
-    Total RO  Size (Code + RO Data)                82156 (  80.23kB)
+    Total RO  Size (Code + RO Data)                82180 (  80.25kB)
     Total RW  Size (RW Data + ZI Data)             30160 (  29.45kB)
-    Total ROM Size (Code + RO Data + RW Data)      82336 (  80.41kB)
+    Total ROM Size (Code + RO Data + RW Data)      82360 (  80.43kB)
 
 ==============================================================================
 

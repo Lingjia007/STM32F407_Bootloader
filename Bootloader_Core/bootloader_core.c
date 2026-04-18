@@ -19,23 +19,42 @@ bootloader_ctx_t bootloader_ctx = {
 void jump_to_app(uint32_t app_address)
 {
     pFunction jump_fn;
-    SCB->VTOR = app_address;
-    __DSB();
-    __ISB();
-    __set_MSP(*(__IO uint32_t *)app_address);
-    jump_fn = (pFunction)(*(__IO uint32_t *)(app_address + 4));
+    uint32_t app_stack_ptr = (*(__IO uint32_t *)app_address);
+    uint32_t app_reset_handler = (*(__IO uint32_t *)(app_address + 4));
+
+    if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
+    {
+        return;
+    }
 
     __disable_irq();
+
+    SysTick->CTRL = 0;
+    SysTick->LOAD = 0;
+    SysTick->VAL = 0;
+
     for (int i = 0; i < 8; i++)
     {
         NVIC->ICER[i] = 0xFFFFFFFF;
         NVIC->ICPR[i] = 0xFFFFFFFF;
     }
+
     HAL_RCC_DeInit();
     HAL_DeInit();
+
+    SCB->VTOR = app_address;
+    __DSB();
+    __ISB();
+
+    __set_MSP(app_stack_ptr);
+
     __enable_irq();
 
+    jump_fn = (pFunction)app_reset_handler;
     jump_fn();
+
+    while (1)
+        ;
 }
 
 typedef struct
