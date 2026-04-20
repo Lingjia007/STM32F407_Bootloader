@@ -14,6 +14,7 @@
 "stm32f407vgt6_bootloader\common.o"
 "stm32f407vgt6_bootloader\flash_if.o"
 "stm32f407vgt6_bootloader\menu.o"
+"stm32f407vgt6_bootloader\hpatch_upgrade.o"
 "stm32f407vgt6_bootloader\ymodem.o"
 "stm32f407vgt6_bootloader\led.o"
 "stm32f407vgt6_bootloader\stm32f4xx_hal_pcd.o"
@@ -71,6 +72,8 @@
 "stm32f407vgt6_bootloader\bsdiff.o"
 "stm32f407vgt6_bootloader\bspatch.o"
 "stm32f407vgt6_bootloader\hkdf.o"
+"stm32f407vgt6_bootloader\hpatch_lite.o"
+"stm32f407vgt6_bootloader\tuz_dec.o"
 --strict --scatter "STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

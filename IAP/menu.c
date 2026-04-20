@@ -40,6 +40,7 @@
 #include "stdio.h"
 #include "string.h"
 #include "aes_decrypt.h"
+#include "hpatch_upgrade.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -56,6 +57,9 @@ uint8_t aFileName[FILE_NAME_LENGTH];
 static char file_list[MAX_FILES][MAX_FILENAME_LEN];
 static uint8_t file_count = 0;
 
+static char hdiff_list[MAX_FILES][MAX_FILENAME_LEN];
+static uint8_t hdiff_count = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 void SerialDownload(void);
 void SerialUpload(void);
@@ -64,6 +68,8 @@ void SPIFlashDownload(void);
 static void DecryptAESFile(void);
 static void DecryptAndDownloadMenu(void);
 static void BuildSelectionPrompt(char *msg, size_t msg_size, uint8_t file_count, const char *prefix);
+static void scan_sd_card_hdiff_files(void);
+static void HPatchUpgradeMenu(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -1075,6 +1081,267 @@ void SerialUpload(void)
   }
 }
 
+static void scan_sd_card_hdiff_files(void)
+{
+  DIR dir;
+  FILINFO fno;
+  FRESULT res;
+
+  hdiff_count = 0;
+
+  res = f_opendir(&dir, "0:/");
+  if (res != FR_OK)
+  {
+    Serial_PutString((uint8_t *)"\r\nError: Cannot open SD card directory!\r\n");
+    return;
+  }
+
+  while (hdiff_count < MAX_FILES)
+  {
+    res = f_readdir(&dir, &fno);
+    if (res != FR_OK || fno.fname[0] == 0)
+    {
+      break;
+    }
+
+    if (!(fno.fattrib & AM_DIR))
+    {
+      size_t len = strlen(fno.fname);
+      if (len >= 6)
+      {
+        const char *ext = fno.fname + len - 6;
+        if (strcmp(ext, ".hdiff") == 0 || strcmp(ext, ".HDIFF") == 0)
+        {
+          strncpy(hdiff_list[hdiff_count], fno.fname, MAX_FILENAME_LEN - 1);
+          hdiff_list[hdiff_count][MAX_FILENAME_LEN - 1] = '\0';
+          hdiff_count++;
+        }
+      }
+    }
+  }
+
+  f_closedir(&dir);
+}
+
+static void HPatchUpgradeMenu(void)
+{
+  uint8_t key = 0;
+  uint8_t selected_diff = 0;
+  uint8_t selected_old = 0;
+  uint8_t i;
+  char msg[256];
+  FRESULT res;
+  hpatch_upgrade_err_t patch_result;
+  hpatch_config_t config;
+  char out_path[HPATCH_MAX_PATH_LEN];
+  char *dot_pos;
+  const char *upgrade_tag = "_upgraded";
+
+  Serial_PutString((uint8_t *)"\r\nInitializing TF card...\r\n");
+
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    Serial_PutString((uint8_t *)"Error: SD card mount failed! Error code: ");
+    Int2Str((uint8_t *)msg, res);
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"\r\nScanning for .hdiff files...\r\n\r\n");
+
+  scan_sd_card_hdiff_files();
+
+  if (hdiff_count == 0)
+  {
+    Serial_PutString((uint8_t *)"No .hdiff files found on SD card!\r\n");
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Found .hdiff files:\r\n");
+
+  for (i = 0; i < hdiff_count; i++)
+  {
+    snprintf(msg, sizeof(msg), "  [%d] %s\r\n", i + 1, hdiff_list[i]);
+    Serial_PutString((uint8_t *)msg);
+  }
+
+  BuildSelectionPrompt(msg, sizeof(msg), hdiff_count, "\r\nSelect .hdiff file");
+  Serial_PutString((uint8_t *)msg);
+
+  __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+  while (1)
+  {
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    if (key == 'a' || key == 'A')
+    {
+      Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+
+    if (key >= '1' && key <= '9')
+    {
+      selected_diff = key - '0';
+      if (selected_diff >= 1 && selected_diff <= hdiff_count)
+      {
+        break;
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", hdiff_list[selected_diff - 1]);
+  Serial_PutString((uint8_t *)msg);
+
+  Serial_PutString((uint8_t *)"\r\nScanning for .bin firmware files...\r\n\r\n");
+
+  scan_sd_card_files();
+
+  if (file_count == 0)
+  {
+    Serial_PutString((uint8_t *)"No .bin files found on SD card!\r\n");
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    return;
+  }
+
+  Serial_PutString((uint8_t *)"Found firmware files:\r\n");
+
+  for (i = 0; i < file_count; i++)
+  {
+    snprintf(msg, sizeof(msg), "  [%d] %s\r\n", i + 1, file_list[i]);
+    Serial_PutString((uint8_t *)msg);
+  }
+
+  BuildSelectionPrompt(msg, sizeof(msg), file_count, "\r\nSelect old firmware file to update");
+  Serial_PutString((uint8_t *)msg);
+
+  __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+  while (1)
+  {
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    if (key == 'a' || key == 'A')
+    {
+      Serial_PutString((uint8_t *)"\r\nAborted by user.\r\n");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+
+    if (key >= '1' && key <= '9')
+    {
+      selected_old = key - '0';
+      if (selected_old >= 1 && selected_old <= file_count)
+      {
+        break;
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s\r\n", file_list[selected_old - 1]);
+  Serial_PutString((uint8_t *)msg);
+
+  snprintf(config.diff_path, sizeof(config.diff_path), "0:/%s", hdiff_list[selected_diff - 1]);
+  snprintf(config.old_path, sizeof(config.old_path), "0:/%s", file_list[selected_old - 1]);
+
+  strncpy(out_path, config.old_path, sizeof(out_path) - 1);
+  out_path[sizeof(out_path) - 1] = '\0';
+
+  dot_pos = strrchr(out_path, '.');
+  if (dot_pos != NULL)
+  {
+    size_t base_len = dot_pos - out_path;
+    if (base_len + strlen(upgrade_tag) + 4 < sizeof(out_path))
+    {
+      snprintf(dot_pos, sizeof(out_path) - base_len, "%s.bin", upgrade_tag);
+    }
+    else
+    {
+      strncat(out_path, upgrade_tag, sizeof(out_path) - strlen(out_path) - 1);
+    }
+  }
+  else
+  {
+    strncat(out_path, upgrade_tag, sizeof(out_path) - strlen(out_path) - 1);
+    strncat(out_path, ".bin", sizeof(out_path) - strlen(out_path) - 1);
+  }
+
+  snprintf(config.out_path, sizeof(config.out_path), "%s", out_path);
+  config.fatfs = &SDFatFS;
+
+  snprintf(msg, sizeof(msg), "\r\nDiff file: %s\r\n", config.diff_path);
+  Serial_PutString((uint8_t *)msg);
+  snprintf(msg, sizeof(msg), "Old firmware: %s\r\n", config.old_path);
+  Serial_PutString((uint8_t *)msg);
+  snprintf(msg, sizeof(msg), "Output file: %s\r\n", config.out_path);
+  Serial_PutString((uint8_t *)msg);
+
+  Serial_PutString((uint8_t *)"\r\nStarting HPatch differential upgrade...\r\n");
+
+  patch_result = hpatch_upgrade_fatfs(&config);
+
+  if (patch_result == HPATCH_OK)
+  {
+    Serial_PutString((uint8_t *)"\r\nHPatch upgrade completed successfully!\r\n");
+    Serial_PutString((uint8_t *)"Upgraded firmware saved to SD card.\r\n");
+    snprintf(msg, sizeof(msg), "Output: %s\r\n", config.out_path);
+    Serial_PutString((uint8_t *)msg);
+  }
+  else
+  {
+    Serial_PutString((uint8_t *)"\r\nHPatch upgrade failed! Error code: ");
+    Int2Str((uint8_t *)msg, (uint32_t)(-patch_result));
+    Serial_PutString((uint8_t *)msg);
+    Serial_PutString((uint8_t *)"\r\n");
+
+    switch (patch_result)
+    {
+    case HPATCH_ERR_MOUNT:
+      Serial_PutString((uint8_t *)"Detail: SD card mount error\r\n");
+      break;
+    case HPATCH_ERR_OPEN_DIFF:
+      Serial_PutString((uint8_t *)"Detail: Cannot open .hdiff file\r\n");
+      break;
+    case HPATCH_ERR_OPEN_OLD:
+      Serial_PutString((uint8_t *)"Detail: Cannot open old firmware file\r\n");
+      break;
+    case HPATCH_ERR_OPEN_OUT:
+      Serial_PutString((uint8_t *)"Detail: Cannot create output file\r\n");
+      break;
+    case HPATCH_ERR_READ_DIFF:
+      Serial_PutString((uint8_t *)"Detail: Error reading diff data\r\n");
+      break;
+    case HPATCH_ERR_READ_OLD:
+      Serial_PutString((uint8_t *)"Detail: Error reading old firmware\r\n");
+      break;
+    case HPATCH_ERR_WRITE:
+      Serial_PutString((uint8_t *)"Detail: Error writing output\r\n");
+      break;
+    case HPATCH_ERR_DECOMPRESS:
+      Serial_PutString((uint8_t *)"Detail: Decompression error\r\n");
+      break;
+    case HPATCH_ERR_PATCH:
+      Serial_PutString((uint8_t *)"Detail: Patch application error\r\n");
+      break;
+    case HPATCH_ERR_INVALID_HEAD:
+      Serial_PutString((uint8_t *)"Detail: Invalid diff file header\r\n");
+      break;
+    case HPATCH_ERR_MEMORY:
+      Serial_PutString((uint8_t *)"Detail: Insufficient memory\r\n");
+      break;
+    default:
+      Serial_PutString((uint8_t *)"Detail: Unknown error\r\n");
+      break;
+    }
+  }
+
+  f_mount(NULL, (TCHAR const *)SDPath, 0);
+}
+
 /**
  * @brief  Display the Main Menu on HyperTerminal
  * @param  None
@@ -1100,21 +1367,23 @@ void Main_Menu(void)
     FlashProtection = FLASH_If_GetWriteProtectionStatus();
 
     Serial_PutString((uint8_t *)"\r\n=================== Main Menu ============================\r\n\n");
-    Serial_PutString((uint8_t *)"  Download image to the internal Flash ----------------- 1\r\n\n");
-    Serial_PutString((uint8_t *)"  Upload image from the internal Flash ----------------- 2\r\n\n");
-    Serial_PutString((uint8_t *)"  Store image to SPI-Flash LFS ------------------------- 3\r\n\n");
-    Serial_PutString((uint8_t *)"  Execute the loaded application ----------------------- 4\r\n\n");
-    Serial_PutString((uint8_t *)"  Decrypt and download encrypted firmware -------------- 6\r\n\n");
-    Serial_PutString((uint8_t *)"  Decrypt .bin.aes file on SD card --------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Download image to internal Flash  -------------------- 1\r\n\n");
+    Serial_PutString((uint8_t *)"  Upload image from internal Flash  -------------------- 2\r\n\n");
+    Serial_PutString((uint8_t *)"  Store image to SPI-Flash LFS  ------------------------ 3\r\n\n");
+    Serial_PutString((uint8_t *)"  Execute the loaded application  ---------------------- 4\r\n\n");
 
     if (FlashProtection != FLASHIF_PROTECTION_NONE)
     {
-      Serial_PutString((uint8_t *)"  Disable the write protection ------------------------- 5\r\n\n");
+      Serial_PutString((uint8_t *)"  Disable Flash write protection  ---------------------- 5\r\n\n");
     }
     else
     {
-      Serial_PutString((uint8_t *)"  Enable the write protection -------------------------- 5\r\n\n");
+      Serial_PutString((uint8_t *)"  Enable Flash write protection  ----------------------- 5\r\n\n");
     }
+
+    Serial_PutString((uint8_t *)"  Decrypt and download encrypted firmware  ------------- 6\r\n\n");
+    Serial_PutString((uint8_t *)"  Decrypt .bin.aes file on SD card  -------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  HPatch differential upgrade (SD card)  --------------- 8\r\n\n");
 
     Serial_PutString((uint8_t *)"==========================================================\r\n\n");
 
@@ -1138,12 +1407,6 @@ void Main_Menu(void)
     case '4':
       Serial_PutString((uint8_t *)"Start program execution......\r\n\n");
       bootloader_ctx.config.jump.jump_func(bootloader_ctx.config.jump.app_jump_addr);
-      break;
-    case '6':
-      DecryptAndDownloadMenu();
-      break;
-    case '7':
-      DecryptAESFile();
       break;
     case '5':
       if (FlashProtection != FLASHIF_PROTECTION_NONE)
@@ -1174,8 +1437,17 @@ void Main_Menu(void)
         }
       }
       break;
+    case '6':
+      DecryptAndDownloadMenu();
+      break;
+    case '7':
+      DecryptAESFile();
+      break;
+    case '8':
+      HPatchUpgradeMenu();
+      break;
     default:
-      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1, 2, 3, 4, 5, 6 or 7\r");
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1, 2, 3, 4, 5, 6, 7 or 8\r");
       break;
     }
   }

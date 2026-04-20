@@ -67,10 +67,10 @@ stm32f407vgt6_bootloader\main.o: ../IAP/flash_if.h
 stm32f407vgt6_bootloader\main.o: ../IAP/ymodem.h
 stm32f407vgt6_bootloader\main.o: ../Bootloader_Core/Bootloader_core.h
 stm32f407vgt6_bootloader\main.o: ../IAP/common.h
-stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\w25q128.h
-stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h
-stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs.h
-stm32f407vgt6_bootloader\main.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.h
+stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/LittleFs/w25q128.h
+stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/LittleFs/lfs_spi_flash_adapter.h
+stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/LittleFs/lfs.h
+stm32f407vgt6_bootloader\main.o: ../Middlewares/Third_Party/LittleFs/lfs_util.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
 stm32f407vgt6_bootloader\main.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h

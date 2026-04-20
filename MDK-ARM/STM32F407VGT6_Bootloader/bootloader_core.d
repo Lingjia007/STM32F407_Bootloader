@@ -46,8 +46,8 @@ stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/ffconf.h
 stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/bsp_driver_sd.h
 stm32f407vgt6_bootloader\bootloader_core.o: ../FATFS/Target/fatfs_platform.h
 stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
-stm32f407vgt6_bootloader\bootloader_core.o: ..\Middlewares\Third_Party\LittleFs\lfs.h
-stm32f407vgt6_bootloader\bootloader_core.o: ..\Middlewares\Third_Party\LittleFs\lfs_util.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../Middlewares/Third_Party/LittleFs/lfs.h
+stm32f407vgt6_bootloader\bootloader_core.o: ../Middlewares/Third_Party/LittleFs/lfs_util.h
 stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
 stm32f407vgt6_bootloader\bootloader_core.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h

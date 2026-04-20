@@ -47,6 +47,9 @@ __heap_base
 Heap_Mem        SPACE   Heap_Size
 __heap_limit
 
+                AREA    CCMRAM, NOINIT, READWRITE, ALIGN=3
+
+
                 PRESERVE8
                 THUMB
 
