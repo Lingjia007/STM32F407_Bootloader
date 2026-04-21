@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 #define APPLICATION_ADDRESS (uint32_t)0x08020000
-#define BOOTLOADER_PATH_MAX 64
+#define BOOTLOADER_PATH_MAX 128
 
 typedef void (*pFunction)(void);
 

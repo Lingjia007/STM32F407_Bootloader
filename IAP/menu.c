@@ -45,7 +45,7 @@
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
 #define MAX_FILES 20
-#define MAX_FILENAME_LEN 64
+#define MAX_FILENAME_LEN 128
 
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
@@ -1135,7 +1135,7 @@ static void HPatchUpgradeMenu(void)
   hpatch_config_t config;
   char out_path[HPATCH_MAX_PATH_LEN];
   char *dot_pos;
-  const char *upgrade_tag = "_upgraded";
+  const char *upgrade_tag = "_HdiffUpgraded";
 
   Serial_PutString((uint8_t *)"\r\nInitializing TF card...\r\n");
 

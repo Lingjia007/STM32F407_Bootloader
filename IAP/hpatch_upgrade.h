@@ -6,11 +6,12 @@
 #include "tuz_dec.h"
 #include "fatfs.h"
 
-#define HPATCH_CACHE_SIZE (4 * 1024)
-#define HPATCH_DICT_SIZE (32 * 1024)
-#define HPATCH_MAX_DIFF_DECOMP_SIZE (32 * 1024)
+#define HPATCH_CACHE_SIZE (1 * 1024)
+#define HPATCH_DICT_SIZE (4 * 1024)
+#define HPATCH_TEMP_SIZE (16 * 1024)
+#define HPATCH_MAX_DIFF_DECOMP_SIZE (48 * 1024)
 #define HPATCH_MAX_PATH_LEN 128
-#define HPATCH_MAX_FILENAME_LEN 64
+#define HPATCH_MAX_FILENAME_LEN 128
 
 typedef enum
 {
