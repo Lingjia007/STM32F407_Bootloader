@@ -57,5 +57,10 @@ stm32f407vgt6_bootloader\hpatch_upgrade.o: ../Middlewares/Third_Party/FatFs/src/
 stm32f407vgt6_bootloader\hpatch_upgrade.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
 stm32f407vgt6_bootloader\hpatch_upgrade.o: ../FATFS/Target/sd_diskio.h
 stm32f407vgt6_bootloader\hpatch_upgrade.o: ../Core/Inc/rtc.h
+stm32f407vgt6_bootloader\hpatch_upgrade.o: ../Middlewares/Third_Party/LittleFs/lfs.h
+stm32f407vgt6_bootloader\hpatch_upgrade.o: ../Middlewares/Third_Party/LittleFs/lfs_util.h
+stm32f407vgt6_bootloader\hpatch_upgrade.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
 stm32f407vgt6_bootloader\hpatch_upgrade.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
+stm32f407vgt6_bootloader\hpatch_upgrade.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
+stm32f407vgt6_bootloader\hpatch_upgrade.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
 stm32f407vgt6_bootloader\hpatch_upgrade.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h

@@ -5,6 +5,7 @@
 #include "hpatch_lite.h"
 #include "tuz_dec.h"
 #include "fatfs.h"
+#include "lfs.h"
 
 #define HPATCH_CACHE_SIZE (16 * 1024)
 #define HPATCH_DICT_SIZE (4 * 1024)
@@ -37,6 +38,15 @@ typedef struct
     char out_path[HPATCH_MAX_PATH_LEN];
 } hpatch_config_t;
 
+typedef struct
+{
+    lfs_t *lfs;
+    const char *diff_path;
+    const char *old_path;
+    const char *out_path;
+} hpatch_lfs_config_t;
+
 hpatch_upgrade_err_t hpatch_upgrade_fatfs(const hpatch_config_t *config);
+hpatch_upgrade_err_t hpatch_upgrade_lfs(const hpatch_lfs_config_t *config);
 
 #endif
