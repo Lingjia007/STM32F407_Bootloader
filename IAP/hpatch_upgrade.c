@@ -7,12 +7,14 @@ static FIL old_file;
 static FIL out_file;
 
 static uint8_t tuz_dict_and_cache[HPATCH_DICT_SIZE + HPATCH_CACHE_SIZE];
-static uint8_t decompressed_diff_buf[HPATCH_MAX_DIFF_DECOMP_SIZE];
+static uint8_t stream_diff_buf[HPATCH_STREAM_BUF_SIZE];
 static uint8_t patch_temp_buf[HPATCH_CACHE_SIZE];
 static tuz_TStream tuz_stream_obj;
 
-static hpi_pos_t decomp_read_pos = 0;
-static hpi_pos_t decomp_total_size = 0;
+static hpi_pos_t stream_buf_start = 0;
+static hpi_pos_t stream_buf_end = 0;
+static hpi_pos_t stream_read_pos = 0;
+static tuz_BOOL stream_decomp_end = tuz_FALSE;
 
 static hpi_BOOL fatfs_read_raw(hpi_TInputStreamHandle inputStream, hpi_byte *out_data, hpi_size_t *data_size)
 {
@@ -28,16 +30,64 @@ static hpi_BOOL fatfs_read_raw(hpi_TInputStreamHandle inputStream, hpi_byte *out
     return hpi_TRUE;
 }
 
-static hpi_BOOL mem_read_diff(hpi_TInputStreamHandle inputStream, hpi_byte *out_data, hpi_size_t *data_size)
+static hpi_BOOL stream_refill_buffer(void)
 {
-    hpi_size_t remaining = (hpi_size_t)(decomp_total_size - decomp_read_pos);
-    hpi_size_t request = *data_size;
-    if (request > remaining)
-        request = remaining;
-    memcpy(out_data, decompressed_diff_buf + decomp_read_pos, request);
-    decomp_read_pos += request;
-    *data_size = request;
+    tuz_size_t decomp_size;
+    tuz_TResult tuz_res;
+
+    if (stream_decomp_end)
+        return hpi_TRUE;
+
+    stream_buf_start = 0;
+    stream_buf_end = 0;
+
+    decomp_size = HPATCH_STREAM_BUF_SIZE;
+    tuz_res = tuz_TStream_decompress_partial(&tuz_stream_obj, stream_diff_buf, &decomp_size);
+
+    if (tuz_res == tuz_READ_CODE_ERROR || tuz_res == tuz_DICT_POS_ERROR)
+        return hpi_FALSE;
+
+    stream_buf_end = decomp_size;
+
+    if (tuz_res == tuz_STREAM_END)
+        stream_decomp_end = tuz_TRUE;
+
     return hpi_TRUE;
+}
+
+static hpi_BOOL stream_read_diff(hpi_TInputStreamHandle inputStream, hpi_byte *out_data, hpi_size_t *data_size)
+{
+    hpi_size_t request = *data_size;
+    hpi_size_t copied = 0;
+
+    while (copied < request)
+    {
+        if (stream_buf_start >= stream_buf_end)
+        {
+            if (stream_decomp_end)
+                break;
+            if (!stream_refill_buffer())
+            {
+                *data_size = copied;
+                return hpi_FALSE;
+            }
+            if (stream_buf_end == 0)
+                break;
+        }
+
+        hpi_size_t available = (hpi_size_t)(stream_buf_end - stream_buf_start);
+        hpi_size_t to_copy = request - copied;
+        if (to_copy > available)
+            to_copy = available;
+
+        memcpy(out_data + copied, stream_diff_buf + stream_buf_start, to_copy);
+        stream_buf_start += to_copy;
+        stream_read_pos += to_copy;
+        copied += to_copy;
+    }
+
+    *data_size = copied;
+    return (copied > 0 || request == 0) ? hpi_TRUE : hpi_FALSE;
 }
 
 static hpi_BOOL fatfs_read_old(hpatchi_listener_t *listener, hpi_pos_t read_from_pos, hpi_byte *out_data, hpi_size_t data_size)
@@ -87,11 +137,11 @@ hpatch_upgrade_err_t hpatch_upgrade_fatfs(const hpatch_config_t *config)
     hpatch_upgrade_err_t ret = HPATCH_OK;
     tuz_size_t dict_size;
     tuz_TResult tuz_res;
-    tuz_size_t decomp_size;
-    hpi_pos_t total_decomped = 0;
 
-    decomp_read_pos = 0;
-    decomp_total_size = 0;
+    stream_buf_start = 0;
+    stream_buf_end = 0;
+    stream_read_pos = 0;
+    stream_decomp_end = tuz_FALSE;
 
     res = f_open(&diff_file, config->diff_path, FA_READ);
     if (res != FR_OK)
@@ -146,44 +196,13 @@ hpatch_upgrade_err_t hpatch_upgrade_fatfs(const hpatch_config_t *config)
             goto cleanup;
         }
 
-        if (uncompress_size > HPATCH_MAX_DIFF_DECOMP_SIZE)
-        {
-            ret = HPATCH_ERR_MEMORY;
-            goto cleanup;
-        }
+        stream_buf_start = 0;
+        stream_buf_end = 0;
+        stream_read_pos = 0;
+        stream_decomp_end = tuz_FALSE;
 
-        while (total_decomped < uncompress_size)
-        {
-            decomp_size = (tuz_size_t)(uncompress_size - total_decomped);
-            if (decomp_size > HPATCH_CACHE_SIZE)
-                decomp_size = HPATCH_CACHE_SIZE;
-
-            tuz_res = tuz_TStream_decompress_partial(&tuz_stream_obj,
-                                                     decompressed_diff_buf + total_decomped,
-                                                     &decomp_size);
-
-            if (tuz_res == tuz_READ_CODE_ERROR || tuz_res == tuz_DICT_POS_ERROR)
-            {
-                ret = HPATCH_ERR_DECOMPRESS;
-                goto cleanup;
-            }
-
-            total_decomped += decomp_size;
-
-            if (tuz_res == tuz_STREAM_END)
-                break;
-        }
-
-        if (total_decomped < uncompress_size)
-        {
-            ret = HPATCH_ERR_DECOMPRESS;
-            goto cleanup;
-        }
-
-        decomp_total_size = total_decomped;
-        decomp_read_pos = 0;
         listener.diff_data = (hpi_TInputStreamHandle)0;
-        listener.read_diff = mem_read_diff;
+        listener.read_diff = stream_read_diff;
     }
     else if (compress_type != hpi_compressType_no)
     {
