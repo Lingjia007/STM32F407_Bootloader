@@ -7,8 +7,8 @@ static FIL old_file;
 static FIL out_file;
 
 static uint8_t tuz_dict_and_cache[HPATCH_DICT_SIZE + HPATCH_CACHE_SIZE];
-static uint8_t decompressed_diff_buf[HPATCH_MAX_DIFF_DECOMP_SIZE] __attribute__((section("CCMRAM")));
-static uint8_t patch_temp_buf[HPATCH_TEMP_SIZE] __attribute__((section("CCMRAM")));
+static uint8_t decompressed_diff_buf[HPATCH_MAX_DIFF_DECOMP_SIZE];
+static uint8_t patch_temp_buf[HPATCH_CACHE_SIZE];
 static tuz_TStream tuz_stream_obj;
 
 static hpi_pos_t decomp_read_pos = 0;

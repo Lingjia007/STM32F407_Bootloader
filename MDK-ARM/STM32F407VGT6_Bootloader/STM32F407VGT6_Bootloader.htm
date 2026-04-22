@@ -3,7 +3,7 @@
 <title>Static Call Graph - [STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Tue Apr 21 22:32:09 2026
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060960: Last Updated: Wed Apr 22 15:09:50 2026
 <BR><P>
 <H3>Maximum Stack Usage =       2848 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -107,13 +107,13 @@ Function Pointers
  <LI><a href="#[4d]">SPI1_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[4e]">SPI2_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[5d]">SPI3_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
- <LI><a href="#[a]">STORAGE_GetCapacity_FS</a> from usbd_storage_if.o(i.STORAGE_GetCapacity_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[f]">STORAGE_GetMaxLun_FS</a> from usbd_storage_if.o(i.STORAGE_GetMaxLun_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[9]">STORAGE_Init_FS</a> from usbd_storage_if.o(i.STORAGE_Init_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[b]">STORAGE_IsReady_FS</a> from usbd_storage_if.o(i.STORAGE_IsReady_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[c]">STORAGE_IsWriteProtected_FS</a> from usbd_storage_if.o(i.STORAGE_IsWriteProtected_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[d]">STORAGE_Read_FS</a> from usbd_storage_if.o(i.STORAGE_Read_FS) referenced 2 times from usbd_storage_if.o(.data)
- <LI><a href="#[e]">STORAGE_Write_FS</a> from usbd_storage_if.o(i.STORAGE_Write_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[11]">STORAGE_GetCapacity_FS</a> from usbd_storage_if.o(i.STORAGE_GetCapacity_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[16]">STORAGE_GetMaxLun_FS</a> from usbd_storage_if.o(i.STORAGE_GetMaxLun_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[10]">STORAGE_Init_FS</a> from usbd_storage_if.o(i.STORAGE_Init_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[12]">STORAGE_IsReady_FS</a> from usbd_storage_if.o(i.STORAGE_IsReady_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[13]">STORAGE_IsWriteProtected_FS</a> from usbd_storage_if.o(i.STORAGE_IsWriteProtected_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[14]">STORAGE_Read_FS</a> from usbd_storage_if.o(i.STORAGE_Read_FS) referenced 2 times from usbd_storage_if.o(.data)
+ <LI><a href="#[15]">STORAGE_Write_FS</a> from usbd_storage_if.o(i.STORAGE_Write_FS) referenced 2 times from usbd_storage_if.o(.data)
  <LI><a href="#[26]">SVC_Handler</a> from stm32f4xx_it.o(i.SVC_Handler) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[29]">SysTick_Handler</a> from stm32f4xx_it.o(i.SysTick_Handler) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[7b]">SystemInit</a> from system_stm32f4xx.o(i.SystemInit) referenced from startup_stm32f407xx.o(.text)
@@ -139,13 +139,13 @@ Function Pointers
  <LI><a href="#[50]">USART2_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[51]">USART3_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
  <LI><a href="#[71]">USART6_IRQHandler</a> from startup_stm32f407xx.o(.text) referenced from startup_stm32f407xx.o(RESET)
- <LI><a href="#[15]">USBD_FS_ConfigStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ConfigStrDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[10]">USBD_FS_DeviceDescriptor</a> from usbd_desc.o(i.USBD_FS_DeviceDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[16]">USBD_FS_InterfaceStrDescriptor</a> from usbd_desc.o(i.USBD_FS_InterfaceStrDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[11]">USBD_FS_LangIDStrDescriptor</a> from usbd_desc.o(i.USBD_FS_LangIDStrDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[12]">USBD_FS_ManufacturerStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ManufacturerStrDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[13]">USBD_FS_ProductStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ProductStrDescriptor) referenced 2 times from usbd_desc.o(.data)
- <LI><a href="#[14]">USBD_FS_SerialStrDescriptor</a> from usbd_desc.o(i.USBD_FS_SerialStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[e]">USBD_FS_ConfigStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ConfigStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[9]">USBD_FS_DeviceDescriptor</a> from usbd_desc.o(i.USBD_FS_DeviceDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[f]">USBD_FS_InterfaceStrDescriptor</a> from usbd_desc.o(i.USBD_FS_InterfaceStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[a]">USBD_FS_LangIDStrDescriptor</a> from usbd_desc.o(i.USBD_FS_LangIDStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[b]">USBD_FS_ManufacturerStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ManufacturerStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[c]">USBD_FS_ProductStrDescriptor</a> from usbd_desc.o(i.USBD_FS_ProductStrDescriptor) referenced 2 times from usbd_desc.o(.data)
+ <LI><a href="#[d]">USBD_FS_SerialStrDescriptor</a> from usbd_desc.o(i.USBD_FS_SerialStrDescriptor) referenced 2 times from usbd_desc.o(.data)
  <LI><a href="#[1a]">USBD_MSC_DataIn</a> from usbd_msc.o(i.USBD_MSC_DataIn) referenced 2 times from usbd_msc.o(.data)
  <LI><a href="#[1b]">USBD_MSC_DataOut</a> from usbd_msc.o(i.USBD_MSC_DataOut) referenced 2 times from usbd_msc.o(.data)
  <LI><a href="#[18]">USBD_MSC_DeInit</a> from usbd_msc.o(i.USBD_MSC_DeInit) referenced 2 times from usbd_msc.o(.data)
@@ -642,8 +642,8 @@ Global Symbols
 <P><STRONG><a name="[191]"></a>__aeabi_uldivmod</STRONG> (Thumb, 0 bytes, Stack size 48 bytes, lludivv7m.o(.text))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = __aeabi_uldivmod
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SetConfig
-<LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
+<BR>[Called By]<UL><LI><a href="#[18f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetSysClockFreq
+<LI><a href="#[1da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_SetConfig
 </UL>
 
 <P><STRONG><a name="[34a]"></a>_ll_udiv</STRONG> (Thumb, 238 bytes, Stack size 48 bytes, lludivv7m.o(.text), UNUSED)
@@ -749,7 +749,8 @@ Global Symbols
 <LI><a href="#[d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_SIGABRT
 <LI><a href="#[bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__rt_lib_shutdown
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tuz_TStream_read_dict_size
+<BR>[Called By]<UL><LI><a href="#[272]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_hpi_cache_update
+<LI><a href="#[2b3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tuz_TStream_read_dict_size
 <LI><a href="#[2b4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tuz_TStream_open
 <LI><a href="#[2b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;tuz_TStream_decompress_partial
 <LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hpatch_lite_patch
@@ -775,7 +776,6 @@ Global Symbols
 <LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_prog
 <LI><a href="#[2c1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_flush
 <LI><a href="#[2c0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_erase
-<LI><a href="#[272]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_hpi_cache_update
 <LI><a href="#[26d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_cache_read_1byte
 </UL>
 
@@ -839,14 +839,14 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[ec]"></a>__aeabi_memcpy</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, rt_memcpy_v6.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mem_read_diff
+<BR><BR>[Called By]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
+<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
+<LI><a href="#[8a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;mem_read_diff
 <LI><a href="#[237]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;StoreFromInternalFlash
 <LI><a href="#[304]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_relocate
 <LI><a href="#[2f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_getread
 <LI><a href="#[2bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_read
 <LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_prog
-<LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
-<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
 </UL>
 
 <P><STRONG><a name="[d4]"></a>__rt_memcpy</STRONG> (Thumb, 138 bytes, Stack size 0 bytes, rt_memcpy_v6.o(.text), UNUSED)
@@ -886,10 +886,10 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[db]"></a>__aeabi_memclr</STRONG> (Thumb, 0 bytes, Stack size 0 bytes, rt_memclr.o(.text))
-<BR><BR>[Called By]<UL><LI><a href="#[310]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_format_
+<BR><BR>[Called By]<UL><LI><a href="#[218]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SCSI_ReportLuns
+<LI><a href="#[310]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_format_
 <LI><a href="#[2ee]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_getslice
 <LI><a href="#[2b7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_alloc_scan
-<LI><a href="#[218]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SCSI_ReportLuns
 <LI><a href="#[da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;strncpy
 </UL>
 
@@ -910,13 +910,13 @@ Global Symbols
 <LI><a href="#[1fd]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_RTC_Init
 <LI><a href="#[1fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_GPIO_Init
 <LI><a href="#[23e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SystemClock_Config
+<LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 <LI><a href="#[9b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tgt_open
 <LI><a href="#[98]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_src_open
 <LI><a href="#[95]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;fatfs_src_open
 <LI><a href="#[305]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_opencfg_
 <LI><a href="#[2de]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_traverse
 <LI><a href="#[2fb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_read_
-<LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 </UL>
 
 <P><STRONG><a name="[350]"></a>__aeabi_memclr8</STRONG> (Thumb, 0 bytes, Stack size 4 bytes, rt_memclr_w.o(.text), UNUSED)
@@ -1568,7 +1568,6 @@ Global Symbols
 <LI><a href="#[18e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_ClockConfig
 <LI><a href="#[136]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_Delay
 <LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
-<LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 <LI><a href="#[1dc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_Transmit
 <LI><a href="#[12b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;FLASH_WaitForLastOperation
 <LI><a href="#[190]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_DeInit
@@ -1583,6 +1582,7 @@ Global Symbols
 <LI><a href="#[a1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_write
 <LI><a href="#[a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_read
 <LI><a href="#[22b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_CheckStatusWithTimeout
+<LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 </UL>
 
 <P><STRONG><a name="[23d]"></a>HAL_IncTick</STRONG> (Thumb, 12 bytes, Stack size 0 bytes, stm32f4xx_hal.o(i.HAL_IncTick))
@@ -1637,8 +1637,8 @@ Global Symbols
 <LI><a href="#[1c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_TIM_Base_MspInit
 <LI><a href="#[1af]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SD_MspInit
 <LI><a href="#[1f9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_DMA_Init
-<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 <LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
+<LI><a href="#[141]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_InitTick
 </UL>
 
 <P><STRONG><a name="[140]"></a>HAL_NVIC_SetPriorityGrouping</STRONG> (Thumb, 26 bytes, Stack size 0 bytes, stm32f4xx_hal_cortex.o(i.HAL_NVIC_SetPriorityGrouping))
@@ -1762,7 +1762,17 @@ Global Symbols
 <P><STRONG><a name="[15f]"></a>HAL_PCD_IRQHandler</STRONG> (Thumb, 1372 bytes, Stack size 48 bytes, stm32f4xx_hal_pcd.o(i.HAL_PCD_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 168<LI>Call Chain = HAL_PCD_IRQHandler &rArr; HAL_PCD_SetupStageCallback &rArr; USBD_LL_SetupStage &rArr; USBD_StdDevReq &rArr; USBD_SetConfig &rArr; USBD_CtlSendStatus &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_WriteEmptyTxFifo
+<BR>[Calls]<UL><LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SuspendCallback
+<LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
+<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SOFCallback
+<LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResumeCallback
+<LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResetCallback
+<LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOOUTIncompleteCallback
+<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOINIncompleteCallback
+<LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DisconnectCallback
+<LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataInStageCallback
+<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ConnectCallback
+<LI><a href="#[16b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_WriteEmptyTxFifo
 <LI><a href="#[165]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;PCD_EP_OutXfrComplete_int
 <LI><a href="#[172]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetTurnaroundTime
 <LI><a href="#[162]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_ReadPacket
@@ -1779,16 +1789,6 @@ Global Symbols
 <LI><a href="#[171]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_RCC_GetHCLKFreq
 <LI><a href="#[16e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCDEx_LPM_Callback
 <LI><a href="#[14e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Abort
-<LI><a href="#[16d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SuspendCallback
-<LI><a href="#[166]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetupStageCallback
-<LI><a href="#[174]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SOFCallback
-<LI><a href="#[16c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResumeCallback
-<LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ResetCallback
-<LI><a href="#[167]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOOUTIncompleteCallback
-<LI><a href="#[16a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ISOINIncompleteCallback
-<LI><a href="#[14c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DisconnectCallback
-<LI><a href="#[148]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataInStageCallback
-<LI><a href="#[146]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_ConnectCallback
 </UL>
 <BR>[Called By]<UL><LI><a href="#[6d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;OTG_FS_IRQHandler
 </UL>
@@ -1812,12 +1812,12 @@ Global Symbols
 <P><STRONG><a name="[177]"></a>HAL_PCD_Init</STRONG> (Thumb, 204 bytes, Stack size 24 bytes, stm32f4xx_hal_pcd.o(i.HAL_PCD_Init))
 <BR><BR>[Stack]<UL><LI>Max Depth = 96<LI>Call Chain = HAL_PCD_Init &rArr; HAL_PCD_MspInit &rArr; HAL_GPIO_Init
 </UL>
-<BR>[Calls]<UL><LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetCurrentMode
+<BR>[Calls]<UL><LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
+<LI><a href="#[17b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_SetCurrentMode
 <LI><a href="#[179]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DisableGlobalInt
 <LI><a href="#[17c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevInit
 <LI><a href="#[17d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_DevDisconnect
 <LI><a href="#[17a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_CoreInit
-<LI><a href="#[178]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_MspInit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[24e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Init
 </UL>
@@ -2046,8 +2046,8 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[f4]"></a>HAL_SD_GetCardInfo</STRONG> (Thumb, 36 bytes, Stack size 0 bytes, stm32f4xx_hal_sd.o(i.HAL_SD_GetCardInfo))
-<BR><BR>[Called By]<UL><LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_SD_GetCardInfo
-<LI><a href="#[a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_GetCapacity_FS
+<BR><BR>[Called By]<UL><LI><a href="#[11]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_GetCapacity_FS
+<LI><a href="#[f3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_SD_GetCardInfo
 </UL>
 
 <P><STRONG><a name="[f6]"></a>HAL_SD_GetCardState</STRONG> (Thumb, 44 bytes, Stack size 16 bytes, stm32f4xx_hal_sd.o(i.HAL_SD_GetCardState))
@@ -2057,12 +2057,12 @@ Global Symbols
 <LI><a href="#[1a0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SDIO_GetResponse
 </UL>
 <BR>[Called By]<UL><LI><a href="#[bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;main
+<LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Write_FS
+<LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Read_FS
 <LI><a href="#[80]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_DMATxAbort
 <LI><a href="#[81]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_DMARxAbort
 <LI><a href="#[83]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SD_DMAError
 <LI><a href="#[f5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;BSP_SD_GetCardState
-<LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Write_FS
-<LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Read_FS
 </UL>
 
 <P><STRONG><a name="[1a7]"></a>HAL_SD_IRQHandler</STRONG> (Thumb, 512 bytes, Stack size 24 bytes, stm32f4xx_hal_sd.o(i.HAL_SD_IRQHandler))
@@ -2127,7 +2127,7 @@ Global Symbols
 <LI><a href="#[1a8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SDIO_ReadFIFO
 <LI><a href="#[1b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SDIO_ConfigData
 </UL>
-<BR>[Called By]<UL><LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Read_FS
+<BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Read_FS
 </UL>
 
 <P><STRONG><a name="[fc]"></a>HAL_SD_ReadBlocks_DMA</STRONG> (Thumb, 276 bytes, Stack size 56 bytes, stm32f4xx_hal_sd.o(i.HAL_SD_ReadBlocks_DMA))
@@ -2168,7 +2168,7 @@ Global Symbols
 <LI><a href="#[1ad]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SDIO_WriteFIFO
 <LI><a href="#[1b5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SDIO_ConfigData
 </UL>
-<BR>[Called By]<UL><LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Write_FS
+<BR>[Called By]<UL><LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;STORAGE_Write_FS
 </UL>
 
 <P><STRONG><a name="[fe]"></a>HAL_SD_WriteBlocks_DMA</STRONG> (Thumb, 270 bytes, Stack size 64 bytes, stm32f4xx_hal_sd.o(i.HAL_SD_WriteBlocks_DMA))
@@ -2253,12 +2253,12 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[1c4]"></a>HAL_TIM_ConfigClockSource</STRONG> (Thumb, 220 bytes, Stack size 16 bytes, stm32f4xx_hal_tim.o(i.HAL_TIM_ConfigClockSource))
-<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_TIM_ConfigClockSource &rArr; TIM_ETR_SetConfig
+<BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = HAL_TIM_ConfigClockSource &rArr; TIM_TI2_ConfigInputStage
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
-<LI><a href="#[1c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
+<BR>[Calls]<UL><LI><a href="#[1c7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI2_ConfigInputStage
 <LI><a href="#[1c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_TI1_ConfigInputStage
 <LI><a href="#[1c8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ITRx_SetConfig
+<LI><a href="#[1c5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;TIM_ETR_SetConfig
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1ff]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MX_TIM1_Init
 </UL>
@@ -2300,25 +2300,25 @@ Global Symbols
 </UL>
 
 <P><STRONG><a name="[1d6]"></a>HAL_UARTEx_RxEventCallback</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_hal_uart.o(i.HAL_UARTEx_RxEventCallback))
-<BR><BR>[Called By]<UL><LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Receive_IT
-<LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<BR><BR>[Called By]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Receive_IT
 </UL>
 
 <P><STRONG><a name="[1d5]"></a>HAL_UART_ErrorCallback</STRONG> (Thumb, 2 bytes, Stack size 0 bytes, stm32f4xx_hal_uart.o(i.HAL_UART_ErrorCallback))
-<BR><BR>[Called By]<UL><LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_DMAAbortOnError
-<LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<BR><BR>[Called By]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<LI><a href="#[85]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_DMAAbortOnError
 </UL>
 
 <P><STRONG><a name="[1d2]"></a>HAL_UART_IRQHandler</STRONG> (Thumb, 636 bytes, Stack size 24 bytes, stm32f4xx_hal_uart.o(i.HAL_UART_IRQHandler))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = HAL_UART_IRQHandler &rArr; HAL_DMA_Abort
 </UL>
-<BR>[Calls]<UL><LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_TxCpltCallback
+<BR>[Calls]<UL><LI><a href="#[1ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
+<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
+<LI><a href="#[1d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_TxCpltCallback
 <LI><a href="#[1d5]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_ErrorCallback
 <LI><a href="#[1d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UARTEx_RxEventCallback
 <LI><a href="#[1d3]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_Receive_IT
 <LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
-<LI><a href="#[1ae]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort_IT
-<LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_DMA_Abort
 </UL>
 <BR>[Called By]<UL><LI><a href="#[5e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART4_IRQHandler
 </UL>
@@ -3207,41 +3207,41 @@ Global Symbols
 <LI><a href="#[14b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_DataOutStage
 </UL>
 
-<P><STRONG><a name="[15]"></a>USBD_FS_ConfigStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ConfigStrDescriptor))
+<P><STRONG><a name="[e]"></a>USBD_FS_ConfigStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ConfigStrDescriptor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = USBD_FS_ConfigStrDescriptor &rArr; USBD_GetString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[10]"></a>USBD_FS_DeviceDescriptor</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, usbd_desc.o(i.USBD_FS_DeviceDescriptor))
+<P><STRONG><a name="[9]"></a>USBD_FS_DeviceDescriptor</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, usbd_desc.o(i.USBD_FS_DeviceDescriptor))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[16]"></a>USBD_FS_InterfaceStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_InterfaceStrDescriptor))
+<P><STRONG><a name="[f]"></a>USBD_FS_InterfaceStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_InterfaceStrDescriptor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = USBD_FS_InterfaceStrDescriptor &rArr; USBD_GetString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[11]"></a>USBD_FS_LangIDStrDescriptor</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, usbd_desc.o(i.USBD_FS_LangIDStrDescriptor))
+<P><STRONG><a name="[a]"></a>USBD_FS_LangIDStrDescriptor</STRONG> (Thumb, 8 bytes, Stack size 0 bytes, usbd_desc.o(i.USBD_FS_LangIDStrDescriptor))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[12]"></a>USBD_FS_ManufacturerStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ManufacturerStrDescriptor))
+<P><STRONG><a name="[b]"></a>USBD_FS_ManufacturerStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ManufacturerStrDescriptor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = USBD_FS_ManufacturerStrDescriptor &rArr; USBD_GetString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[13]"></a>USBD_FS_ProductStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ProductStrDescriptor))
+<P><STRONG><a name="[c]"></a>USBD_FS_ProductStrDescriptor</STRONG> (Thumb, 16 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_ProductStrDescriptor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = USBD_FS_ProductStrDescriptor &rArr; USBD_GetString
 </UL>
 <BR>[Calls]<UL><LI><a href="#[248]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetString
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_desc.o(.data)
 </UL>
-<P><STRONG><a name="[14]"></a>USBD_FS_SerialStrDescriptor</STRONG> (Thumb, 48 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_SerialStrDescriptor))
+<P><STRONG><a name="[d]"></a>USBD_FS_SerialStrDescriptor</STRONG> (Thumb, 48 bytes, Stack size 8 bytes, usbd_desc.o(i.USBD_FS_SerialStrDescriptor))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = USBD_FS_SerialStrDescriptor &rArr; IntToUnicode
 </UL>
 <BR>[Calls]<UL><LI><a href="#[249]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;IntToUnicode
@@ -3267,10 +3267,10 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[24d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_GetLen
 </UL>
-<BR>[Called By]<UL><LI><a href="#[13]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ProductStrDescriptor
-<LI><a href="#[12]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ManufacturerStrDescriptor
-<LI><a href="#[16]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_InterfaceStrDescriptor
-<LI><a href="#[15]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ConfigStrDescriptor
+<BR>[Called By]<UL><LI><a href="#[c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ProductStrDescriptor
+<LI><a href="#[b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ManufacturerStrDescriptor
+<LI><a href="#[f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_InterfaceStrDescriptor
+<LI><a href="#[e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_ConfigStrDescriptor
 </UL>
 
 <P><STRONG><a name="[24f]"></a>USBD_Get_USB_Status</STRONG> (Thumb, 24 bytes, Stack size 0 bytes, usbd_conf.o(i.USBD_Get_USB_Status))
@@ -3296,8 +3296,8 @@ Global Symbols
 <P><STRONG><a name="[1f8]"></a>USBD_LL_ClearStallEP</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_ClearStallEP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 24<LI>Call Chain = USBD_LL_ClearStallEP &rArr; HAL_PCD_EP_ClrStall
 </UL>
-<BR>[Calls]<UL><LI><a href="#[152]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_ClrStall
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[152]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_ClrStall
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MSC_BOT_Reset
 <LI><a href="#[259]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdEPReq
@@ -3306,8 +3306,8 @@ Global Symbols
 <P><STRONG><a name="[250]"></a>USBD_LL_CloseEP</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_CloseEP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 36<LI>Call Chain = USBD_LL_CloseEP &rArr; HAL_PCD_EP_Close &rArr; USB_DeactivateEndpoint
 </UL>
-<BR>[Calls]<UL><LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Close
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[150]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Close
 </UL>
 <BR>[Called By]<UL><LI><a href="#[18]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_MSC_DeInit
 </UL>
@@ -3345,8 +3345,8 @@ Global Symbols
 <P><STRONG><a name="[1f5]"></a>USBD_LL_FlushEP</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_FlushEP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 28<LI>Call Chain = USBD_LL_FlushEP &rArr; HAL_PCD_EP_Flush &rArr; USB_FlushTxFifo
 </UL>
-<BR>[Calls]<UL><LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Flush
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[154]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Flush
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MSC_BOT_Init
 <LI><a href="#[19]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_MSC_Setup
@@ -3388,8 +3388,8 @@ Global Symbols
 <P><STRONG><a name="[254]"></a>USBD_LL_OpenEP</STRONG> (Thumb, 24 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_OpenEP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = USBD_LL_OpenEP &rArr; HAL_PCD_EP_Open &rArr; USB_ActivateEndpoint
 </UL>
-<BR>[Calls]<UL><LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Open
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[157]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Open
 </UL>
 <BR>[Called By]<UL><LI><a href="#[17]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_MSC_Init
 <LI><a href="#[183]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_LL_Reset
@@ -3398,8 +3398,8 @@ Global Symbols
 <P><STRONG><a name="[1f6]"></a>USBD_LL_PrepareReceive</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_PrepareReceive))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = USBD_LL_PrepareReceive &rArr; HAL_PCD_EP_Receive &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Receive
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[159]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Receive
 </UL>
 <BR>[Called By]<UL><LI><a href="#[217]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SCSI_Write12
 <LI><a href="#[216]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SCSI_Write10
@@ -3437,8 +3437,8 @@ Global Symbols
 <P><STRONG><a name="[255]"></a>USBD_LL_SetUSBAddress</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_SetUSBAddress))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = USBD_LL_SetUSBAddress &rArr; HAL_PCD_SetAddress
 </UL>
-<BR>[Calls]<UL><LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetAddress
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[186]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_SetAddress
 </UL>
 <BR>[Called By]<UL><LI><a href="#[257]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_StdDevReq
 </UL>
@@ -3458,8 +3458,8 @@ Global Symbols
 <P><STRONG><a name="[1ea]"></a>USBD_LL_StallEP</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_StallEP))
 <BR><BR>[Stack]<UL><LI>Max Depth = 32<LI>Call Chain = USBD_LL_StallEP &rArr; HAL_PCD_EP_SetStall &rArr; USB_EP0_OutStart
 </UL>
-<BR>[Calls]<UL><LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[15b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_SetStall
 </UL>
 <BR>[Called By]<UL><LI><a href="#[1e9]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MSC_BOT_Abort
 <LI><a href="#[1f1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MSC_BOT_CplClrFeature
@@ -3472,8 +3472,8 @@ Global Symbols
 <P><STRONG><a name="[25a]"></a>USBD_LL_Start</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_Start))
 <BR><BR>[Stack]<UL><LI>Max Depth = 16<LI>Call Chain = USBD_LL_Start &rArr; HAL_PCD_Start
 </UL>
-<BR>[Calls]<UL><LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_Start
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[189]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_Start
 </UL>
 <BR>[Called By]<UL><LI><a href="#[206]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Start
 </UL>
@@ -3485,8 +3485,8 @@ Global Symbols
 <P><STRONG><a name="[1ef]"></a>USBD_LL_Transmit</STRONG> (Thumb, 18 bytes, Stack size 8 bytes, usbd_conf.o(i.USBD_LL_Transmit))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Transmit
-<LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<BR>[Calls]<UL><LI><a href="#[24f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_Get_USB_Status
+<LI><a href="#[15e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_EP_Transmit
 </UL>
 <BR>[Called By]<UL><LI><a href="#[219]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;SCSI_ProcessRead
 <LI><a href="#[1f0]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;MSC_BOT_SendCSW
@@ -3885,8 +3885,8 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[272]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_hpi_cache_update
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hpatch_lite_patch
-<LI><a href="#[26f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_cache_unpackUInt
+<BR>[Called By]<UL><LI><a href="#[26f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_cache_unpackUInt
+<LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hpatch_lite_patch
 </UL>
 
 <P><STRONG><a name="[272]"></a>_hpi_cache_update</STRONG> (Thumb, 52 bytes, Stack size 16 bytes, hpatch_lite.o(i._hpi_cache_update))
@@ -3895,9 +3895,9 @@ Global Symbols
 </UL>
 <BR>[Calls]<UL><LI><a href="#[d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;abort
 </UL>
-<BR>[Called By]<UL><LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hpatch_lite_patch
-<LI><a href="#[270]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_hpi_cache_read_1byte
+<BR>[Called By]<UL><LI><a href="#[270]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_hpi_cache_read_1byte
 <LI><a href="#[273]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;_patch_add_old_withClip
+<LI><a href="#[2b2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;hpatch_lite_patch
 </UL>
 
 <P><STRONG><a name="[d0]"></a>_is_digit</STRONG> (Thumb, 14 bytes, Stack size 0 bytes, __printf_wp.o(i._is_digit))
@@ -3913,13 +3913,13 @@ Global Symbols
 <P><STRONG><a name="[10e]"></a>aes_decrypt_file_fatfs</STRONG> (Thumb, 370 bytes, Stack size 1440 bytes, aes_decrypt.o(i.aes_decrypt_file_fatfs))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1808<LI>Call Chain = aes_decrypt_file_fatfs &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write
 </UL>
-<BR>[Calls]<UL><LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_write
+<BR>[Calls]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
+<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
+<LI><a href="#[277]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_write
 <LI><a href="#[275]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_read
 <LI><a href="#[274]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_open
 <LI><a href="#[276]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_close
 <LI><a href="#[278]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_sync
-<LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
-<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
 </UL>
 <BR>[Called By]<UL><LI><a href="#[104]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecryptAESFile
 </UL>
@@ -3927,7 +3927,9 @@ Global Symbols
 <P><STRONG><a name="[110]"></a>aes_decrypt_to_flash_fatfs</STRONG> (Thumb, 396 bytes, Stack size 920 bytes, aes_decrypt.o(i.aes_decrypt_to_flash_fatfs))
 <BR><BR>[Stack]<UL><LI>Max Depth = 1288<LI>Call Chain = aes_decrypt_to_flash_fatfs &rArr; f_open &rArr; dir_register &rArr; dir_find &rArr; dir_next &rArr; create_chain &rArr; put_fat &rArr; move_window &rArr; sync_window &rArr; disk_write
 </UL>
-<BR>[Calls]<UL><LI><a href="#[275]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_read
+<BR>[Calls]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
+<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
+<LI><a href="#[275]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_read
 <LI><a href="#[274]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_open
 <LI><a href="#[276]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;f_close
 <LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Unlock
@@ -3935,8 +3937,6 @@ Global Symbols
 <LI><a href="#[125]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Lock
 <LI><a href="#[121]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASHEx_Erase
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetSector
-<LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
-<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
 </UL>
 <BR>[Called By]<UL><LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecryptAndDownloadMenu
 </UL>
@@ -3945,7 +3945,9 @@ Global Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 2232 + Unknown Stack Size
 <LI>Call Chain = aes_decrypt_to_flash_lfs &rArr; lfs_file_open &rArr; lfs_file_opencfg_ &rArr; lfs_fs_forceconsistency &rArr; lfs_fs_desuperblock &rArr; lfs_dir_commit &rArr; lfs_fs_deorphan &rArr; lfs_dir_orphaningcommit &rArr; lfs_dir_relocatingcommit &rArr; lfs_dir_splittingcompact &rArr; lfs_dir_split &rArr; lfs_dir_compact &rArr; lfs_alloc &rArr; lfs_alloc_scan &rArr; lfs_fs_traverse_ &rArr; lfs_dir_fetch &rArr; lfs_dir_fetchmatch &rArr; lfs_bd_crc &rArr; lfs_bd_read &rArr; abort &rArr; __rt_SIGABRT &rArr; __rt_SIGABRT_inner &rArr; __default_signal_display &rArr; _ttywrch
 </UL>
-<BR>[Calls]<UL><LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_open
+<BR>[Calls]<UL><LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
+<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
+<LI><a href="#[239]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_open
 <LI><a href="#[23b]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_close
 <LI><a href="#[123]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Unlock
 <LI><a href="#[127]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_FLASH_Program
@@ -3954,8 +3956,6 @@ Global Symbols
 <LI><a href="#[120]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;GetSector
 <LI><a href="#[279]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_stat
 <LI><a href="#[27a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_file_read
-<LI><a href="#[ef]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_init_ctx_iv
-<LI><a href="#[eb]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;AES_CBC_decrypt_buffer
 </UL>
 <BR>[Called By]<UL><LI><a href="#[10f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;DecryptAndDownloadMenu
 </UL>
@@ -4973,8 +4973,8 @@ Local Symbols
 <P><STRONG><a name="[165]"></a>PCD_EP_OutXfrComplete_int</STRONG> (Thumb, 196 bytes, Stack size 24 bytes, stm32f4xx_hal_pcd.o(i.PCD_EP_OutXfrComplete_int))
 <BR><BR>[Stack]<UL><LI>Max Depth = 88<LI>Call Chain = PCD_EP_OutXfrComplete_int &rArr; HAL_PCD_DataOutStageCallback &rArr; USBD_LL_DataOutStage &rArr; USBD_CtlSendStatus &rArr; USBD_LL_Transmit &rArr; HAL_PCD_EP_Transmit &rArr; USB_EPStartXfer &rArr; USB_WritePacket
 </UL>
-<BR>[Calls]<UL><LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
-<LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataOutStageCallback
+<BR>[Calls]<UL><LI><a href="#[14a]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_DataOutStageCallback
+<LI><a href="#[15d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USB_EP0_OutStart
 </UL>
 <BR>[Called By]<UL><LI><a href="#[15f]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_PCD_IRQHandler
 </UL>
@@ -5169,9 +5169,9 @@ Local Symbols
 <P><STRONG><a name="[1d4]"></a>UART_EndRxTransfer</STRONG> (Thumb, 78 bytes, Stack size 0 bytes, stm32f4xx_hal_uart.o(i.UART_EndRxTransfer))
 <BR><BR>[Calls]<UL><LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
 </UL>
-<BR>[Called By]<UL><LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
+<BR>[Called By]<UL><LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
+<LI><a href="#[1db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_WaitOnFlagUntilTimeout
 <LI><a href="#[1d4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;UART_EndRxTransfer
-<LI><a href="#[1d2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_UART_IRQHandler
 </UL>
 
 <P><STRONG><a name="[1d3]"></a>UART_Receive_IT</STRONG> (Thumb, 194 bytes, Stack size 8 bytes, stm32f4xx_hal_uart.o(i.UART_Receive_IT))
@@ -5665,8 +5665,8 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 176 + Unknown Stack Size
 <LI>Call Chain = lfs_bd_crc &rArr; lfs_bd_read &rArr; abort &rArr; __rt_SIGABRT &rArr; __rt_SIGABRT_inner &rArr; __default_signal_display &rArr; _ttywrch
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_read
-<LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<BR>[Calls]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<LI><a href="#[2bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_read
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2e8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_fetchmatch
 <LI><a href="#[2da]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_commitcrc
@@ -5906,7 +5906,8 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 440 + Unknown Stack Size
 <LI>Call Chain = lfs_dir_commitcrc &rArr; lfs_dir_commitattr &rArr; lfs_dir_commitprog &rArr; lfs_bd_prog &rArr; lfs_bd_flush &rArr; lfs_bd_cmp &rArr; lfs_bd_read &rArr; abort &rArr; __rt_SIGABRT &rArr; __rt_SIGABRT_inner &rArr; __default_signal_display &rArr; _ttywrch
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tole32
+<BR>[Calls]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tole32
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_min
 <LI><a href="#[2d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_frombe32
 <LI><a href="#[2d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_commitattr
@@ -5915,7 +5916,6 @@ Local Symbols
 <LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_prog
 <LI><a href="#[2be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_crc
 <LI><a href="#[2c2]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_alignup
-<LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_relocatingcommit
 <LI><a href="#[2db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_compact
@@ -5925,8 +5925,8 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 304 + Unknown Stack Size
 <LI>Call Chain = lfs_dir_commitprog &rArr; lfs_bd_prog &rArr; lfs_bd_flush &rArr; lfs_bd_cmp &rArr; lfs_bd_read &rArr; abort &rArr; __rt_SIGABRT &rArr; __rt_SIGABRT_inner &rArr; __default_signal_display &rArr; _ttywrch
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_prog
-<LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<BR>[Calls]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<LI><a href="#[2c4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_prog
 </UL>
 <BR>[Called By]<UL><LI><a href="#[2db]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_compact
 <LI><a href="#[2d6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_dir_commitattr
@@ -5995,7 +5995,8 @@ Local Symbols
 <BR><BR>[Stack]<UL><LI>Max Depth = 328 + Unknown Stack Size
 <LI>Call Chain = lfs_dir_fetchmatch &rArr; lfs_bd_crc &rArr; lfs_bd_read &rArr; abort &rArr; __rt_SIGABRT &rArr; __rt_SIGABRT_inner &rArr; __default_signal_display &rArr; _ttywrch
 </UL>
-<BR>[Calls]<UL><LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tole32
+<BR>[Calls]<UL><LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
+<LI><a href="#[2ca]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tole32
 <LI><a href="#[2d7]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_tag_dsize
 <LI><a href="#[2e1]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_pair_fromle32
 <LI><a href="#[2b8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_min
@@ -6004,7 +6005,6 @@ Local Symbols
 <LI><a href="#[2d8]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_frombe32
 <LI><a href="#[2bc]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_read
 <LI><a href="#[2be]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_bd_crc
-<LI><a href="#[2bf]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_crc
 <LI><a href="#[c6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;__2printf
 </UL>
 <BR>[Called By]<UL><LI><a href="#[318]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;lfs_mount_
@@ -6883,29 +6883,29 @@ Local Symbols
 <P><STRONG><a name="[249]"></a>IntToUnicode</STRONG> (Thumb, 56 bytes, Stack size 20 bytes, usbd_desc.o(i.IntToUnicode))
 <BR><BR>[Stack]<UL><LI>Max Depth = 20<LI>Call Chain = IntToUnicode
 </UL>
-<BR>[Called By]<UL><LI><a href="#[14]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_SerialStrDescriptor
+<BR>[Called By]<UL><LI><a href="#[d]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;USBD_FS_SerialStrDescriptor
 </UL>
 
-<P><STRONG><a name="[a]"></a>STORAGE_GetCapacity_FS</STRONG> (Thumb, 42 bytes, Stack size 48 bytes, usbd_storage_if.o(i.STORAGE_GetCapacity_FS))
+<P><STRONG><a name="[11]"></a>STORAGE_GetCapacity_FS</STRONG> (Thumb, 42 bytes, Stack size 48 bytes, usbd_storage_if.o(i.STORAGE_GetCapacity_FS))
 <BR><BR>[Stack]<UL><LI>Max Depth = 48<LI>Call Chain = STORAGE_GetCapacity_FS
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f4]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SD_GetCardInfo
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[f]"></a>STORAGE_GetMaxLun_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_GetMaxLun_FS))
+<P><STRONG><a name="[16]"></a>STORAGE_GetMaxLun_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_GetMaxLun_FS))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[9]"></a>STORAGE_Init_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_Init_FS))
+<P><STRONG><a name="[10]"></a>STORAGE_Init_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_Init_FS))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[b]"></a>STORAGE_IsReady_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_IsReady_FS))
+<P><STRONG><a name="[12]"></a>STORAGE_IsReady_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_IsReady_FS))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[c]"></a>STORAGE_IsWriteProtected_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_IsWriteProtected_FS))
+<P><STRONG><a name="[13]"></a>STORAGE_IsWriteProtected_FS</STRONG> (Thumb, 4 bytes, Stack size 0 bytes, usbd_storage_if.o(i.STORAGE_IsWriteProtected_FS))
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[d]"></a>STORAGE_Read_FS</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, usbd_storage_if.o(i.STORAGE_Read_FS))
+<P><STRONG><a name="[14]"></a>STORAGE_Read_FS</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, usbd_storage_if.o(i.STORAGE_Read_FS))
 <BR><BR>[Stack]<UL><LI>Max Depth = 108<LI>Call Chain = STORAGE_Read_FS &rArr; HAL_SD_ReadBlocks &rArr; SDMMC_CmdStopTransfer &rArr; SDMMC_GetCmdResp1
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SD_GetCardState
@@ -6913,7 +6913,7 @@ Local Symbols
 </UL>
 <BR>[Address Reference Count : 1]<UL><LI> usbd_storage_if.o(.data)
 </UL>
-<P><STRONG><a name="[e]"></a>STORAGE_Write_FS</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, usbd_storage_if.o(i.STORAGE_Write_FS))
+<P><STRONG><a name="[15]"></a>STORAGE_Write_FS</STRONG> (Thumb, 34 bytes, Stack size 8 bytes, usbd_storage_if.o(i.STORAGE_Write_FS))
 <BR><BR>[Stack]<UL><LI>Max Depth = 132<LI>Call Chain = STORAGE_Write_FS &rArr; HAL_SD_WriteBlocks &rArr; SDMMC_CmdWriteSingleBlock &rArr; SDMMC_GetCmdResp1
 </UL>
 <BR>[Calls]<UL><LI><a href="#[f6]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;HAL_SD_GetCardState
