@@ -7,6 +7,10 @@
 #define APPLICATION_ADDRESS (uint32_t)0x08020000
 #define BOOTLOADER_PATH_MAX 128
 
+#define UPDATE_FLAG_MAGIC 0x5A5A5A5A
+
+extern uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+
 typedef void (*pFunction)(void);
 
 typedef enum

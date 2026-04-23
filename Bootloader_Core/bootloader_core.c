@@ -16,6 +16,8 @@ bootloader_ctx_t bootloader_ctx = {
     },
 };
 
+uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+
 void jump_to_app(uint32_t app_address)
 {
     pFunction jump_fn;
