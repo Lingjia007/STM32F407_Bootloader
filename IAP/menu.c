@@ -41,6 +41,7 @@
 #include "string.h"
 #include "aes_decrypt.h"
 #include "hpatch_upgrade.h"
+#include "usart.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -70,6 +71,7 @@ static void DecryptAndDownloadMenu(void);
 static void BuildSelectionPrompt(char *msg, size_t msg_size, uint8_t file_count, const char *prefix);
 static void scan_sd_card_hdiff_files(void);
 static void HPatchUpgradeMenu(void);
+static void UART_Passthrough(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -1725,6 +1727,77 @@ static void HPatchUpgradeMenu(void)
   }
 }
 
+static void UART_Passthrough(void)
+{
+  uint8_t rx_data;
+  uint8_t q_count = 0;
+  uint32_t q_timer = 0;
+
+  Serial_PutString((uint8_t *)"\r\n========== UART4 <-> USART1 Passthrough Mode ==========\r\n");
+  Serial_PutString((uint8_t *)"  UART4 (PA0/PA1) <--> USART1 (PA9/PA10)\r\n");
+  Serial_PutString((uint8_t *)"  Baud Rate: 115200, 8N1\r\n");
+  Serial_PutString((uint8_t *)"  For ESP8266/BLE AT Command Debug\r\n");
+  Serial_PutString((uint8_t *)"  Press 'q' 3 times within 1 second to exit\r\n");
+  Serial_PutString((uint8_t *)"========================================================\r\n\n");
+
+  __HAL_UART_FLUSH_DRREGISTER(&huart4);
+  __HAL_UART_FLUSH_DRREGISTER(&huart1);
+
+  __HAL_UART_CLEAR_OREFLAG(&huart4);
+  __HAL_UART_CLEAR_OREFLAG(&huart1);
+
+  while (1)
+  {
+    if ((huart4.Instance->SR & UART_FLAG_RXNE) != RESET)
+    {
+      rx_data = (uint8_t)(huart4.Instance->DR & 0xFF);
+
+      if (rx_data == 'q')
+      {
+        if (q_count == 0 || (HAL_GetTick() - q_timer) < 1000)
+        {
+          q_count++;
+          q_timer = HAL_GetTick();
+          if (q_count >= 3)
+          {
+            Serial_PutString((uint8_t *)"\r\n\nExiting passthrough mode...\r\n");
+            return;
+          }
+        }
+        else
+        {
+          q_count = 1;
+          q_timer = HAL_GetTick();
+        }
+      }
+      else
+      {
+        q_count = 0;
+      }
+
+      while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
+        ;
+      huart1.Instance->DR = rx_data;
+    }
+    else if ((huart4.Instance->SR & UART_FLAG_ORE) != RESET)
+    {
+      __HAL_UART_CLEAR_OREFLAG(&huart4);
+    }
+
+    if ((huart1.Instance->SR & UART_FLAG_RXNE) != RESET)
+    {
+      rx_data = (uint8_t)(huart1.Instance->DR & 0xFF);
+      while ((huart4.Instance->SR & UART_FLAG_TXE) == RESET)
+        ;
+      huart4.Instance->DR = rx_data;
+    }
+    else if ((huart1.Instance->SR & UART_FLAG_ORE) != RESET)
+    {
+      __HAL_UART_CLEAR_OREFLAG(&huart1);
+    }
+  }
+}
+
 /**
  * @brief  Display the Main Menu on HyperTerminal
  * @param  None
@@ -1767,6 +1840,7 @@ void Main_Menu(void)
     Serial_PutString((uint8_t *)"  Decrypt and download encrypted firmware  ------------- 6\r\n\n");
     Serial_PutString((uint8_t *)"  Decrypt .bin.aes file on SD card  -------------------- 7\r\n\n");
     Serial_PutString((uint8_t *)"  HPatch differential upgrade  ------------------------- 8\r\n\n");
+    Serial_PutString((uint8_t *)"  UART4 <-> USART1 Passthrough  ------------------------ 9\r\n\n");
 
     Serial_PutString((uint8_t *)"==========================================================\r\n\n");
 
@@ -1829,8 +1903,11 @@ void Main_Menu(void)
     case '8':
       HPatchUpgradeMenu();
       break;
+    case '9':
+      UART_Passthrough();
+      break;
     default:
-      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1, 2, 3, 4, 5, 6, 7 or 8\r");
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1-9\r");
       break;
     }
   }

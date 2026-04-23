@@ -73,3 +73,4 @@ stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\inclu
 stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_dec.h
 stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_types.h
 stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
+stm32f407vgt6_bootloader\menu.o: ../Core/Inc/usart.h
