@@ -40,3 +40,4 @@ stm32f407vgt6_bootloader\stm32f4xx_it.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm
 stm32f407vgt6_bootloader\stm32f4xx_it.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
 stm32f407vgt6_bootloader\stm32f4xx_it.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
 stm32f407vgt6_bootloader\stm32f4xx_it.o: ../Core/Inc/stm32f4xx_it.h
+stm32f407vgt6_bootloader\stm32f4xx_it.o: ..\ESP8266_OTA\esp8266_uart.h

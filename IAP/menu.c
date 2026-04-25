@@ -42,6 +42,10 @@
 #include "aes_decrypt.h"
 #include "hpatch_upgrade.h"
 #include "usart.h"
+#include "esp8266_driver.h"
+#include "esp8266_ota_api.h"
+#include "onenet_ota.h"
+#include "esp8266_ota_config.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -72,6 +76,7 @@ static void BuildSelectionPrompt(char *msg, size_t msg_size, uint8_t file_count,
 static void scan_sd_card_hdiff_files(void);
 static void HPatchUpgradeMenu(void);
 static void UART_Passthrough(void);
+static void ESP8266_TestMenu(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -1798,6 +1803,173 @@ static void UART_Passthrough(void)
   }
 }
 
+static void ESP8266_TestMenu(void)
+{
+  uint8_t key = 0;
+  static char ip_buf[16] = {0};
+  static uint8_t wifi_initialized = 0;
+  char msg[128];
+
+  while (1)
+  {
+    Serial_PutString((uint8_t *)"\r\n============== ESP8266 Test Menu ==============\r\n\n");
+    Serial_PutString((uint8_t *)"  WiFi Init & Connect AP  ---------------------------- 1\r\n\n");
+    Serial_PutString((uint8_t *)"  AT Command Test  ----------------------------------- 2\r\n\n");
+    Serial_PutString((uint8_t *)"  TCP Connect Test  ---------------------------------- 3\r\n\n");
+    Serial_PutString((uint8_t *)"  Enter Transparent Mode  ---------------------------- 4\r\n\n");
+    Serial_PutString((uint8_t *)"  Exit Transparent Mode  ----------------------------- 5\r\n\n");
+    Serial_PutString((uint8_t *)"  OneNET OTA Check  ---------------------------------- 6\r\n\n");
+    Serial_PutString((uint8_t *)"  Show WiFi Status  ---------------------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Return to Main Menu  ------------------------------- 0\r\n\n");
+    Serial_PutString((uint8_t *)"================================================\r\n\n");
+
+    __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    switch (key)
+    {
+    case '0':
+      Serial_PutString((uint8_t *)"\r\nReturn to Main Menu...\r\n");
+      return;
+
+    case '1':
+      Serial_PutString((uint8_t *)"\r\nInitializing ESP8266 and connecting to AP...\r\n");
+      esp8266_ota_init();
+      wifi_initialized = 1;
+      snprintf(msg, sizeof(msg), "IP: %s\r\n", ip_buf);
+      Serial_PutString((uint8_t *)msg);
+      break;
+
+    case '2':
+      Serial_PutString((uint8_t *)"\r\nTesting AT command...\r\n");
+      if (esp8266_at_test() == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"AT test OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"AT test FAILED!\r\n");
+      }
+      break;
+
+    case '3':
+    {
+      char server_ip[64];
+      char server_port[8];
+      uint8_t idx = 0;
+
+      Serial_PutString((uint8_t *)"\r\nEnter server IP: ");
+      idx = 0;
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          server_ip[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(server_ip) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          server_ip[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+
+      Serial_PutString((uint8_t *)"\r\nEnter server port: ");
+      idx = 0;
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          server_port[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(server_port) - 1 && key >= '0' && key <= '9')
+        {
+          server_port[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+
+      snprintf(msg, sizeof(msg), "\r\nConnecting to %s:%s...\r\n", server_ip, server_port);
+      Serial_PutString((uint8_t *)msg);
+
+      if (esp8266_connect_tcp_server(server_ip, server_port) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"TCP connect OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"TCP connect FAILED!\r\n");
+      }
+      break;
+    }
+
+    case '4':
+      Serial_PutString((uint8_t *)"\r\nEntering transparent mode...\r\n");
+      if (esp8266_enter_unvarnished() == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Transparent mode enabled!\r\n");
+        Serial_PutString((uint8_t *)"You can now send data directly.\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Enter transparent mode FAILED!\r\n");
+      }
+      break;
+
+    case '5':
+      Serial_PutString((uint8_t *)"\r\nExiting transparent mode...\r\n");
+      esp8266_exit_unvarnished();
+      Serial_PutString((uint8_t *)"Transparent mode exited.\r\n");
+      break;
+
+    case '6':
+      Serial_PutString((uint8_t *)"\r\nChecking OneNET OTA...\r\n");
+      ONENET_OTA_ProcessUpgrade();
+      break;
+
+    case '7':
+      Serial_PutString((uint8_t *)"\r\nWiFi Status:\r\n");
+      if (wifi_initialized)
+      {
+        snprintf(msg, sizeof(msg), "  Status: Connected\r\n");
+        snprintf(msg + strlen(msg), sizeof(msg) - strlen(msg), "  IP: %s\r\n", ip_buf);
+      }
+      else
+      {
+        snprintf(msg, sizeof(msg), "  Status: Not initialized\r\n");
+      }
+      Serial_PutString((uint8_t *)msg);
+      break;
+
+    default:
+      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-7\r");
+      break;
+    }
+  }
+}
+
 /**
  * @brief  Display the Main Menu on HyperTerminal
  * @param  None
@@ -1841,6 +2013,7 @@ void Main_Menu(void)
     Serial_PutString((uint8_t *)"  Decrypt .bin.aes file on SD card  -------------------- 7\r\n\n");
     Serial_PutString((uint8_t *)"  HPatch differential upgrade  ------------------------- 8\r\n\n");
     Serial_PutString((uint8_t *)"  UART4 <-> USART1 Passthrough  ------------------------ 9\r\n\n");
+    Serial_PutString((uint8_t *)"  ESP8266 WiFi & OTA Test  ----------------------------- a\r\n\n");
 
     Serial_PutString((uint8_t *)"==========================================================\r\n\n");
 
@@ -1906,8 +2079,12 @@ void Main_Menu(void)
     case '9':
       UART_Passthrough();
       break;
+    case 'a':
+    case 'A':
+      ESP8266_TestMenu();
+      break;
     default:
-      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1-9\r");
+      Serial_PutString((uint8_t *)"Invalid Number ! ==> The number should be 1-9 or a\r");
       break;
     }
   }

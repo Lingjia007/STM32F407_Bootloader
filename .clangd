@@ -19,6 +19,7 @@ CompileFlags:
     - '-Id:/edgedownload/STM32F407VGT6_Bootloader/IAP'
     - '-Id:/edgedownload/STM32F407VGT6_Bootloader/Middlewares/Third_Party/LittleFs'
     - '-Id:/edgedownload/STM32F407VGT6_Bootloader/Utils'
+    - '-Id:/edgedownload/STM32F407VGT6_Bootloader/ESP8266_OTA'
     - '-DUSE_HAL_DRIVER'
     - '-DSTM32F407xx'
     - '-D__CC_ARM'
