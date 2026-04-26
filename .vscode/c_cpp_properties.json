@@ -15,7 +15,6 @@
                 "C:/Keil_v5/ARM/ARMCLANG/include/libcxx",
                 "C:/Users/31254/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/Core/Include",
                 "C:/Users/31254/AppData/Local/Arm/Packs/ARM/CMSIS/6.1.0/CMSIS/RTOS2/Include",
-                "MDK-ARM/RTE/_STM32F407VGT6_Bootloader",
                 "Core/Inc",
                 "LED",
                 "Drivers/STM32F4xx_HAL_Driver/Inc",
@@ -38,7 +37,6 @@
             "defines": [
                 "USE_HAL_DRIVER",
                 "STM32F407xx",
-                "RTE_COMPONENTS_H",
                 "__alignof__(x)=",
                 "__asm(x)=",
                 "__asm__(x)=",

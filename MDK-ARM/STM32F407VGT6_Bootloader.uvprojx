@@ -3908,6 +3908,11 @@
               <FileType>1</FileType>
               <FilePath>..\ESP8266_OTA\onenet_http_source.c</FilePath>
             </File>
+            <File>
+              <FileName>esp8266_mqtt.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\ESP8266_OTA\esp8266_mqtt.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

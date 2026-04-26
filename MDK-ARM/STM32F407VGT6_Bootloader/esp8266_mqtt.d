@@ -1,4 +1,5 @@
-stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
+stm32f407vgt6_bootloader/esp8266_mqtt.o: ..\ESP8266_OTA\esp8266_mqtt.c \
+  ..\ESP8266_OTA\esp8266_mqtt.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -37,29 +38,7 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\IAP\common.h ..\Bootloader_Core\bootloader_core.h ..\IAP\flash_if.h \
-  ..\IAP\menu.h ..\IAP\ymodem.h ..\FATFS\App\fatfs.h \
-  ..\Middlewares\Third_Party\FatFs\src\ff.h \
-  ..\Middlewares\Third_Party\FatFs\src\integer.h \
-  ..\FATFS\Target\ffconf.h ..\FATFS\Target\bsp_driver_sd.h \
-  ..\FATFS\Target\fatfs_platform.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
-  ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
-  ..\Middlewares\Third_Party\FatFs\src\diskio.h \
-  ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  ..\ESP8266_OTA\esp8266_driver.h ..\ESP8266_OTA\esp8266_uart.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
-  ..\Middlewares\Third_Party\LittleFs\w25q128.h ..\Core\Inc\spi.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\ctype.h ..\Utils\aes_decrypt.h \
-  ..\IAP\hpatch_upgrade.h ..\Utils\hpatch_lite.h \
-  ..\Utils\hpatch_lite_types.h ..\Utils\tuz_dec.h ..\Utils\tuz_types.h \
-  ..\Core\Inc\usart.h ..\ESP8266_OTA\esp8266_driver.h \
-  ..\ESP8266_OTA\esp8266_uart.h ..\ESP8266_OTA\esp8266_ota_api.h \
-  ..\ESP8266_OTA\onenet_ota.h ..\ESP8266_OTA\esp8266_ota_config.h \
-  ..\ESP8266_OTA\esp8266_mqtt.h
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h

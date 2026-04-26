@@ -82,6 +82,7 @@
 "stm32f407vgt6_bootloader\onenet_ota.o"
 "stm32f407vgt6_bootloader\transport.o"
 "stm32f407vgt6_bootloader\onenet_http_source.o"
+"stm32f407vgt6_bootloader\esp8266_mqtt.o"
 --strict --scatter ".\STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers

@@ -39,6 +39,7 @@
 #include "lfs.h"
 #include "stdio.h"
 #include "string.h"
+#include "ctype.h"
 #include "aes_decrypt.h"
 #include "hpatch_upgrade.h"
 #include "usart.h"
@@ -47,6 +48,7 @@
 #include "onenet_ota.h"
 #include "esp8266_ota_config.h"
 #include "rtc.h"
+#include "esp8266_mqtt.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -78,6 +80,7 @@ static void scan_sd_card_hdiff_files(void);
 static void HPatchUpgradeMenu(void);
 static void UART_Passthrough(void);
 static void ESP8266_TestMenu(void);
+static void MQTT_TestMenu(void);
 
 /* Private functions ---------------------------------------------------------*/
 
@@ -1746,6 +1749,10 @@ static void UART_Passthrough(void)
   Serial_PutString((uint8_t *)"  Press 'q' 3 times within 1 second to exit\r\n");
   Serial_PutString((uint8_t *)"========================================================\r\n\n");
 
+  HAL_UART_AbortReceive_IT(&huart1);
+  __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
+  __HAL_UART_DISABLE_IT(&huart1, UART_IT_IDLE);
+
   __HAL_UART_FLUSH_DRREGISTER(&huart4);
   __HAL_UART_FLUSH_DRREGISTER(&huart1);
 
@@ -1767,6 +1774,8 @@ static void UART_Passthrough(void)
           if (q_count >= 3)
           {
             Serial_PutString((uint8_t *)"\r\n\nExiting passthrough mode...\r\n");
+            __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
+            __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
             return;
           }
         }
@@ -1775,15 +1784,17 @@ static void UART_Passthrough(void)
           q_count = 1;
           q_timer = HAL_GetTick();
         }
+        while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
+          ;
+        huart1.Instance->DR = rx_data;
       }
       else
       {
         q_count = 0;
+        while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
+          ;
+        huart1.Instance->DR = rx_data;
       }
-
-      while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
-        ;
-      huart1.Instance->DR = rx_data;
     }
     else if ((huart4.Instance->SR & UART_FLAG_ORE) != RESET)
     {
@@ -1865,6 +1876,7 @@ static void ESP8266_TestMenu(void)
     Serial_PutString((uint8_t *)"  Set OTA Target: SPI Flash (LFS) -------------------- 8\r\n\n");
     Serial_PutString((uint8_t *)"  OneNET OTA Download  ------------------------------- 9\r\n\n");
     Serial_PutString((uint8_t *)"  Show Current Time  --------------------------------- a\r\n\n");
+    Serial_PutString((uint8_t *)"  MQTT Test Menu  ------------------------------------ b\r\n\n");
     Serial_PutString((uint8_t *)"  Return to Main Menu  ------------------------------- 0\r\n\n");
     Serial_PutString((uint8_t *)"================================================\r\n\n");
 
@@ -2011,8 +2023,630 @@ static void ESP8266_TestMenu(void)
       Print_Current_Time();
       break;
 
+    case 'b':
+    case 'B':
+      MQTT_TestMenu();
+      break;
+
     default:
-      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-9 or a\r");
+      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-9 or a-b\r");
+      break;
+    }
+  }
+}
+
+static void MQTT_TestMenu(void)
+{
+  uint8_t key = 0;
+  char msg[256];
+  char mqtt_cmd[256];
+  static uint8_t mqtt_connected = 0;
+
+  while (1)
+  {
+    Serial_PutString((uint8_t *)"\r\n============== MQTT Test Menu ==============\r\n\n");
+    Serial_PutString((uint8_t *)"  Check MQTT Connection Status  ---------------------- 1\r\n\n");
+    Serial_PutString((uint8_t *)"  Configure MQTT User  ------------------------------- 2\r\n\n");
+    Serial_PutString((uint8_t *)"  Connect to MQTT Server  ---------------------------- 3\r\n\n");
+    Serial_PutString((uint8_t *)"  Subscribe Property Topics  ------------------------- 4\r\n\n");
+    Serial_PutString((uint8_t *)"  Publish Property  ---------------------------------- 5\r\n\n");
+    Serial_PutString((uint8_t *)"  Listen & Auto Reply Property Set  ------------------ 6\r\n\n");
+    Serial_PutString((uint8_t *)"  Disconnect MQTT  ----------------------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Return to ESP8266 Menu  ---------------------------- 0\r\n\n");
+    Serial_PutString((uint8_t *)"==============================================\r\n\n");
+
+    __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+
+    HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+
+    switch (key)
+    {
+    case '0':
+      Serial_PutString((uint8_t *)"\r\nReturn to ESP8266 Menu...\r\n");
+      return;
+
+    case '1':
+    {
+      Serial_PutString((uint8_t *)"\r\nChecking MQTT connection status...\r\n");
+      snprintf(mqtt_cmd, sizeof(mqtt_cmd), "AT+MQTTCONN?");
+      esp8266_uart_rx_restart();
+      esp8266_uart_printf("%s\r\n", mqtt_cmd);
+
+      uint32_t timeout = 2000;
+      uint8_t *resp = NULL;
+      while (timeout > 0)
+      {
+        resp = esp8266_uart_rx_get_frame();
+        if (resp != NULL)
+        {
+          if (strstr((const char *)resp, "+MQTTCONN:") != NULL)
+          {
+            char *conn_line = strstr((const char *)resp, "+MQTTCONN:");
+            if (conn_line != NULL)
+            {
+              char *server_start = strstr(conn_line, ",\"");
+              if (server_start != NULL)
+              {
+                server_start += 2;
+                if (*server_start == '"')
+                {
+                  Serial_PutString((uint8_t *)"MQTT: Not connected (server is empty)\r\n");
+                  mqtt_connected = 0;
+                }
+                else
+                {
+                  Serial_PutString((uint8_t *)"MQTT: Connected\r\n");
+                  Serial_PutString((uint8_t *)conn_line);
+                  Serial_PutString((uint8_t *)"\r\n");
+                  mqtt_connected = 1;
+                }
+              }
+              else
+              {
+                Serial_PutString((uint8_t *)"MQTT: Not connected\r\n");
+                mqtt_connected = 0;
+              }
+            }
+            break;
+          }
+          else if (strstr((const char *)resp, "ERROR") != NULL)
+          {
+            Serial_PutString((uint8_t *)"MQTT: Not configured\r\n");
+            mqtt_connected = 0;
+            break;
+          }
+          esp8266_uart_rx_restart();
+        }
+        timeout--;
+        HAL_Delay(1);
+      }
+      if (timeout == 0)
+      {
+        Serial_PutString((uint8_t *)"MQTT: Check timeout\r\n");
+      }
+      break;
+    }
+
+    case '2':
+    {
+      mqtt_user_config_t config;
+      memset(&config, 0, sizeof(config));
+
+      strncpy(config.client_id, ONENET_DEVICE_NAME, sizeof(config.client_id) - 1);
+      strncpy(config.username, ONENET_PRODUCT_ID, sizeof(config.username) - 1);
+
+      Serial_PutString((uint8_t *)"\r\nPress '!' to use macro defaults, or Enter to customize...\r\n");
+      snprintf(msg, sizeof(msg), "Default: client=%s, user=%s\r\n", config.client_id, config.username);
+      Serial_PutString((uint8_t *)msg);
+
+      Serial_PutString((uint8_t *)"\r\nEnter Client ID (or Enter for default): ");
+      uint8_t idx = 0;
+      char input_buf[256];
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          input_buf[idx] = '\0';
+          break;
+        }
+        else if (key == '!' && idx == 0)
+        {
+          input_buf[0] = '!';
+          input_buf[1] = '\0';
+          Serial_PutString((uint8_t *)"!");
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(input_buf) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          input_buf[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+
+      if (strcmp(input_buf, "!") == 0)
+      {
+        Serial_PutString((uint8_t *)"\r\nUsing macro defaults...\r\n");
+        strncpy(config.client_id, ONENET_DEVICE_NAME, sizeof(config.client_id) - 1);
+        strncpy(config.username, ONENET_PRODUCT_ID, sizeof(config.username) - 1);
+        strncpy(config.password, ONENET_MQTT_TOKEN, sizeof(config.password) - 1);
+      }
+      else
+      {
+        if (idx > 0)
+        {
+          strncpy(config.client_id, input_buf, sizeof(config.client_id) - 1);
+        }
+
+        Serial_PutString((uint8_t *)"\r\nEnter Username (Product ID): ");
+        idx = 0;
+        __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+        while (1)
+        {
+          HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+          if (key == '\r' || key == '\n')
+          {
+            input_buf[idx] = '\0';
+            break;
+          }
+          else if (key == 0x08 || key == 0x7F)
+          {
+            if (idx > 0)
+            {
+              idx--;
+              Serial_PutString((uint8_t *)"\b \b");
+            }
+          }
+          else if (idx < sizeof(input_buf) - 1 && key >= 0x20 && key <= 0x7E)
+          {
+            input_buf[idx++] = key;
+            HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+          }
+        }
+        if (idx > 0)
+        {
+          strncpy(config.username, input_buf, sizeof(config.username) - 1);
+        }
+
+        Serial_PutString((uint8_t *)"\r\nEnter Password (Token): ");
+        idx = 0;
+        __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+        while (1)
+        {
+          HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+          if (key == '\r' || key == '\n')
+          {
+            input_buf[idx] = '\0';
+            break;
+          }
+          else if (key == 0x08 || key == 0x7F)
+          {
+            if (idx > 0)
+            {
+              idx--;
+              Serial_PutString((uint8_t *)"\b \b");
+            }
+          }
+          else if (idx < sizeof(input_buf) - 1 && key >= 0x20 && key <= 0x7E)
+          {
+            input_buf[idx++] = key;
+            HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+          }
+        }
+        if (idx > 0)
+        {
+          strncpy(config.password, input_buf, sizeof(config.password) - 1);
+        }
+      }
+
+      snprintf(msg, sizeof(msg), "\r\nConfiguring MQTT user: client=%s, user=%s\r\n",
+               config.client_id, config.username);
+      Serial_PutString((uint8_t *)msg);
+
+      if (esp8266_mqtt_usercfg(0, &config) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"MQTT user config OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"MQTT user config FAILED!\r\n");
+      }
+      break;
+    }
+
+    case '3':
+    {
+      Serial_PutString((uint8_t *)"\r\nChecking if already connected...\r\n");
+
+      snprintf(mqtt_cmd, sizeof(mqtt_cmd), "AT+MQTTCONN?");
+      esp8266_uart_rx_restart();
+      esp8266_uart_printf("%s\r\n", mqtt_cmd);
+
+      uint32_t timeout = 2000;
+      uint8_t *resp = NULL;
+      uint8_t already_connected = 0;
+
+      while (timeout > 0)
+      {
+        resp = esp8266_uart_rx_get_frame();
+        if (resp != NULL)
+        {
+          if (strstr((const char *)resp, "+MQTTCONN:") != NULL)
+          {
+            char *conn_line = strstr((const char *)resp, "+MQTTCONN:");
+            if (conn_line != NULL)
+            {
+              char *server_start = strstr(conn_line, ",\"");
+              if (server_start != NULL)
+              {
+                server_start += 2;
+                if (*server_start != '"')
+                {
+                  Serial_PutString((uint8_t *)"MQTT: Already connected!\r\n");
+                  Serial_PutString((uint8_t *)conn_line);
+                  Serial_PutString((uint8_t *)"\r\n");
+                  mqtt_connected = 1;
+                  already_connected = 1;
+                }
+              }
+            }
+            break;
+          }
+          esp8266_uart_rx_restart();
+        }
+        timeout--;
+        HAL_Delay(1);
+      }
+
+      if (already_connected)
+      {
+        break;
+      }
+
+      Serial_PutString((uint8_t *)"\r\nConnecting to MQTT server...\r\n");
+
+      char host[64] = ONENET_MQTT_HOST;
+      uint16_t port = ONENET_MQTT_PORT;
+
+      snprintf(msg, sizeof(msg), "\r\nEnter MQTT server host (default: %s): ", host);
+      Serial_PutString((uint8_t *)msg);
+      uint8_t idx = 0;
+      char input_buf[128];
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          input_buf[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(input_buf) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          input_buf[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+      if (idx > 0)
+      {
+        strncpy(host, input_buf, sizeof(host) - 1);
+      }
+
+      if (esp8266_mqtt_connect(0, host, port, 1) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"MQTT connect OK!\r\n");
+        mqtt_connected = 1;
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"MQTT connect FAILED!\r\n");
+      }
+      break;
+    }
+
+    case '4':
+    {
+      Serial_PutString((uint8_t *)"\r\nSubscribing to property topics...\r\n");
+
+      char topic[128];
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/post/reply",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
+
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
+
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/set",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
+
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
+      break;
+    }
+
+    case '5':
+    {
+      Serial_PutString((uint8_t *)"\r\nPublishing single property...\r\n");
+
+      mqtt_property_t prop;
+      memset(&prop, 0, sizeof(prop));
+
+      Serial_PutString((uint8_t *)"\r\nEnter message ID (default: 007): ");
+      uint8_t idx = 0;
+      char msg_id[32] = "007";
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          msg_id[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(msg_id) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          msg_id[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+      if (idx == 0)
+      {
+        strcpy(msg_id, "007");
+      }
+
+      Serial_PutString((uint8_t *)"\r\nEnter property key (e.g. BSP_LED): ");
+      idx = 0;
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          prop.key[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(prop.key) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          prop.key[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+
+      Serial_PutString((uint8_t *)"\r\nEnter value type (0=int, 1=float, 2=bool, 3=string): ");
+      idx = 0;
+      char type_buf[4];
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          type_buf[idx] = '\0';
+          break;
+        }
+        else if (key >= '0' && key <= '9' && idx < sizeof(type_buf) - 1)
+        {
+          type_buf[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+      prop.value_type = (uint8_t)atoi(type_buf);
+
+      Serial_PutString((uint8_t *)"\r\nEnter value: ");
+      idx = 0;
+      char value_buf[64];
+      __HAL_UART_FLUSH_DRREGISTER(&UartHandle);
+      while (1)
+      {
+        HAL_UART_Receive(&UartHandle, &key, 1, RX_TIMEOUT);
+        if (key == '\r' || key == '\n')
+        {
+          value_buf[idx] = '\0';
+          break;
+        }
+        else if (key == 0x08 || key == 0x7F)
+        {
+          if (idx > 0)
+          {
+            idx--;
+            Serial_PutString((uint8_t *)"\b \b");
+          }
+        }
+        else if (idx < sizeof(value_buf) - 1 && key >= 0x20 && key <= 0x7E)
+        {
+          value_buf[idx++] = key;
+          HAL_UART_Transmit(&UartHandle, &key, 1, HAL_MAX_DELAY);
+        }
+      }
+
+      if (prop.value_type == MQTT_VALUE_TYPE_FLOAT)
+      {
+        prop.value_float = atof(value_buf);
+      }
+      else if (prop.value_type == MQTT_VALUE_TYPE_BOOL)
+      {
+        if ((tolower(value_buf[0]) == 't' && tolower(value_buf[1]) == 'r' &&
+             tolower(value_buf[2]) == 'u' && tolower(value_buf[3]) == 'e') ||
+            strcmp(value_buf, "1") == 0)
+        {
+          prop.value_int = 1;
+        }
+        else
+        {
+          prop.value_int = 0;
+        }
+      }
+      else if (prop.value_type == MQTT_VALUE_TYPE_STRING)
+      {
+        strncpy(prop.id, value_buf, sizeof(prop.id) - 1);
+      }
+      else
+      {
+        prop.value_int = atoi(value_buf);
+      }
+
+      snprintf(msg, sizeof(msg), "\r\nPublishing: %s = %s (type=%d, id=%s)\r\n",
+               prop.key, value_buf, prop.value_type, msg_id);
+      Serial_PutString((uint8_t *)msg);
+
+      if (esp8266_mqtt_publish_property(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME,
+                                        &prop, 1, msg_id) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Publish OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Publish FAILED!\r\n");
+      }
+      break;
+    }
+
+    case '6':
+    {
+      Serial_PutString((uint8_t *)"\r\nListening for property set commands...\r\n");
+      Serial_PutString((uint8_t *)"Press 'q' 3 times within 1 second to exit\r\n");
+
+      char recv_topic[128];
+      char recv_payload[512];
+      char recv_msg_id[32];
+      uint8_t exit_q_count = 0;
+      uint32_t exit_q_timer = 0;
+
+      while (1)
+      {
+        if ((huart4.Instance->SR & UART_FLAG_RXNE) != RESET)
+        {
+          uint8_t rx_char = (uint8_t)(huart4.Instance->DR & 0xFF);
+          if (rx_char == 'q')
+          {
+            if (exit_q_count == 0 || (HAL_GetTick() - exit_q_timer) < 1000)
+            {
+              exit_q_count++;
+              exit_q_timer = HAL_GetTick();
+              if (exit_q_count >= 3)
+              {
+                Serial_PutString((uint8_t *)"\r\nExiting listen mode...\r\n");
+                break;
+              }
+            }
+            else
+            {
+              exit_q_count = 1;
+              exit_q_timer = HAL_GetTick();
+            }
+          }
+          else
+          {
+            exit_q_count = 0;
+          }
+        }
+
+        uint8_t *resp = esp8266_uart_rx_get_frame();
+        if (resp != NULL)
+        {
+          if (strstr((const char *)resp, "+MQTTSUBRECV:") != NULL)
+          {
+            memset(recv_topic, 0, sizeof(recv_topic));
+            memset(recv_payload, 0, sizeof(recv_payload));
+            memset(recv_msg_id, 0, sizeof(recv_msg_id));
+
+            if (esp8266_mqtt_check_property_set_recv(recv_topic, recv_payload, sizeof(recv_payload), recv_msg_id) == ESP8266_EOK)
+            {
+              snprintf(msg, sizeof(msg), "\r\nReceived: topic=%s\r\n", recv_topic);
+              Serial_PutString((uint8_t *)msg);
+              snprintf(msg, sizeof(msg), "Payload: %s\r\n", recv_payload);
+              Serial_PutString((uint8_t *)msg);
+              snprintf(msg, sizeof(msg), "Message ID: %s\r\n", recv_msg_id);
+              Serial_PutString((uint8_t *)msg);
+
+              if (strstr(recv_topic, "/thing/property/set") != NULL)
+              {
+                Serial_PutString((uint8_t *)"Auto replying to property set...\r\n");
+
+                if (esp8266_mqtt_publish_set_reply(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME,
+                                                   recv_msg_id, 200, "user_succ") == ESP8266_EOK)
+                {
+                  Serial_PutString((uint8_t *)"Reply sent successfully!\r\n");
+                }
+                else
+                {
+                  Serial_PutString((uint8_t *)"Reply FAILED!\r\n");
+                }
+              }
+            }
+          }
+          esp8266_uart_rx_restart();
+        }
+        HAL_Delay(10);
+      }
+      break;
+    }
+
+    case '7':
+      Serial_PutString((uint8_t *)"\r\nDisconnecting MQTT...\r\n");
+      if (esp8266_mqtt_disconnect(0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"MQTT disconnected!\r\n");
+        mqtt_connected = 0;
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Disconnect FAILED!\r\n");
+      }
+      break;
+
+    default:
+      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-7\r");
       break;
     }
   }
