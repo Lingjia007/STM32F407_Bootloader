@@ -74,8 +74,8 @@ stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_dec.h
 stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_types.h
 stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
 stm32f407vgt6_bootloader\menu.o: ../Core/Inc/usart.h
-stm32f407vgt6_bootloader\menu.o: ..\ESP8266_OTA\esp8266_driver.h
-stm32f407vgt6_bootloader\menu.o: ..\ESP8266_OTA\esp8266_uart.h
-stm32f407vgt6_bootloader\menu.o: ..\ESP8266_OTA\esp8266_ota_api.h
-stm32f407vgt6_bootloader\menu.o: ..\ESP8266_OTA\onenet_ota.h
-stm32f407vgt6_bootloader\menu.o: ..\ESP8266_OTA\esp8266_ota_config.h
+stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_driver.h
+stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_uart.h
+stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_ota_api.h
+stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/onenet_ota.h
+stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_ota_config.h

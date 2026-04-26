@@ -8,10 +8,10 @@ static char g_ip_buf[16] = {0};
 void esp8266_ota_init(void)
 {
     printf("ESP8266 OTA Initializing...\r\n");
-    
+
     esp8266_wifi_init(ESP8266_WIFI_SSID, ESP8266_WIFI_PASSWORD, g_ip_buf);
-    
-    printf("ESP8266 OTA Ready, IP: %s\r\n", g_ip_buf);
+
+    printf("ESP8266 OTA Ready!\r\n");
 }
 
 void esp8266_ota_check_and_upgrade(void)

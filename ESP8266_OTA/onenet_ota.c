@@ -9,6 +9,7 @@
 #include <string.h>
 #include <stdint.h>
 #include "stm32f4xx_hal.h"
+#include "rtc.h"
 
 #define OTA_SD_FILE_PATH "0:ota_firmware.bin"
 
@@ -24,7 +25,7 @@ typedef struct
 static char g_ota_tid[48] = {0};
 static char g_ota_auth[256];
 static char g_ota_req[768];
-static uint8_t g_ota_resp[1600];
+static uint8_t g_ota_resp[3072];
 static char g_ota_json[1024];
 static char g_ota_body[128];
 static char g_sign_string[192];
@@ -42,6 +43,81 @@ typedef struct
     uint64_t bitlen;
     uint32_t state[5];
 } Sha1Ctx;
+
+static void ota_rtc_set_unix_timestamp(uint32_t timestamp)
+{
+    RTC_TimeTypeDef sTime = {0};
+    RTC_DateTypeDef sDate = {0};
+
+    timestamp += 28800UL;
+
+    uint32_t days = timestamp / 86400UL;
+    uint32_t secs = timestamp % 86400UL;
+
+    sTime.Hours = secs / 3600;
+    sTime.Minutes = (secs % 3600) / 60;
+    sTime.Seconds = secs % 60;
+    sTime.DayLightSaving = RTC_DAYLIGHTSAVING_NONE;
+    sTime.StoreOperation = RTC_STOREOPERATION_RESET;
+
+    uint32_t year = 1970;
+    while (1)
+    {
+        uint32_t days_in_year = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 366 : 365;
+        if (days < days_in_year)
+            break;
+        days -= days_in_year;
+        year++;
+    }
+
+    static const uint8_t days_in_month[2][12] = {
+        {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
+        {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}};
+    uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+    uint8_t month = 0;
+    while (month < 12 && days >= days_in_month[is_leap][month])
+    {
+        days -= days_in_month[is_leap][month];
+        month++;
+    }
+
+    sDate.Year = year - 2000;
+    sDate.Month = month + 1;
+    sDate.Date = days + 1;
+
+    HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
+    HAL_RTC_SetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+}
+
+static uint32_t ota_rtc_get_unix_timestamp(void)
+{
+    RTC_TimeTypeDef sTime;
+    RTC_DateTypeDef sDate;
+
+    if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+        return 0;
+    HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+    if (sDate.Year < 25)
+        return 0;
+
+    uint16_t year = sDate.Year + 2000;
+    uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+
+    static const uint16_t days_before_month[2][12] = {
+        {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
+        {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}};
+
+    uint32_t days = 0;
+    for (uint16_t y = 1970; y < year; y++)
+    {
+        days += ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) ? 366 : 365;
+    }
+    days += days_before_month[is_leap][sDate.Month - 1];
+    days += sDate.Date - 1;
+
+    return days * 86400UL + sTime.Hours * 3600UL + sTime.Minutes * 60UL + sTime.Seconds - 28800UL;
+}
 
 static int ota_hex_to_nibble(char c)
 {
@@ -392,7 +468,11 @@ static int ota_build_auth_header(const char *version, const char *res_raw, char 
     char version_enc[32];
     char et_text[24];
     char et_enc[32];
-    uint32_t now_unix = g_ota_unix_now_base + (HAL_GetTick() / 1000UL);
+    uint32_t now_unix = ota_rtc_get_unix_timestamp();
+    if (now_unix < 1000000000UL)
+    {
+        now_unix = g_ota_unix_now_base + (HAL_GetTick() / 1000UL);
+    }
     uint32_t et = now_unix + ONENET_AUTH_ET_TTL_SEC;
 
     int sig_len = snprintf(g_sign_string, sizeof(g_sign_string), "%lu\n%s\n%s\n%s",
@@ -681,7 +761,8 @@ static int ota_try_sync_unix_base_from_text(const char *text)
     if (now > tick_s)
     {
         g_ota_unix_now_base = now - tick_s;
-        printf("OTA auth: sync server now=%lu tick=%lu new_base=%lu\r\n",
+        ota_rtc_set_unix_timestamp(now);
+        printf("OTA auth: sync server now=%lu tick=%lu new_base=%lu (RTC updated)\r\n",
                (unsigned long)now, (unsigned long)tick_s, (unsigned long)g_ota_unix_now_base);
         return 1;
     }
@@ -1064,7 +1145,18 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
             f_mount(NULL, "0:", 0);
             return 0;
         }
-        int n = ota_http_request(ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 12000);
+        int n = 0;
+        for (int retry = 0; retry < 3; retry++)
+        {
+            if (retry > 0)
+            {
+                printf("OTA download: retry %d offset=%lu\r\n", retry, (unsigned long)offset);
+                HAL_Delay(1000);
+            }
+            n = ota_http_request(ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 12000);
+            if (n > 0)
+                break;
+        }
         if (n <= 0)
         {
             printf("OTA download: http fail offset=%lu n=%d\r\n", (unsigned long)offset, n);
@@ -1183,6 +1275,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
             last_progress = progress;
         }
         printf("OTA download %lu/%lu\r\n", (unsigned long)offset, (unsigned long)info->size);
+        HAL_Delay(100);
     }
 
     f_sync(&fp);
@@ -1343,6 +1436,6 @@ void ONENET_OTA_ProcessUpgrade(void)
         printf("OTA failed\r\n");
         return;
     }
-    ota_report_result(&info, 201);
+    ota_report_result(&info, 206); // 测试模式，保持发送升级失败，方便多次测试
     printf("OTA download success, saved to SD card\r\n");
 }

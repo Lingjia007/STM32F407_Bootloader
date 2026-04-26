@@ -1,170 +1,136 @@
 Checking OneNET OTA...
 OTA start
 OTA version: build auth
-OTA auth: now=1774170019 et=1774173619 ttl=3600 key_len=24
-OTA auth: sfs=1774173619
+OTA auth: now=1774170011 et=1774173611 ttl=3600 key_len=24
+OTA auth: sfs=1774173611
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1774173619&method=sha1&sign=PzOUigHcSmAmgsSpdIwPfihUCnU%3D
-OTA version: send req len=323
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1774173611&method=sha1&sign=QlgAkSoVDZ4vxuAGsLBlw4L%2Fy78%3D
+OTA version: send req len=325
 OTA version: http status=200 resp_len=377
 OTA version: json ok=0 body_len=137
-OTA auth: sync server now=1777127972 tick=22 new_base=1777127950
+OTA auth: sync server now=1777190674 tick=14 new_base=1777190660 (RTC updated)
 OTA version: retry after time sync
 OTA version: build auth
-OTA auth: now=1777127972 et=1777131572 ttl=3600 key_len=24
-OTA auth: sfs=1777131572
+OTA auth: now=1777190674 et=1777194274 ttl=3600 key_len=24
+OTA auth: sfs=1777194274
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131572&method=sha1&sign=3XUCXEVZ1gJT5uaajtxe9yok%2FLM%3D
-OTA version: send req len=325
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194274&method=sha1&sign=Rb7cPr9APU7Jqj5he0z2bWHpIP0%3D
+OTA version: send req len=323
 OTA version: http status=200 resp_len=310
 OTA version: json ok=1 body_len=71
 OTA check: build auth
-OTA auth: now=1777127975 et=1777131575 ttl=3600 key_len=24
-OTA auth: sfs=1777131575
+OTA auth: now=1777190677 et=1777194277 ttl=3600 key_len=24
+OTA auth: sfs=1777194277
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131575&method=sha1&sign=I22cYcEdLJ9yzFKCmo7V3F6IRZg%3D
-OTA check: send req len=249 version=V1.0
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194277&method=sha1&sign=%2Bk4E%2F67Pc3nSp11cYwGnPAy3Bzk%3D
+OTA check: send req len=253 version=V1.0
 OTA check: http status=200 resp_len=424
 OTA check: code=0
-OTA check: has pkg tid=1372504 target=V2.0 size=10252 status=1
-OTA task: check tid=1372504
-OTA auth: now=1777127978 et=1777131578 ttl=3600 key_len=24
-OTA auth: sfs=1777131578
+OTA check: has pkg tid=1372854 target=V2.0 size=10252 status=1
+OTA task: check tid=1372854
+OTA auth: now=1777190680 et=1777194280 ttl=3600 key_len=24
+OTA auth: sfs=1777194280
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131578&method=sha1&sign=IjXQ51teiQP4E3ZQckrMdWI0VBM%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194280&method=sha1&sign=p41EEKCxSNZKwfujWzhl0ph0Pi8%3D
 OTA task: remote status=1
 OTA task: ready=1
 OTA check success, package info:
-  tid: 1372504
+  tid: 1372854
   target: V2.0
   size: 10252
   md5: 47c9043ca60ed1a4bc3b1534812d61cc
-OTA auth: now=1777127981 et=1777131581 ttl=3600 key_len=24
-OTA auth: sfs=1777131581
+OTA auth: now=1777190685 et=1777194285 ttl=3600 key_len=24
+OTA auth: sfs=1777194285
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131581&method=sha1&sign=5%2BVsck6w1BMTzdp31Dg%2BBeftPc0%3D
-OTA download: start tid=1372504 size=10252 target=V2.0
-OTA auth: now=1777127982 et=1777131582 ttl=3600 key_len=24
-OTA auth: sfs=1777131582
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194285&method=sha1&sign=q0aTIlJN%2BBONdblX6YWe7uu6ZFk%3D
+OTA download: start tid=1372854 size=10252 target=V2.0
+OTA auth: now=1777190685 et=1777194285 ttl=3600 key_len=24
+OTA auth: sfs=1777194285
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131582&method=sha1&sign=tH9IYmNDZA3R%2FtJ51qA9LdKN7nA%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194285&method=sha1&sign=q0aTIlJN%2BBONdblX6YWe7uu6ZFk%3D
 OTA status: step=0 code=0
-OTA download: first block write_len=1024
+OTA download: first block write_len=2048
 OTA download: first 16 bytes written: F8080020310202088F1B0208AB1A0208
 OTA download: immediate verify read res=0 bytes=32
-OTA download: immediate verify first 16 bytes: 0D0AF8080020310202088F1B0208AB1A
-OTA download: FIRST BLOCK VERIFY FAILED!
-OTA download: SD card write error detected!
-OTA download 1024/10252
-OTA auth: now=1777127992 et=1777131592 ttl=3600 key_len=24
-OTA auth: sfs=1777131592
+OTA download: immediate verify first 16 bytes: F8080020310202088F1B0208AB1A0208
+OTA auth: now=1777190691 et=1777194291 ttl=3600 key_len=24
+OTA auth: sfs=1777194291
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131592&method=sha1&sign=aQdb%2F9VuDsP%2BhmO%2BLJx8%2B8BfDf4%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194291&method=sha1&sign=rPEYzoK5WD9bCYZix6viN1AX5JY%3D
 OTA status: step=19 code=0
 OTA download 2048/10252
-OTA auth: now=1777127998 et=1777131598 ttl=3600 key_len=24
-OTA auth: sfs=1777131598
+OTA auth: now=1777190698 et=1777194298 ttl=3600 key_len=24
+OTA auth: sfs=1777194298
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131598&method=sha1&sign=ZhYlrfknlwjzPm%2Fs%2F7595DACHTg%3D
-OTA status: step=29 code=0
-OTA download 3072/10252
-OTA auth: now=1777128005 et=1777131605 ttl=3600 key_len=24
-OTA auth: sfs=1777131605
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131605&method=sha1&sign=GJTAsOh5qUDCT8K3AorZTeTFjQY%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194298&method=sha1&sign=ONG8G6Za2uin%2FKxcfdlKVXAZ%2Fsk%3D
 OTA status: step=39 code=0
 OTA download 4096/10252
-OTA auth: now=1777128011 et=1777131611 ttl=3600 key_len=24
-OTA auth: sfs=1777131611
+OTA auth: now=1777190704 et=1777194304 ttl=3600 key_len=24
+OTA auth: sfs=1777194304
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131611&method=sha1&sign=4nvwNKV2wzmwahDmHnYBeOL5oWE%3D
-OTA status: step=49 code=0
-OTA download 5120/10252
-OTA auth: now=1777128017 et=1777131617 ttl=3600 key_len=24
-OTA auth: sfs=1777131617
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131617&method=sha1&sign=JS8SjmTW5rRbgEWLIcPoi0AyErQ%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194304&method=sha1&sign=2BMJgmCDrgv3YW1Kig8wpILxgls%3D
 OTA status: step=59 code=0
 OTA download 6144/10252
-OTA auth: now=1777128025 et=1777131625 ttl=3600 key_len=24
-OTA auth: sfs=1777131625
+OTA auth: now=1777190711 et=1777194311 ttl=3600 key_len=24
+OTA auth: sfs=1777194311
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131625&method=sha1&sign=1EykCatZ6Q5oHKUzDnEp0tXT6fc%3D
-OTA status: step=69 code=0
-OTA download 7168/10252
-OTA auth: now=1777128032 et=1777131632 ttl=3600 key_len=24
-OTA auth: sfs=1777131632
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131632&method=sha1&sign=cD9%2BtlIX7bLpX%2BohQ2VV2Mkpq1A%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194311&method=sha1&sign=AidSv7j%2Bp3xa3FvLU7ww6LE0KRM%3D
 OTA status: step=79 code=0
 OTA download 8192/10252
-OTA auth: now=1777128038 et=1777131638 ttl=3600 key_len=24
-OTA auth: sfs=1777131638
+OTA auth: now=1777190718 et=1777194318 ttl=3600 key_len=24
+OTA auth: sfs=1777194318
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131638&method=sha1&sign=h0hrSXke94TqIbPbS3lFmBxgiW0%3D
-OTA status: step=89 code=0
-OTA download 9216/10252
-OTA auth: now=1777128044 et=1777131644 ttl=3600 key_len=24
-OTA auth: sfs=1777131644
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131644&method=sha1&sign=y5p0aQ0Y3DxjbE6PgsTHh8D3qq8%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194318&method=sha1&sign=B3yvm%2FFosCqxqlgLe1efInIzvLU%3D
 OTA status: step=99 code=0
 OTA download 10240/10252
-OTA auth: now=1777128050 et=1777131650 ttl=3600 key_len=24
-OTA auth: sfs=1777131650
+OTA auth: now=1777190724 et=1777194324 ttl=3600 key_len=24
+OTA auth: sfs=1777194324
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131650&method=sha1&sign=80Nm2gkoCRkiDt3dibHttJo7quk%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194324&method=sha1&sign=ACGiujltAHmVaIrWvM8AwpkKUao%3D
 OTA status: step=100 code=0
 OTA download 10252/10252
 OTA download: file size before close: 10252 bytes
 OTA download: current file pos=10252
 OTA download: lseek result=0
 OTA download: read result=0, bytes=32
-OTA download: immediate read first 16 bytes: 0D0AF8080020310202088F1B0208AB1A
+OTA download: immediate read first 16 bytes: F8080020310202088F1B0208AB1A0208
 OTA download: verifying SD card data...
 OTA download: file size after reopen: 10252 bytes
-OTA download: first 16 bytes read from SD: 0D0AF8080020310202088F1B0208AB1A
+OTA download: first 16 bytes read from SD: F8080020310202088F1B0208AB1A0208
 OTA download: download_md5=47c9043ca60ed1a4bc3b1534812d61cc
-OTA download: sdcard_md5=44a6b4fbe75bb7e35b17134d43e6321f
+OTA download: sdcard_md5=47c9043ca60ed1a4bc3b1534812d61cc
 OTA download: remote_md5=47c9043ca60ed1a4bc3b1534812d61cc
-OTA download: MD5 mismatch between download and SD card!
-OTA auth: now=1777128053 et=1777131653 ttl=3600 key_len=24
-OTA auth: sfs=1777131653
+OTA: set pending image success, size=10252
+OTA download: verify ok, saved to SD: 0:ota_firmware.bin
+OTA auth: now=1777190729 et=1777194329 ttl=3600 key_len=24
+OTA auth: sfs=1777194329
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777131653&method=sha1&sign=KgcUQh88e%2BfhAzJEmJtOe5QeuiA%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194329&method=sha1&sign=CrvTRS4xNGjAh6GI0tm1WQBTBSc%3D
 OTA status: step=206 code=0
-OTA failed
+OTA download success, saved to SD card

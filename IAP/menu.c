@@ -46,6 +46,7 @@
 #include "esp8266_ota_api.h"
 #include "onenet_ota.h"
 #include "esp8266_ota_config.h"
+#include "rtc.h"
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -1803,11 +1804,52 @@ static void UART_Passthrough(void)
   }
 }
 
+static void Print_Current_Time(void)
+{
+  RTC_TimeTypeDef sTime;
+  RTC_DateTypeDef sDate;
+  char msg[128];
+
+  if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  {
+    Serial_PutString((uint8_t *)"\r\nFailed to get RTC time!\r\n");
+    return;
+  }
+  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+  if (sDate.Year < 25)
+  {
+    Serial_PutString((uint8_t *)"\r\nRTC time not set (year < 2025)\r\n");
+    return;
+  }
+
+  uint16_t year = sDate.Year + 2000;
+  uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+  static const uint16_t days_before_month[2][12] = {
+      {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
+      {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}};
+
+  uint32_t days = 0;
+  for (uint16_t y = 1970; y < year; y++)
+  {
+    days += ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) ? 366 : 365;
+  }
+  days += days_before_month[is_leap][sDate.Month - 1];
+  days += sDate.Date - 1;
+
+  uint32_t timestamp = days * 86400UL + sTime.Hours * 3600UL + sTime.Minutes * 60UL + sTime.Seconds;
+
+  snprintf(msg, sizeof(msg), "\r\nCurrent Time: %04d-%02d-%02d %02d:%02d:%02d (UTC+8)\r\n",
+           year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+  Serial_PutString((uint8_t *)msg);
+
+  snprintf(msg, sizeof(msg), "Unix Timestamp: %lu\r\n", (unsigned long)timestamp);
+  Serial_PutString((uint8_t *)msg);
+}
+
 static void ESP8266_TestMenu(void)
 {
   uint8_t key = 0;
-  static char ip_buf[16] = {0};
-  static uint8_t wifi_initialized = 0;
   char msg[128];
 
   while (1)
@@ -1819,7 +1861,7 @@ static void ESP8266_TestMenu(void)
     Serial_PutString((uint8_t *)"  Enter Transparent Mode  ---------------------------- 4\r\n\n");
     Serial_PutString((uint8_t *)"  Exit Transparent Mode  ----------------------------- 5\r\n\n");
     Serial_PutString((uint8_t *)"  OneNET OTA Check  ---------------------------------- 6\r\n\n");
-    Serial_PutString((uint8_t *)"  Show WiFi Status  ---------------------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Show Current Time  --------------------------------- 7\r\n\n");
     Serial_PutString((uint8_t *)"  Return to Main Menu  ------------------------------- 0\r\n\n");
     Serial_PutString((uint8_t *)"================================================\r\n\n");
 
@@ -1836,9 +1878,6 @@ static void ESP8266_TestMenu(void)
     case '1':
       Serial_PutString((uint8_t *)"\r\nInitializing ESP8266 and connecting to AP...\r\n");
       esp8266_ota_init();
-      wifi_initialized = 1;
-      snprintf(msg, sizeof(msg), "IP: %s\r\n", ip_buf);
-      Serial_PutString((uint8_t *)msg);
       break;
 
     case '2':
@@ -1950,17 +1989,7 @@ static void ESP8266_TestMenu(void)
       break;
 
     case '7':
-      Serial_PutString((uint8_t *)"\r\nWiFi Status:\r\n");
-      if (wifi_initialized)
-      {
-        snprintf(msg, sizeof(msg), "  Status: Connected\r\n");
-        snprintf(msg + strlen(msg), sizeof(msg) - strlen(msg), "  IP: %s\r\n", ip_buf);
-      }
-      else
-      {
-        snprintf(msg, sizeof(msg), "  Status: Not initialized\r\n");
-      }
-      Serial_PutString((uint8_t *)msg);
+      Print_Current_Time();
       break;
 
     default:

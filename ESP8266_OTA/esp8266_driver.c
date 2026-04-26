@@ -209,8 +209,22 @@ uint8_t esp8266_get_ip(char *buf)
         return ESP8266_ERROR;
     }
 
-    p_start = strstr((const char *)esp8266_uart_rx_get_frame(), "\"");
+    // Find STAIP line first
+    p_start = strstr((const char *)esp8266_uart_rx_get_frame(), "STAIP,");
+    if (p_start == NULL)
+    {
+        return ESP8266_ERROR;
+    }
+    p_start = strstr(p_start, "\"");
+    if (p_start == NULL)
+    {
+        return ESP8266_ERROR;
+    }
     p_end = strstr(p_start + 1, "\"");
+    if (p_end == NULL)
+    {
+        return ESP8266_ERROR;
+    }
     *p_end = '\0';
     sprintf(buf, "%s", p_start + 1);
 
