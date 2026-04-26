@@ -11,9 +11,9 @@ static lfs_file_t lfs_old_file;
 static lfs_file_t lfs_out_file;
 static lfs_t *lfs_instance = NULL;
 
-static uint8_t tuz_dict_and_cache[HPATCH_DICT_SIZE + HPATCH_CACHE_SIZE];
-static uint8_t stream_diff_buf[HPATCH_STREAM_BUF_SIZE];
-static uint8_t patch_temp_buf[HPATCH_CACHE_SIZE];
+static uint8_t tuz_dict_and_cache[HPATCH_DICT_SIZE + HPATCH_CACHE_SIZE] __attribute__((aligned(4)));
+static uint8_t stream_diff_buf[HPATCH_STREAM_BUF_SIZE] __attribute__((aligned(4)));
+static uint8_t patch_temp_buf[HPATCH_CACHE_SIZE] __attribute__((aligned(4)));
 static tuz_TStream tuz_stream_obj;
 
 static hpi_pos_t stream_buf_start = 0;

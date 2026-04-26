@@ -5,7 +5,7 @@
 
 #define DECRYPT_BUFFER_SIZE 4096
 
-static uint8_t decrypt_buffer[DECRYPT_BUFFER_SIZE];
+static uint8_t decrypt_buffer[DECRYPT_BUFFER_SIZE] __attribute__((aligned(4)));
 
 int aes_decrypt_buffer(uint8_t *buffer, uint32_t size, const uint8_t *key, const uint8_t *iv)
 {
