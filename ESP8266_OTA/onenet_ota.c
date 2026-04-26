@@ -2,8 +2,11 @@
 #include "transport.h"
 #include "cJSON.h"
 #include "md5.h"
-#include "ota_flash.h"
+#include "bootloader_core.h"
+#include "onenet_http_source.h"
 #include "fatfs.h"
+#include "lfs.h"
+#include "lfs_spi_flash_adapter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,16 +14,14 @@
 #include "stm32f4xx_hal.h"
 #include "rtc.h"
 
-#define OTA_SD_FILE_PATH "0:ota_firmware.bin"
-
-typedef struct
+typedef enum
 {
-    char tid[48];
-    char target[24];
-    char md5_hex[33];
-    uint8_t md5_bin[16];
-    uint32_t size;
-} OtaPackageInfo;
+    OTA_TARGET_INTERNAL_FLASH = 0,
+    OTA_TARGET_SD_CARD_FATFS = 1,
+    OTA_TARGET_SPI_FLASH_LFS = 2,
+} ota_target_type_t;
+
+static ota_target_type_t g_ota_target_type = OTA_TARGET_INTERNAL_FLASH;
 
 static char g_ota_tid[48] = {0};
 static char g_ota_auth[256];
@@ -34,7 +35,6 @@ static char g_sign_b64[64];
 static char g_sign_enc[128];
 static uint8_t g_sign_key_raw[96];
 static uint32_t g_ota_unix_now_base = ONENET_AUTH_UNIX_NOW_BASE;
-static uint8_t g_ota_write_buf[ONENET_DOWNLOAD_CHUNK_SIZE] __attribute__((aligned(4)));
 
 typedef struct
 {
@@ -460,7 +460,7 @@ static int url_encode_ascii(const char *in, char *out, uint32_t out_cap)
     return 1;
 }
 
-static int ota_build_auth_header(const char *version, const char *res_raw, char *out, uint32_t out_cap)
+int ota_build_auth_header(const char *version, const char *res_raw, char *out, uint32_t out_cap)
 {
     uint32_t key_len = 0;
     uint8_t digest[20];
@@ -510,7 +510,7 @@ static int ota_build_auth_header(const char *version, const char *res_raw, char 
     return 1;
 }
 
-static int ota_http_status_code(const uint8_t *resp, uint32_t len)
+int ota_http_status_code(const uint8_t *resp, uint32_t len)
 {
     if (resp == NULL || len < 12)
         return -1;
@@ -537,7 +537,7 @@ static int ota_http_status_code(const uint8_t *resp, uint32_t len)
     return -1;
 }
 
-static int ota_http_body(const uint8_t *resp, uint32_t len, const uint8_t **body, uint32_t *body_len)
+int ota_http_body(const uint8_t *resp, uint32_t len, const uint8_t **body, uint32_t *body_len)
 {
     if (resp == NULL || body == NULL || body_len == NULL)
         return 0;
@@ -590,7 +590,7 @@ static int ota_http_body(const uint8_t *resp, uint32_t len, const uint8_t **body
     return 1;
 }
 
-static int ota_http_request(const char *host, uint16_t port, const uint8_t *req, uint32_t req_len, uint8_t *resp, uint32_t resp_cap, uint32_t timeout_ms)
+int ota_http_request(const char *host, uint16_t port, const uint8_t *req, uint32_t req_len, uint8_t *resp, uint32_t resp_cap, uint32_t timeout_ms)
 {
     if (host == NULL || req == NULL || resp == NULL || resp_cap == 0)
         return -1;
@@ -1072,336 +1072,215 @@ static int ota_report_result(const OtaPackageInfo *info, int result_code)
     return 0;
 }
 
+static void ota_progress_callback_wrapper(const OtaPackageInfo *info, int progress)
+{
+    ota_report_result(info, progress);
+}
+
 static int ota_download_and_verify(const OtaPackageInfo *info)
 {
     if (info == NULL)
         return 0;
-    if (!ota_build_auth_header(ONENET_AUTH_FUSE_VER, ONENET_AUTH_FUSE_RES_RAW, g_ota_auth, sizeof(g_ota_auth)))
-    {
-        printf("OTA download: auth fail\r\n");
-        return 0;
-    }
-    if (info->size == 0U)
-    {
-        printf("OTA download: bad size=0\r\n");
-        return 0;
-    }
 
-    FATFS fs;
-    FIL fp;
-    FRESULT res;
-    UINT bytes_written;
-
-    res = f_mount(&fs, "0:", 1);
-    if (res != FR_OK)
-    {
-        printf("OTA download: SD mount fail res=%d\r\n", res);
-        return 0;
-    }
-
-    f_unlink(OTA_SD_FILE_PATH);
-
-    res = f_open(&fp, OTA_SD_FILE_PATH, FA_CREATE_NEW | FA_WRITE | FA_READ);
-    if (res != FR_OK)
-    {
-        printf("OTA download: SD open fail res=%d, trying FA_CREATE_ALWAYS\r\n", res);
-        res = f_open(&fp, OTA_SD_FILE_PATH, FA_CREATE_ALWAYS | FA_WRITE | FA_READ);
-        if (res != FR_OK)
-        {
-            printf("OTA download: SD open still fail res=%d\r\n", res);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-    }
-
-    const uint32_t chunk_size = ONENET_DOWNLOAD_CHUNK_SIZE;
-    uint32_t offset = 0;
-    uint32_t last_progress = 0U;
-    MD5_CTX md5_ctx;
-    MD5Init(&md5_ctx);
+    const target_if_t *target_if = NULL;
+    bootloader_err_t err = BOOTLOADER_OK;
+    FATFS fatfs;
+    lfs_t lfs;
+    int fs_initialized = 0;
 
     printf("OTA download: start tid=%s size=%lu target=%s\r\n", info->tid, (unsigned long)info->size, info->target);
     ota_report_result(info, 0);
 
-    while (offset < info->size)
+    switch (g_ota_target_type)
     {
-        uint32_t end = offset + chunk_size - 1U;
-        if (end >= info->size)
-            end = info->size - 1U;
-        int req_len = snprintf(g_ota_req, sizeof(g_ota_req),
-                               "GET /fuse-ota/%s/%s/%s/download HTTP/1.1\r\n"
-                               "Host: %s\r\n"
-                               "Range: %lu-%lu\r\n"
-                               "Authorization: %s\r\n"
-                               "Connection: close\r\n\r\n",
-                               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, info->tid,
-                               ONENET_FUSE_HOST,
-                               (unsigned long)offset, (unsigned long)end,
-                               g_ota_auth);
-        if (req_len <= 0 || req_len >= (int)sizeof(g_ota_req))
+    case OTA_TARGET_INTERNAL_FLASH:
+        printf("OTA download: target = Internal Flash\r\n");
+        bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
+        target_if = &internal_flash_target_if;
+        break;
+
+    case OTA_TARGET_SD_CARD_FATFS:
+        printf("OTA download: target = SD Card (FATFS)\r\n");
         {
-            printf("OTA download: build req fail offset=%lu end=%lu\r\n", (unsigned long)offset, (unsigned long)end);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-        int n = 0;
-        for (int retry = 0; retry < 3; retry++)
-        {
-            if (retry > 0)
+            FRESULT res = f_mount(&fatfs, "0:", 1);
+            if (res != FR_OK)
             {
-                printf("OTA download: retry %d offset=%lu\r\n", retry, (unsigned long)offset);
-                HAL_Delay(1000);
+                printf("OTA download: SD card mount failed, res=%d\r\n", res);
+                return 0;
             }
-            n = ota_http_request(ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 12000);
-            if (n > 0)
-                break;
+            bootloader_ctx.config.storage.fatfs = &fatfs;
+            strncpy(bootloader_ctx.config.storage.fatfs_path, "0:ota_firmware.bin",
+                    sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
+            target_if = &fatfs_target_if;
+            fs_initialized = 1;
         }
-        if (n <= 0)
-        {
-            printf("OTA download: http fail offset=%lu n=%d\r\n", (unsigned long)offset, n);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-        int status = ota_http_status_code(g_ota_resp, (uint32_t)n);
-        if (!(status == 206 || status == 200))
-        {
-            printf("OTA download: bad status=%d offset=%lu n=%d\r\n", status, (unsigned long)offset, n);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-        const uint8_t *body = NULL;
-        uint32_t body_len = 0;
-        if (!ota_http_body(g_ota_resp, (uint32_t)n, &body, &body_len))
-        {
-            printf("OTA download: no body offset=%lu\r\n", (unsigned long)offset);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-        uint32_t expect = end - offset + 1U;
+        break;
 
-        if (body_len != expect)
+    case OTA_TARGET_SPI_FLASH_LFS:
+        printf("OTA download: target = SPI Flash (LittleFS)\r\n");
         {
-            printf("OTA download: size mismatch offset=%lu body_len=%lu expect=%lu resp_len=%d\r\n",
-                   (unsigned long)offset, (unsigned long)body_len, (unsigned long)expect, n);
-        }
-
-        uint32_t write_len = body_len;
-        if (write_len > expect)
-            write_len = expect;
-        if (write_len == 0U)
-        {
-            printf("OTA download: write_len=0 offset=%lu body_len=%lu expect=%lu\r\n",
-                   (unsigned long)offset, (unsigned long)body_len, (unsigned long)expect);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-
-        if (write_len > sizeof(g_ota_write_buf))
-        {
-            write_len = sizeof(g_ota_write_buf);
-        }
-
-        memcpy(g_ota_write_buf, body, write_len);
-
-        res = f_write(&fp, g_ota_write_buf, write_len, &bytes_written);
-        if (res != FR_OK || bytes_written != write_len)
-        {
-            printf("OTA download: SD write fail res=%d written=%u expect=%lu offset=%lu\r\n",
-                   res, bytes_written, (unsigned long)write_len, (unsigned long)offset);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-
-        res = f_sync(&fp);
-        if (res != FR_OK)
-        {
-            printf("OTA download: SD sync fail res=%d offset=%lu\r\n", res, (unsigned long)offset);
-            f_close(&fp);
-            f_mount(NULL, "0:", 0);
-            return 0;
-        }
-
-        if (offset == 0)
-        {
-            printf("OTA download: first block write_len=%lu\r\n", (unsigned long)write_len);
-            printf("OTA download: first 16 bytes written: ");
-            for (int i = 0; i < 16 && i < (int)write_len; i++)
+            int res = lfs_spi_flash_init();
+            if (res != 0)
             {
-                printf("%02X", g_ota_write_buf[i]);
+                printf("OTA download: SPI Flash init failed, res=%d\r\n", res);
+                return 0;
             }
-            printf("\r\n");
-
-            f_sync(&fp);
+            res = lfs_spi_flash_mount(&lfs);
+            if (res != LFS_ERR_OK)
             {
-                uint8_t verify_buf[32];
-                UINT verify_read;
-                FSIZE_t cur_pos = f_tell(&fp);
-                f_lseek(&fp, 0);
-                res = f_read(&fp, verify_buf, 32, &verify_read);
-                printf("OTA download: immediate verify read res=%d bytes=%u\r\n", res, verify_read);
-                if (res == FR_OK && verify_read >= 16)
-                {
-                    printf("OTA download: immediate verify first 16 bytes: ");
-                    for (int i = 0; i < 16; i++)
-                    {
-                        printf("%02X", verify_buf[i]);
-                    }
-                    printf("\r\n");
-                    if (memcmp(verify_buf, g_ota_write_buf, 16) != 0)
-                    {
-                        printf("OTA download: FIRST BLOCK VERIFY FAILED!\r\n");
-                        printf("OTA download: SD card write error detected!\r\n");
-                    }
-                }
-                f_lseek(&fp, cur_pos);
+                printf("OTA download: LittleFS mount failed, res=%d\r\n", res);
+                return 0;
             }
+            bootloader_ctx.config.storage.lfs = &lfs;
+            strncpy(bootloader_ctx.config.storage.lfs_path, "ota_firmware.bin",
+                    sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
+            target_if = &lfs_target_if;
+            fs_initialized = 2;
         }
+        break;
 
-        MD5Update(&md5_ctx, g_ota_write_buf, write_len);
-
-        offset += write_len;
-        uint32_t progress = (offset * 100U) / info->size;
-        if (progress > 100U)
-            progress = 100U;
-        if (progress == 100U || progress >= (last_progress + ONENET_PROGRESS_STEP_PCT))
-        {
-            ota_report_result(info, (int)progress);
-            last_progress = progress;
-        }
-        printf("OTA download %lu/%lu\r\n", (unsigned long)offset, (unsigned long)info->size);
-        HAL_Delay(100);
-    }
-
-    f_sync(&fp);
-    printf("OTA download: file size before close: %lu bytes\r\n", (unsigned long)f_size(&fp));
-
-    {
-        uint8_t check_buf[32];
-        UINT check_read;
-        FSIZE_t old_pos = f_tell(&fp);
-        printf("OTA download: current file pos=%lu\r\n", (unsigned long)old_pos);
-        res = f_lseek(&fp, 0);
-        printf("OTA download: lseek result=%d\r\n", res);
-        res = f_read(&fp, check_buf, 32, &check_read);
-        printf("OTA download: read result=%d, bytes=%u\r\n", res, check_read);
-        if (res == FR_OK && check_read >= 16)
-        {
-            printf("OTA download: immediate read first 16 bytes: ");
-            for (int i = 0; i < 16; i++)
-            {
-                printf("%02X", check_buf[i]);
-            }
-            printf("\r\n");
-        }
-        f_lseek(&fp, old_pos);
-    }
-
-    f_close(&fp);
-    f_mount(NULL, "0:", 0);
-
-    uint8_t calc[16];
-    MD5Final(&md5_ctx, calc);
-
-    printf("OTA download: verifying SD card data...\r\n");
-
-    res = f_mount(&fs, "0:", 1);
-    if (res != FR_OK)
-    {
-        printf("OTA download: SD remount fail res=%d\r\n", res);
+    default:
+        printf("OTA download: invalid target type %d\r\n", g_ota_target_type);
         return 0;
     }
 
-    res = f_open(&fp, OTA_SD_FILE_PATH, FA_READ);
-    if (res != FR_OK)
+    onenet_http_source_init(info);
+    onenet_http_source_set_progress_callback(ota_progress_callback_wrapper);
+
+    err = bootloader_download(&onenet_http_source_if, target_if, NULL);
+
+    onenet_http_source_deinit();
+
+    if (err != BOOTLOADER_OK)
     {
-        printf("OTA download: SD reopen fail res=%d\r\n", res);
-        f_mount(NULL, "0:", 0);
+        printf("OTA download: failed with error %d\r\n", err);
+        if (fs_initialized == 1)
+            f_mount(NULL, "0:", 0);
+        else if (fs_initialized == 2)
+            lfs_spi_flash_unmount(&lfs);
         return 0;
     }
 
-    printf("OTA download: file size after reopen: %lu bytes\r\n", (unsigned long)f_size(&fp));
+    printf("OTA download: verifying data...\r\n");
 
     MD5_CTX verify_ctx;
     MD5Init(&verify_ctx);
     uint8_t verify_buf[512];
     uint32_t verify_offset = 0;
-    UINT bytes_read;
 
-    while (verify_offset < info->size)
+    if (g_ota_target_type == OTA_TARGET_INTERNAL_FLASH)
     {
-        uint32_t to_read = sizeof(verify_buf);
-        if (verify_offset + to_read > info->size)
-            to_read = info->size - verify_offset;
-
-        res = f_read(&fp, verify_buf, to_read, &bytes_read);
-        if (res != FR_OK || bytes_read != to_read)
+        while (verify_offset < info->size)
         {
-            printf("OTA download: SD read fail res=%d read=%u expect=%lu\r\n",
-                   res, bytes_read, (unsigned long)to_read);
-            f_close(&fp);
+            uint32_t to_read = sizeof(verify_buf);
+            if (verify_offset + to_read > info->size)
+                to_read = info->size - verify_offset;
+
+            memcpy(verify_buf, (const uint8_t *)(APPLICATION_ADDRESS + verify_offset), to_read);
+            MD5Update(&verify_ctx, verify_buf, to_read);
+            verify_offset += to_read;
+        }
+    }
+    else if (g_ota_target_type == OTA_TARGET_SD_CARD_FATFS)
+    {
+        FIL fp;
+        UINT bytes_read;
+        FRESULT res = f_open(&fp, "0:ota_firmware.bin", FA_READ);
+        if (res != FR_OK)
+        {
+            printf("OTA download: verify open failed, res=%d\r\n", res);
             f_mount(NULL, "0:", 0);
             return 0;
         }
 
-        if (verify_offset == 0)
+        while (verify_offset < info->size)
         {
-            printf("OTA download: first 16 bytes read from SD: ");
-            for (int i = 0; i < 16 && i < (int)to_read; i++)
+            uint32_t to_read = sizeof(verify_buf);
+            if (verify_offset + to_read > info->size)
+                to_read = info->size - verify_offset;
+
+            res = f_read(&fp, verify_buf, to_read, &bytes_read);
+            if (res != FR_OK || bytes_read != to_read)
             {
-                printf("%02X", verify_buf[i]);
+                printf("OTA download: verify read failed, res=%d\r\n", res);
+                f_close(&fp);
+                f_mount(NULL, "0:", 0);
+                return 0;
             }
-            printf("\r\n");
+
+            MD5Update(&verify_ctx, verify_buf, to_read);
+            verify_offset += to_read;
+        }
+        f_close(&fp);
+        f_mount(NULL, "0:", 0);
+    }
+    else if (g_ota_target_type == OTA_TARGET_SPI_FLASH_LFS)
+    {
+        lfs_file_t file;
+        lfs_ssize_t bytes_read;
+
+        int res = lfs_file_open(&lfs, &file, "ota_firmware.bin", LFS_O_RDONLY);
+        if (res != LFS_ERR_OK)
+        {
+            printf("OTA download: verify open failed, res=%d\r\n", res);
+            lfs_spi_flash_unmount(&lfs);
+            return 0;
         }
 
-        MD5Update(&verify_ctx, verify_buf, to_read);
-        verify_offset += to_read;
-    }
+        while (verify_offset < info->size)
+        {
+            uint32_t to_read = sizeof(verify_buf);
+            if (verify_offset + to_read > info->size)
+                to_read = info->size - verify_offset;
 
-    f_close(&fp);
+            bytes_read = lfs_file_read(&lfs, &file, verify_buf, to_read);
+            if (bytes_read != (lfs_ssize_t)to_read)
+            {
+                printf("OTA download: verify read failed, bytes=%ld\r\n", (long)bytes_read);
+                lfs_file_close(&lfs, &file);
+                lfs_spi_flash_unmount(&lfs);
+                return 0;
+            }
+
+            MD5Update(&verify_ctx, verify_buf, to_read);
+            verify_offset += to_read;
+        }
+        lfs_file_close(&lfs, &file);
+        lfs_spi_flash_unmount(&lfs);
+    }
 
     uint8_t verify_md5[16];
     MD5Final(&verify_ctx, verify_md5);
 
-    char download_hex[33], verify_hex[33];
-    ota_md5_bin_to_hex(calc, download_hex);
+    char verify_hex[33];
     ota_md5_bin_to_hex(verify_md5, verify_hex);
 
-    printf("OTA download: download_md5=%s\r\n", download_hex);
-    printf("OTA download: sdcard_md5=%s\r\n", verify_hex);
+    const char *target_name = "";
+    switch (g_ota_target_type)
+    {
+    case OTA_TARGET_INTERNAL_FLASH:
+        target_name = "Internal Flash";
+        break;
+    case OTA_TARGET_SD_CARD_FATFS:
+        target_name = "SD Card (FATFS)";
+        break;
+    case OTA_TARGET_SPI_FLASH_LFS:
+        target_name = "SPI Flash (LFS)";
+        break;
+    }
+
+    printf("OTA download: %s md5=%s\r\n", target_name, verify_hex);
     printf("OTA download: remote_md5=%s\r\n", info->md5_hex);
 
-    if (memcmp(calc, verify_md5, 16) != 0)
-    {
-        printf("OTA download: MD5 mismatch between download and SD card!\r\n");
-        f_unlink(OTA_SD_FILE_PATH);
-        f_mount(NULL, "0:", 0);
-        return 0;
-    }
-
-    if (memcmp(calc, info->md5_bin, 16) != 0)
+    if (memcmp(verify_md5, info->md5_bin, 16) != 0)
     {
         char local_hex[33];
-        ota_md5_bin_to_hex(calc, local_hex);
+        ota_md5_bin_to_hex(verify_md5, local_hex);
         printf("OTA md5 mismatch local=%s remote=%s\r\n", local_hex, info->md5_hex);
-        f_unlink(OTA_SD_FILE_PATH);
-        f_mount(NULL, "0:", 0);
         return 0;
     }
 
-    f_mount(NULL, "0:", 0);
-
-    if (!OTA_SetPendingImage(info->size, info->md5_bin, info->target, info->tid))
-    {
-        printf("OTA download: set pending image fail\r\n");
-        return 0;
-    }
-    printf("OTA download: verify ok, saved to SD: %s\r\n", OTA_SD_FILE_PATH);
+    printf("OTA download: verify ok, saved to %s\r\n", target_name);
     return 1;
 }
 
@@ -1436,6 +1315,32 @@ void ONENET_OTA_ProcessUpgrade(void)
         printf("OTA failed\r\n");
         return;
     }
-    ota_report_result(&info, 206); // 测试模式，保持发送升级失败，方便多次测试
-    printf("OTA download success, saved to SD card\r\n");
+    ota_report_result(&info, 206);
+    printf("OTA download success\r\n");
+}
+
+void ONENET_OTA_SetTargetType(uint8_t target_type)
+{
+    if (target_type > OTA_TARGET_SPI_FLASH_LFS)
+    {
+        printf("OTA: invalid target type %d, using default (Internal Flash)\r\n", target_type);
+        g_ota_target_type = OTA_TARGET_INTERNAL_FLASH;
+        return;
+    }
+
+    g_ota_target_type = (ota_target_type_t)target_type;
+    const char *name = "";
+    switch (g_ota_target_type)
+    {
+    case OTA_TARGET_INTERNAL_FLASH:
+        name = "Internal Flash";
+        break;
+    case OTA_TARGET_SD_CARD_FATFS:
+        name = "SD Card (FATFS)";
+        break;
+    case OTA_TARGET_SPI_FLASH_LFS:
+        name = "SPI Flash (LittleFS)";
+        break;
+    }
+    printf("OTA: target set to %s\r\n", name);
 }

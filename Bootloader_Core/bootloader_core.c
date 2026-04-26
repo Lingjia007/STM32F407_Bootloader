@@ -3,6 +3,7 @@
 #include "ff.h"
 #include "lfs.h"
 #include <string.h>
+#include <stdio.h>
 #include "flash_if.h"
 
 #define USER_FLASH_END_ADDRESS 0x080FFFFF
@@ -64,6 +65,8 @@ typedef struct
     uint32_t start_addr;
     uint32_t total_size;
     uint32_t written_size;
+    uint8_t pending_buf[4];
+    uint8_t pending_len;
     uint8_t is_open;
     uint8_t is_erased;
 } internal_flash_tgt_ctx_t;
@@ -114,7 +117,9 @@ bootloader_err_t internal_flash_tgt_write(uint32_t offset, const uint8_t *data, 
 {
     uint32_t i;
     uint32_t FlashAddress;
-    uint32_t *DataWord;
+    uint32_t DataWord;
+    uint32_t write_len;
+    uint8_t temp_buf[4];
 
     if (data == NULL || len == 0)
     {
@@ -127,13 +132,59 @@ bootloader_err_t internal_flash_tgt_write(uint32_t offset, const uint8_t *data, 
     }
 
     FlashAddress = internal_flash_ctx.start_addr + offset;
-    DataWord = (uint32_t *)data;
 
-    for (i = 0; (i < (len / 4)) && (FlashAddress <= (USER_FLASH_END_ADDRESS - 4)); i++)
+    if ((FlashAddress % 4) != 0)
     {
-        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord[i]) == HAL_OK)
+        printf("internal_flash: write address not aligned 0x%08lX\r\n", (unsigned long)FlashAddress);
+        return BOOTLOADER_ERR_WRITE;
+    }
+
+    if (internal_flash_ctx.pending_len > 0)
+    {
+        uint32_t need = 4 - internal_flash_ctx.pending_len;
+        if (len < need)
         {
-            if (*(uint32_t *)FlashAddress != DataWord[i])
+            memcpy(internal_flash_ctx.pending_buf + internal_flash_ctx.pending_len, data, len);
+            internal_flash_ctx.pending_len += len;
+            return BOOTLOADER_OK;
+        }
+
+        memcpy(internal_flash_ctx.pending_buf + internal_flash_ctx.pending_len, data, need);
+        DataWord = *(uint32_t *)internal_flash_ctx.pending_buf;
+
+        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
+        {
+            if (*(uint32_t *)FlashAddress != DataWord)
+            {
+                return BOOTLOADER_ERR_VERIFY;
+            }
+        }
+        else
+        {
+            return BOOTLOADER_ERR_WRITE;
+        }
+
+        FlashAddress += 4;
+        data += need;
+        len -= need;
+        internal_flash_ctx.pending_len = 0;
+    }
+
+    write_len = (len / 4) * 4;
+
+    for (i = 0; i < (write_len / 4); i++)
+    {
+        if (FlashAddress > (USER_FLASH_END_ADDRESS - 4))
+        {
+            break;
+        }
+
+        memcpy(temp_buf, data + (i * 4), 4);
+        DataWord = *(uint32_t *)temp_buf;
+
+        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
+        {
+            if (*(uint32_t *)FlashAddress != DataWord)
             {
                 return BOOTLOADER_ERR_VERIFY;
             }
@@ -145,7 +196,14 @@ bootloader_err_t internal_flash_tgt_write(uint32_t offset, const uint8_t *data, 
         }
     }
 
-    internal_flash_ctx.written_size = offset + (i * 4);
+    internal_flash_ctx.written_size = offset + write_len;
+
+    if (len > write_len)
+    {
+        uint32_t remain = len - write_len;
+        memcpy(internal_flash_ctx.pending_buf, data + write_len, remain);
+        internal_flash_ctx.pending_len = remain;
+    }
 
     return BOOTLOADER_OK;
 }
@@ -155,6 +213,33 @@ bootloader_err_t internal_flash_tgt_close(void)
     if (!internal_flash_ctx.is_open)
     {
         return BOOTLOADER_OK;
+    }
+
+    if (internal_flash_ctx.pending_len > 0)
+    {
+        uint32_t FlashAddress = internal_flash_ctx.start_addr + internal_flash_ctx.written_size;
+        uint32_t DataWord = 0xFFFFFFFF;
+
+        memcpy(&DataWord, internal_flash_ctx.pending_buf, internal_flash_ctx.pending_len);
+
+        printf("internal_flash: flushing %d pending bytes at 0x%08lX\r\n",
+               internal_flash_ctx.pending_len, (unsigned long)FlashAddress);
+
+        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
+        {
+            if (*(uint32_t *)FlashAddress != DataWord)
+            {
+                HAL_FLASH_Lock();
+                return BOOTLOADER_ERR_VERIFY;
+            }
+        }
+        else
+        {
+            HAL_FLASH_Lock();
+            return BOOTLOADER_ERR_WRITE;
+        }
+
+        internal_flash_ctx.pending_len = 0;
     }
 
     HAL_FLASH_Lock();
@@ -654,7 +739,7 @@ const target_if_t lfs_target_if = {
 
 #define BOOTLOADER_BUFFER_SIZE 4096
 
-static uint8_t bootloader_buffer[BOOTLOADER_BUFFER_SIZE];
+static uint8_t bootloader_buffer[BOOTLOADER_BUFFER_SIZE] __attribute__((aligned(4)));
 
 bootloader_err_t bootloader_download(const source_if_t *src_if,
                                      const target_if_t *tgt_if,
@@ -668,32 +753,40 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
 
     if (src_if == NULL || tgt_if == NULL)
     {
+        printf("bootloader_download: param null\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
     if (src_if->open == NULL || src_if->read == NULL || src_if->close == NULL)
     {
+        printf("bootloader_download: src_if missing funcs\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
     if (tgt_if->open == NULL || tgt_if->write == NULL || tgt_if->close == NULL)
     {
+        printf("bootloader_download: tgt_if missing funcs\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
+    printf("bootloader_download: opening source...\r\n");
     err = src_if->open(path, &total_size);
     if (err != BOOTLOADER_OK)
     {
+        printf("bootloader_download: src open failed err=%d\r\n", err);
         return err;
     }
 
+    printf("bootloader_download: total_size=%lu, opening target...\r\n", (unsigned long)total_size);
     err = tgt_if->open(path, total_size);
     if (err != BOOTLOADER_OK)
     {
+        printf("bootloader_download: tgt open failed err=%d\r\n", err);
         src_if->close();
         return err;
     }
 
+    printf("bootloader_download: starting download loop...\r\n");
     while (total_read < total_size)
     {
         uint32_t to_read = BOOTLOADER_BUFFER_SIZE;
@@ -702,9 +795,11 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
             to_read = total_size - total_read;
         }
 
+        printf("bootloader_download: reading %lu bytes...\r\n", (unsigned long)to_read);
         err = src_if->read(bootloader_buffer, to_read, &bytes_read);
         if (err != BOOTLOADER_OK)
         {
+            printf("bootloader_download: src read failed err=%d\r\n", err);
             tgt_if->close();
             src_if->close();
             return err;
@@ -712,12 +807,15 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
 
         if (bytes_read == 0)
         {
+            printf("bootloader_download: bytes_read=0, breaking\r\n");
             break;
         }
 
+        printf("bootloader_download: writing %lu bytes at offset %lu...\r\n", (unsigned long)bytes_read, (unsigned long)offset);
         err = tgt_if->write(offset, bootloader_buffer, bytes_read);
         if (err != BOOTLOADER_OK)
         {
+            printf("bootloader_download: tgt write failed err=%d\r\n", err);
             tgt_if->close();
             src_if->close();
             return err;
@@ -725,20 +823,26 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
 
         total_read += bytes_read;
         offset += bytes_read;
+        printf("bootloader_download: progress %lu/%lu\r\n", (unsigned long)total_read, (unsigned long)total_size);
     }
 
+    printf("bootloader_download: closing target...\r\n");
     err = tgt_if->close();
     if (err != BOOTLOADER_OK)
     {
+        printf("bootloader_download: tgt close failed err=%d\r\n", err);
         src_if->close();
         return err;
     }
 
+    printf("bootloader_download: closing source...\r\n");
     err = src_if->close();
     if (err != BOOTLOADER_OK)
     {
+        printf("bootloader_download: src close failed err=%d\r\n", err);
         return err;
     }
 
+    printf("bootloader_download: success\r\n");
     return BOOTLOADER_OK;
 }

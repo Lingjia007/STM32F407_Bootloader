@@ -1,136 +1,256 @@
-Checking OneNET OTA...
+Setting OTA target to SD Card (FATFS)...
+OTA: target set to SD Card (FATFS)
+
+============== ESP8266 Test Menu ==============
+
+  WiFi Init & Connect AP  ---------------------------- 1
+
+  AT Command Test  ----------------------------------- 2
+
+  TCP Connect Test  ---------------------------------- 3
+
+  Enter Transparent Mode  ---------------------------- 4
+
+  Exit Transparent Mode  ----------------------------- 5
+
+  Set OTA Target: Internal Flash --------------------- 6
+
+  Set OTA Target: SD Card (FATFS) -------------------- 7
+
+  Set OTA Target: SPI Flash (LFS) -------------------- 8
+
+  OneNET OTA Download  ------------------------------- 9
+
+  Show Current Time  --------------------------------- a
+
+  Return to Main Menu  ------------------------------- 0
+
+================================================
+
+
+Starting OneNET OTA download...
 OTA start
 OTA version: build auth
-OTA auth: now=1774170011 et=1774173611 ttl=3600 key_len=24
-OTA auth: sfs=1774173611
+OTA auth: now=1777195608 et=1777199208 ttl=3600 key_len=24
+OTA auth: sfs=1777199208
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1774173611&method=sha1&sign=QlgAkSoVDZ4vxuAGsLBlw4L%2Fy78%3D
-OTA version: send req len=325
-OTA version: http status=200 resp_len=377
-OTA version: json ok=0 body_len=137
-OTA auth: sync server now=1777190674 tick=14 new_base=1777190660 (RTC updated)
-OTA version: retry after time sync
-OTA version: build auth
-OTA auth: now=1777190674 et=1777194274 ttl=3600 key_len=24
-OTA auth: sfs=1777194274
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194274&method=sha1&sign=Rb7cPr9APU7Jqj5he0z2bWHpIP0%3D
-OTA version: send req len=323
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199208&method=sha1&sign=dJzwHewPxg%2B%2BSSJDvv2ABwJkhto%3D
+OTA version: send req len=327
 OTA version: http status=200 resp_len=310
 OTA version: json ok=1 body_len=71
 OTA check: build auth
-OTA auth: now=1777190677 et=1777194277 ttl=3600 key_len=24
-OTA auth: sfs=1777194277
+OTA auth: now=1777195611 et=1777199211 ttl=3600 key_len=24
+OTA auth: sfs=1777199211
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194277&method=sha1&sign=%2Bk4E%2F67Pc3nSp11cYwGnPAy3Bzk%3D
-OTA check: send req len=253 version=V1.0
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199211&method=sha1&sign=XXwStLLiuAUQb1diiCEzwgFwnZ0%3D
+OTA check: send req len=249 version=V1.0
 OTA check: http status=200 resp_len=424
 OTA check: code=0
-OTA check: has pkg tid=1372854 target=V2.0 size=10252 status=1
-OTA task: check tid=1372854
-OTA auth: now=1777190680 et=1777194280 ttl=3600 key_len=24
-OTA auth: sfs=1777194280
+OTA check: has pkg tid=1372886 target=V2.0 size=10252 status=1
+OTA task: check tid=1372886
+OTA auth: now=1777195614 et=1777199214 ttl=3600 key_len=24
+OTA auth: sfs=1777199214
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194280&method=sha1&sign=p41EEKCxSNZKwfujWzhl0ph0Pi8%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199214&method=sha1&sign=Qeg%2FVOwFqvxZECnyIWFOwnhXerM%3D
 OTA task: remote status=1
 OTA task: ready=1
 OTA check success, package info:
-  tid: 1372854
+  tid: 1372886
   target: V2.0
   size: 10252
   md5: 47c9043ca60ed1a4bc3b1534812d61cc
-OTA auth: now=1777190685 et=1777194285 ttl=3600 key_len=24
-OTA auth: sfs=1777194285
+OTA download: start tid=1372886 size=10252 target=V2.0
+OTA auth: now=1777195617 et=1777199217 ttl=3600 key_len=24
+OTA auth: sfs=1777199217
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194285&method=sha1&sign=q0aTIlJN%2BBONdblX6YWe7uu6ZFk%3D
-OTA download: start tid=1372854 size=10252 target=V2.0
-OTA auth: now=1777190685 et=1777194285 ttl=3600 key_len=24
-OTA auth: sfs=1777194285
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194285&method=sha1&sign=q0aTIlJN%2BBONdblX6YWe7uu6ZFk%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199217&method=sha1&sign=%2B6kEbAmTkiJklvRiWmjE3Xm0p1g%3D
 OTA status: step=0 code=0
-OTA download: first block write_len=2048
-OTA download: first 16 bytes written: F8080020310202088F1B0208AB1A0208
-OTA download: immediate verify read res=0 bytes=32
-OTA download: immediate verify first 16 bytes: F8080020310202088F1B0208AB1A0208
-OTA auth: now=1777190691 et=1777194291 ttl=3600 key_len=24
-OTA auth: sfs=1777194291
+OTA download: target = SD Card (FATFS)
+HTTP Source: initialized with package info
+bootloader_download: opening source...
+OTA auth: now=1777195620 et=1777199220 ttl=3600 key_len=24
+OTA auth: sfs=1777199220
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194291&method=sha1&sign=rPEYzoK5WD9bCYZix6viN1AX5JY%3D
-OTA status: step=19 code=0
-OTA download 2048/10252
-OTA auth: now=1777190698 et=1777194298 ttl=3600 key_len=24
-OTA auth: sfs=1777194298
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194298&method=sha1&sign=ONG8G6Za2uin%2FKxcfdlKVXAZ%2Fsk%3D
-OTA status: step=39 code=0
-OTA download 4096/10252
-OTA auth: now=1777190704 et=1777194304 ttl=3600 key_len=24
-OTA auth: sfs=1777194304
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194304&method=sha1&sign=2BMJgmCDrgv3YW1Kig8wpILxgls%3D
-OTA status: step=59 code=0
-OTA download 6144/10252
-OTA auth: now=1777190711 et=1777194311 ttl=3600 key_len=24
-OTA auth: sfs=1777194311
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194311&method=sha1&sign=AidSv7j%2Bp3xa3FvLU7ww6LE0KRM%3D
-OTA status: step=79 code=0
-OTA download 8192/10252
-OTA auth: now=1777190718 et=1777194318 ttl=3600 key_len=24
-OTA auth: sfs=1777194318
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194318&method=sha1&sign=B3yvm%2FFosCqxqlgLe1efInIzvLU%3D
-OTA status: step=99 code=0
-OTA download 10240/10252
-OTA auth: now=1777190724 et=1777194324 ttl=3600 key_len=24
-OTA auth: sfs=1777194324
-                        sha1
-                            userid/510792
-                                         2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194324&method=sha1&sign=ACGiujltAHmVaIrWvM8AwpkKUao%3D
-OTA status: step=100 code=0
-OTA download 10252/10252
-OTA download: file size before close: 10252 bytes
-OTA download: current file pos=10252
-OTA download: lseek result=0
-OTA download: read result=0, bytes=32
-OTA download: immediate read first 16 bytes: F8080020310202088F1B0208AB1A0208
-OTA download: verifying SD card data...
-OTA download: file size after reopen: 10252 bytes
-OTA download: first 16 bytes read from SD: F8080020310202088F1B0208AB1A0208
-OTA download: download_md5=47c9043ca60ed1a4bc3b1534812d61cc
-OTA download: sdcard_md5=47c9043ca60ed1a4bc3b1534812d61cc
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199220&method=sha1&sign=UO%2FCakQkE8arGkJJETa1zPsjE7U%3D
+HTTP Source: open success, total_size=10252
+bootloader_download: total_size=10252, opening target...
+bootloader_download: starting download loop...
+bootloader_download: reading 4096 bytes...
+HTTP Source: reading offset=0 size=4096
+HTTP Source: sending request offset=0-4095
+HTTP Source: chunk success body_len=2707 copy_len=2707
+HTTP Source: read 2707 bytes, total=2707/10252
+bootloader_download: writing 2707 bytes at offset 0...
+bootloader_download: progress 2707/10252
+bootloader_download: reading 4096 bytes...
+HTTP Source: reading offset=2707 size=4096
+HTTP Source: sending request offset=2707-6802
+HTTP Source: chunk success body_len=2704 copy_len=2704
+HTTP Source: read 2704 bytes, total=5411/10252
+bootloader_download: writing 2704 bytes at offset 2707...
+bootloader_download: progress 5411/10252
+bootloader_download: reading 4096 bytes...
+HTTP Source: reading offset=5411 size=4096
+HTTP Source: sending request offset=5411-9506
+HTTP Source: chunk success body_len=2704 copy_len=2704
+HTTP Source: read 2704 bytes, total=8115/10252
+bootloader_download: writing 2704 bytes at offset 5411...
+bootloader_download: progress 8115/10252
+bootloader_download: reading 2137 bytes...
+HTTP Source: reading offset=8115 size=2137
+HTTP Source: sending request offset=8115-10251
+HTTP Source: chunk success body_len=2137 copy_len=2137
+HTTP Source: read 2137 bytes, total=10252/10252
+bootloader_download: writing 2137 bytes at offset 8115...
+bootloader_download: progress 10252/10252
+bootloader_download: closing target...
+bootloader_download: closing source...
+HTTP Source: closed
+bootloader_download: success
+OTA download: verifying data...
+OTA download: SD Card (FATFS) md5=f3ae3da7595aabf32076a395714656dd
 OTA download: remote_md5=47c9043ca60ed1a4bc3b1534812d61cc
-OTA: set pending image success, size=10252
-OTA download: verify ok, saved to SD: 0:ota_firmware.bin
-OTA auth: now=1777190729 et=1777194329 ttl=3600 key_len=24
-OTA auth: sfs=1777194329
+OTA md5 mismatch local=f3ae3da7595aabf32076a395714656dd remote=47c9043ca60ed1a4bc3b1534812d61cc
+OTA auth: now=1777195634 et=1777199234 ttl=3600 key_len=24
+OTA auth: sfs=1777199234
                         sha1
                             userid/510792
                                          2022-05-01
-OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777194329&method=sha1&sign=CrvTRS4xNGjAh6GI0tm1WQBTBSc%3D
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199234&method=sha1&sign=54O8kVI7UC40%2By9DubDVltu6MwY%3D
 OTA status: step=206 code=0
-OTA download success, saved to SD card
+OTA failed
+
+
+Setting OTA target to Internal Flash...
+OTA: target set to Internal Flash
+
+============== ESP8266 Test Menu ==============
+
+  WiFi Init & Connect AP  ---------------------------- 1
+
+  AT Command Test  ----------------------------------- 2
+
+  TCP Connect Test  ---------------------------------- 3
+
+  Enter Transparent Mode  ---------------------------- 4
+
+  Exit Transparent Mode  ----------------------------- 5
+
+  Set OTA Target: Internal Flash --------------------- 6
+
+  Set OTA Target: SD Card (FATFS) -------------------- 7
+
+  Set OTA Target: SPI Flash (LFS) -------------------- 8
+
+  OneNET OTA Download  ------------------------------- 9
+
+  Show Current Time  --------------------------------- a
+
+  Return to Main Menu  ------------------------------- 0
+
+================================================
+
+
+Starting OneNET OTA download...
+OTA start
+OTA version: build auth
+OTA auth: now=1774170035 et=1774173635 ttl=3600 key_len=24
+OTA auth: sfs=1774173635
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1774173635&method=sha1&sign=HGyaSP1mfWQ17wb7awu5m6zOYSQ%3D
+OTA version: send req len=323
+OTA version: http status=200 resp_len=377
+OTA version: json ok=0 body_len=137
+OTA auth: sync server now=1777195551 tick=38 new_base=1777195513 (RTC updated)
+OTA version: retry after time sync
+OTA version: build auth
+OTA auth: now=1777195551 et=1777199151 ttl=3600 key_len=24
+OTA auth: sfs=1777199151
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199151&method=sha1&sign=6nI%2Bc%2Fd9gaIRyAOed0junJdt%2B%2BA%3D
+OTA version: send req len=331
+OTA version: http status=200 resp_len=310
+OTA version: json ok=1 body_len=71
+OTA check: build auth
+OTA auth: now=1777195554 et=1777199154 ttl=3600 key_len=24
+OTA auth: sfs=1777199154
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199154&method=sha1&sign=M88dvAKLEffNSCpvSAwlDdE3r%2Bk%3D
+OTA check: send req len=251 version=V1.0
+OTA check: http status=200 resp_len=424
+OTA check: code=0
+OTA check: has pkg tid=1372885 target=V2.0 size=10252 status=1
+OTA task: check tid=1372885
+OTA auth: now=1777195557 et=1777199157 ttl=3600 key_len=24
+OTA auth: sfs=1777199157
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199157&method=sha1&sign=ijDfc9Xvz5B6UIuHpHjCd%2FYCr%2Fs%3D
+OTA task: remote status=1
+OTA task: ready=1
+OTA check success, package info:
+  tid: 1372885
+  target: V2.0
+  size: 10252
+  md5: 47c9043ca60ed1a4bc3b1534812d61cc
+OTA download: start tid=1372885 size=10252 target=V2.0
+OTA auth: now=1777195560 et=1777199160 ttl=3600 key_len=24
+OTA auth: sfs=1777199160
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199160&method=sha1&sign=6gCtZFBVGJO1uQ83ZXdXFUfC5TM%3D
+OTA status: step=0 code=0
+OTA download: target = Internal Flash
+HTTP Source: initialized with package info
+bootloader_download: opening source...
+OTA auth: now=1777195563 et=1777199163 ttl=3600 key_len=24
+OTA auth: sfs=1777199163
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199163&method=sha1&sign=0FCcLI%2Be34ckUZtcCWpQY%2Bn7t%2FA%3D
+HTTP Source: open success, total_size=10252
+bootloader_download: total_size=10252, opening target...
+bootloader_download: starting download loop...
+bootloader_download: reading 4096 bytes...
+HTTP Source: reading offset=0 size=4096
+HTTP Source: sending request offset=0-4095
+HTTP Source: chunk success body_len=2707 copy_len=2707
+HTTP Source: read 2707 bytes, total=2707/10252
+bootloader_download: writing 2707 bytes at offset 0...
+bootloader_download: progress 2707/10252
+bootloader_download: reading 4096 bytes...
+HTTP Source: reading offset=2707 size=4096
+HTTP Source: sending request offset=2707-6802
+HTTP Source: chunk success body_len=2704 copy_len=2704
+HTTP Source: read 2704 bytes, total=5411/10252
+bootloader_download: writing 2704 bytes at offset 2707...
+bootloader_download: tgt write failed err=-5
+HTTP Source: closed
+OTA download: failed with error -5
+OTA auth: now=1777195570 et=1777199170 ttl=3600 key_len=24
+OTA auth: sfs=1777199170
+                        sha1
+                            userid/510792
+                                         2022-05-01
+OTA auth: token=version=2022-05-01&res=userid%2F510792&et=1777199170&method=sha1&sign=GT%2FSWQriGqOaLmNcaUThEuZN4xE%3D
+OTA status: step=206 code=0
+OTA failed

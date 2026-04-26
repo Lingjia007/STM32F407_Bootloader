@@ -1860,8 +1860,11 @@ static void ESP8266_TestMenu(void)
     Serial_PutString((uint8_t *)"  TCP Connect Test  ---------------------------------- 3\r\n\n");
     Serial_PutString((uint8_t *)"  Enter Transparent Mode  ---------------------------- 4\r\n\n");
     Serial_PutString((uint8_t *)"  Exit Transparent Mode  ----------------------------- 5\r\n\n");
-    Serial_PutString((uint8_t *)"  OneNET OTA Check  ---------------------------------- 6\r\n\n");
-    Serial_PutString((uint8_t *)"  Show Current Time  --------------------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Set OTA Target: Internal Flash --------------------- 6\r\n\n");
+    Serial_PutString((uint8_t *)"  Set OTA Target: SD Card (FATFS) -------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Set OTA Target: SPI Flash (LFS) -------------------- 8\r\n\n");
+    Serial_PutString((uint8_t *)"  OneNET OTA Download  ------------------------------- 9\r\n\n");
+    Serial_PutString((uint8_t *)"  Show Current Time  --------------------------------- a\r\n\n");
     Serial_PutString((uint8_t *)"  Return to Main Menu  ------------------------------- 0\r\n\n");
     Serial_PutString((uint8_t *)"================================================\r\n\n");
 
@@ -1984,16 +1987,32 @@ static void ESP8266_TestMenu(void)
       break;
 
     case '6':
-      Serial_PutString((uint8_t *)"\r\nChecking OneNET OTA...\r\n");
-      ONENET_OTA_ProcessUpgrade();
+      Serial_PutString((uint8_t *)"\r\nSetting OTA target to Internal Flash...\r\n");
+      ONENET_OTA_SetTargetType(0);
       break;
 
     case '7':
+      Serial_PutString((uint8_t *)"\r\nSetting OTA target to SD Card (FATFS)...\r\n");
+      ONENET_OTA_SetTargetType(1);
+      break;
+
+    case '8':
+      Serial_PutString((uint8_t *)"\r\nSetting OTA target to SPI Flash (LFS)...\r\n");
+      ONENET_OTA_SetTargetType(2);
+      break;
+
+    case '9':
+      Serial_PutString((uint8_t *)"\r\nStarting OneNET OTA download...\r\n");
+      ONENET_OTA_ProcessUpgrade();
+      break;
+
+    case 'a':
+    case 'A':
       Print_Current_Time();
       break;
 
     default:
-      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-7\r");
+      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-9 or a\r");
       break;
     }
   }
