@@ -382,7 +382,7 @@ static void ShowStoredImages(lfs_t *lfs)
     if (info.type == LFS_TYPE_REG)
     {
       count++;
-      snprintf(msg, sizeof(msg), "  [%d] %s  Size: %lu bytes\r\n", count, info.name, (uint32_t)info.size);
+      snprintf(msg, sizeof(msg), "  [%d] %s  Size: %u bytes\r\n", count, info.name, (unsigned int)info.size);
       Serial_PutString((uint8_t *)msg);
     }
   }
@@ -759,7 +759,7 @@ static void StoreFromInternalFlash(void)
     return;
   }
 
-  snprintf(msg, sizeof(msg), "\r\nFilename: %s, Size: %lu bytes\r\n", filename, size);
+  snprintf(msg, sizeof(msg), "\r\nFilename: %s, Size: %u bytes\r\n", filename, (unsigned int)size);
   Serial_PutString((uint8_t *)msg);
 
   Serial_PutString((uint8_t *)"Confirm? (y/n): ");
@@ -810,7 +810,7 @@ static void StoreFromInternalFlash(void)
 
     if ((total_written % 4096) == 0 || total_written == flash_size)
     {
-      snprintf(msg, sizeof(msg), "Progress: %lu / %lu bytes\r", total_written, flash_size);
+      snprintf(msg, sizeof(msg), "Progress: %u / %u bytes\r", (unsigned int)total_written, (unsigned int)flash_size);
       Serial_PutString((uint8_t *)msg);
     }
   }

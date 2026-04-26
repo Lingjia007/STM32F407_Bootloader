@@ -1,81 +1,63 @@
-stm32f407vgt6_bootloader\menu.o: ..\IAP\menu.c
-stm32f407vgt6_bootloader\menu.o: ../Core/Inc/main.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
-stm32f407vgt6_bootloader\menu.o: ../Core/Inc/stm32f4xx_hal_conf.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Include/core_cm4.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Include/cmsis_version.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Include/mpu_armv7.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
-stm32f407vgt6_bootloader\menu.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-stm32f407vgt6_bootloader\menu.o: ..\IAP\common.h
-stm32f407vgt6_bootloader\menu.o: ../Bootloader_Core/bootloader_core.h
-stm32f407vgt6_bootloader\menu.o: ..\IAP\flash_if.h
-stm32f407vgt6_bootloader\menu.o: ..\IAP\menu.h
-stm32f407vgt6_bootloader\menu.o: ..\IAP\ymodem.h
-stm32f407vgt6_bootloader\menu.o: ../FATFS/App/fatfs.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/ff.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/integer.h
-stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/ffconf.h
-stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/bsp_driver_sd.h
-stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/fatfs_platform.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/ff_gen_drv.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/FatFs/src/diskio.h
-stm32f407vgt6_bootloader\menu.o: ../FATFS/Target/sd_diskio.h
-stm32f407vgt6_bootloader\menu.o: ../Core/Inc/rtc.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/LittleFs/lfs_spi_flash_adapter.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/LittleFs/lfs.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/LittleFs/lfs_util.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-stm32f407vgt6_bootloader\menu.o: ../Middlewares/Third_Party/LittleFs/w25q128.h
-stm32f407vgt6_bootloader\menu.o: ../Core/Inc/spi.h
-stm32f407vgt6_bootloader\menu.o: ../Utils/aes_decrypt.h
-stm32f407vgt6_bootloader\menu.o: ..\IAP\hpatch_upgrade.h
-stm32f407vgt6_bootloader\menu.o: ../Utils/hpatch_lite.h
-stm32f407vgt6_bootloader\menu.o: ../Utils/hpatch_lite_types.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
-stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_dec.h
-stm32f407vgt6_bootloader\menu.o: ../Utils/tuz_types.h
-stm32f407vgt6_bootloader\menu.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
-stm32f407vgt6_bootloader\menu.o: ../Core/Inc/usart.h
-stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_driver.h
-stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_uart.h
-stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_ota_api.h
-stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/onenet_ota.h
-stm32f407vgt6_bootloader\menu.o: ../ESP8266_OTA/esp8266_ota_config.h
+stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+  ..\Core\Inc\stm32f4xx_hal_conf.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
+  ..\Drivers\CMSIS\Include\core_cm4.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_exti.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_cortex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_sd.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_sdmmc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_spi.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
+  ..\IAP\common.h ..\Bootloader_Core\bootloader_core.h ..\IAP\flash_if.h \
+  ..\IAP\menu.h ..\IAP\ymodem.h ..\FATFS\App\fatfs.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\FATFS\Target\bsp_driver_sd.h \
+  ..\FATFS\Target\fatfs_platform.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
+  ..\Middlewares\Third_Party\FatFs\src\diskio.h \
+  ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Middlewares\Third_Party\LittleFs\w25q128.h ..\Core\Inc\spi.h \
+  ..\Utils\aes_decrypt.h ..\IAP\hpatch_upgrade.h ..\Utils\hpatch_lite.h \
+  ..\Utils\hpatch_lite_types.h ..\Utils\tuz_dec.h ..\Utils\tuz_types.h \
+  ..\Core\Inc\usart.h ..\ESP8266_OTA\esp8266_driver.h \
+  ..\ESP8266_OTA\esp8266_uart.h ..\ESP8266_OTA\esp8266_ota_api.h \
+  ..\ESP8266_OTA\onenet_ota.h ..\ESP8266_OTA\esp8266_ota_config.h

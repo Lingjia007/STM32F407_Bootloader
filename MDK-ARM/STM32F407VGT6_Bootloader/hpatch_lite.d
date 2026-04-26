@@ -1,5 +1,4 @@
-stm32f407vgt6_bootloader\hpatch_lite.o: ..\Utils\hpatch_lite.c
-stm32f407vgt6_bootloader\hpatch_lite.o: ..\Utils\hpatch_lite.h
-stm32f407vgt6_bootloader\hpatch_lite.o: ..\Utils\hpatch_lite_types.h
-stm32f407vgt6_bootloader\hpatch_lite.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
-stm32f407vgt6_bootloader\hpatch_lite.o: ..\Utils\hpatch_lite_input_cache.h
+stm32f407vgt6_bootloader/hpatch_lite.o: ..\Utils\hpatch_lite.c \
+  ..\Utils\hpatch_lite.h ..\Utils\hpatch_lite_types.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  ..\Utils\hpatch_lite_input_cache.h

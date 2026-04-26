@@ -17,7 +17,11 @@ bootloader_ctx_t bootloader_ctx = {
     },
 };
 
+#if defined(__CC_ARM)
 uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+#else
+volatile uint32_t update_flag __attribute__((used, section("NoInit")));
+#endif
 
 void jump_to_app(uint32_t app_address)
 {

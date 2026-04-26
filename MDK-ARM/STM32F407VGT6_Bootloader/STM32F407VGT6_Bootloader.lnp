@@ -1,4 +1,4 @@
---cpu=Cortex-M4.fp.sp
+--cpu=Cortex-M4.fp.sp --lto
 "stm32f407vgt6_bootloader\startup_stm32f407xx.o"
 "stm32f407vgt6_bootloader\main.o"
 "stm32f407vgt6_bootloader\gpio.o"

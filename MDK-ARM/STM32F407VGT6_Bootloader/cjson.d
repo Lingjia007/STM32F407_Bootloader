@@ -1,10 +1,9 @@
-stm32f407vgt6_bootloader\cjson.o: ..\Utils\cJSON.c
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\math.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\limits.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\ctype.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\float.h
-stm32f407vgt6_bootloader\cjson.o: ..\Utils\cJSON.h
-stm32f407vgt6_bootloader\cjson.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
+stm32f407vgt6_bootloader/cjson.o: ..\Utils\cJSON.c \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\math.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\limits.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\ctype.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\float.h ..\Utils\cJSON.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h

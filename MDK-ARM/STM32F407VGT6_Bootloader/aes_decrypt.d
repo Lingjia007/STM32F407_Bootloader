@@ -1,57 +1,52 @@
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes_decrypt.c
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes_decrypt.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdint.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/FatFs/src/ff.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/FatFs/src/integer.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../FATFS/Target/ffconf.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Core/Inc/main.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Core/Inc/stm32f4xx_hal_conf.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f407xx.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Include/core_cm4.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Include/cmsis_version.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Include/cmsis_compiler.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Include/cmsis_armcc.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Include/mpu_armv7.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/CMSIS/Device/ST/STM32F4xx/Include/system_stm32f4xx.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stddef.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rcc_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_exti.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_rtc_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../FATFS/Target/bsp_driver_sd.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../FATFS/Target/fatfs_platform.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdlib.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/LittleFs/lfs.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../Middlewares/Third_Party/LittleFs/lfs_util.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdbool.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\string.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\inttypes.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\assert.h
-stm32f407vgt6_bootloader\aes_decrypt.o: C:\Keil_v5\ARM\ARM_Compiler_5.06u7\Bin\..\include\stdio.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ..\Utils\aes.h
-stm32f407vgt6_bootloader\aes_decrypt.o: ../IAP/flash_if.h
+stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
+  ..\Utils\aes_decrypt.h C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
+  ..\Core\Inc\stm32f4xx_hal_conf.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_def.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
+  ..\Drivers\CMSIS\Include\core_cm4.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_exti.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_dma_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_cortex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_sd.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_sdmmc.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_spi.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_tim_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
+  ..\FATFS\Target\bsp_driver_sd.h ..\FATFS\Target\fatfs_platform.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\Utils\aes.h \
+  ..\IAP\flash_if.h

@@ -9,7 +9,11 @@
 
 #define UPDATE_FLAG_MAGIC 0x5A5A5A5A
 
+#if defined(__CC_ARM)
 extern uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+#else
+extern volatile uint32_t update_flag;
+#endif
 
 typedef void (*pFunction)(void);
 
