@@ -32,6 +32,7 @@ typedef struct
 void ONENET_OTA_SetTaskId(const char *tid);
 void ONENET_OTA_ProcessUpgrade(void);
 void ONENET_OTA_SetTargetType(uint8_t target_type);
+int ONENET_SyncTime(void);
 
 int ota_http_request(const char *host, uint16_t port, const uint8_t *req, uint32_t req_len,
                      uint8_t *resp, uint32_t resp_cap, uint32_t timeout_ms);

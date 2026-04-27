@@ -1344,3 +1344,118 @@ void ONENET_OTA_SetTargetType(uint8_t target_type)
     }
     printf("OTA: target set to %s\r\n", name);
 }
+
+int ONENET_SyncTime(void)
+{
+    printf("Time sync: building auth header...\r\n");
+
+    if (!ota_build_auth_header(ONENET_AUTH_FUSE_VER, ONENET_AUTH_FUSE_RES_RAW, g_ota_auth, sizeof(g_ota_auth)))
+    {
+        printf("Time sync: auth build failed\r\n");
+        return 0;
+    }
+
+    snprintf(g_ota_body, sizeof(g_ota_body), "{\"s_version\":\"%s\",\"f_version\":\"%s\"}", ONENET_CURRENT_VERSION, ONENET_CURRENT_VERSION);
+
+    int req_len = snprintf(g_ota_req, sizeof(g_ota_req),
+                           "POST /fuse-ota/%s/%s/version HTTP/1.1\r\n"
+                           "Host: %s\r\n"
+                           "Authorization: %s\r\n"
+                           "Content-Type: application/json\r\n"
+                           "Connection: close\r\n"
+                           "Content-Length: %u\r\n\r\n"
+                           "%s",
+                           ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, ONENET_FUSE_HOST, g_ota_auth, (unsigned int)strlen(g_ota_body), g_ota_body);
+
+    if (req_len <= 0)
+    {
+        printf("Time sync: build request failed\r\n");
+        return 0;
+    }
+
+    printf("Time sync: sending HTTP request...\r\n");
+    int n = ota_http_request(ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 5000);
+
+    if (n <= 0)
+    {
+        printf("Time sync: HTTP request failed, n=%d\r\n", n);
+        return 0;
+    }
+
+    int status = ota_http_status_code(g_ota_resp, (uint32_t)n);
+    printf("Time sync: HTTP status=%d\r\n", status);
+
+    if (status < 200 || status >= 300)
+    {
+        printf("Time sync: HTTP error status=%d\r\n", status);
+        return 0;
+    }
+
+    if (ota_try_sync_unix_base_from_text((const char *)g_ota_resp))
+    {
+        printf("Time sync: success!\r\n");
+        return 1;
+    }
+
+    const uint8_t *res_body = NULL;
+    uint32_t body_len = 0;
+    if (ota_http_body(g_ota_resp, (uint32_t)n, &res_body, &body_len))
+    {
+        uint32_t copy_len = body_len;
+        if (copy_len >= sizeof(g_ota_json))
+            copy_len = sizeof(g_ota_json) - 1;
+        memcpy(g_ota_json, res_body, copy_len);
+        g_ota_json[copy_len] = '\0';
+
+        printf("Time sync: response body (%lu bytes): %s\r\n", (unsigned long)body_len, g_ota_json);
+
+        if (ota_try_sync_unix_base_from_text(g_ota_json))
+        {
+            printf("Time sync: success from body!\r\n");
+            return 1;
+        }
+
+        cJSON *root = cJSON_Parse(g_ota_json);
+        if (root != NULL)
+        {
+            cJSON *now_node = cJSON_GetObjectItemCaseSensitive(root, "now");
+            if (cJSON_IsNumber(now_node))
+            {
+                uint32_t now = (uint32_t)now_node->valueint;
+                uint32_t tick_s = HAL_GetTick() / 1000UL;
+                if (now > tick_s)
+                {
+                    g_ota_unix_now_base = now - tick_s;
+                    ota_rtc_set_unix_timestamp(now);
+                    printf("Time sync: success from JSON now=%lu\r\n", (unsigned long)now);
+                    cJSON_Delete(root);
+                    return 1;
+                }
+            }
+
+            cJSON *data = cJSON_GetObjectItemCaseSensitive(root, "data");
+            if (data != NULL)
+            {
+                cJSON *data_now = cJSON_GetObjectItemCaseSensitive(data, "now");
+                if (cJSON_IsNumber(data_now))
+                {
+                    uint32_t now = (uint32_t)data_now->valueint;
+                    uint32_t tick_s = HAL_GetTick() / 1000UL;
+                    if (now > tick_s)
+                    {
+                        g_ota_unix_now_base = now - tick_s;
+                        ota_rtc_set_unix_timestamp(now);
+                        printf("Time sync: success from JSON data.now=%lu\r\n", (unsigned long)now);
+                        cJSON_Delete(root);
+                        return 1;
+                    }
+                }
+            }
+
+            cJSON_Delete(root);
+        }
+    }
+
+    printf("Time sync: failed to extract time from response\r\n");
+    return 0;
+}

@@ -2052,6 +2052,8 @@ static void MQTT_TestMenu(void)
     Serial_PutString((uint8_t *)"  Publish Property  ---------------------------------- 5\r\n\n");
     Serial_PutString((uint8_t *)"  Listen & Auto Reply Property Set  ------------------ 6\r\n\n");
     Serial_PutString((uint8_t *)"  Disconnect MQTT  ----------------------------------- 7\r\n\n");
+    Serial_PutString((uint8_t *)"  Sync Time (SNTP)  ---------------------------------- 8\r\n\n");
+    Serial_PutString((uint8_t *)"  Publish RTC Time (1s interval)  -------------------- 9\r\n\n");
     Serial_PutString((uint8_t *)"  Return to ESP8266 Menu  ---------------------------- 0\r\n\n");
     Serial_PutString((uint8_t *)"==============================================\r\n\n");
 
@@ -2700,8 +2702,74 @@ static void MQTT_TestMenu(void)
       }
       break;
 
+    case '8':
+      Serial_PutString((uint8_t *)"\r\nSyncing time from server...\r\n");
+      if (ONENET_SyncTime())
+      {
+        Serial_PutString((uint8_t *)"Time sync success!\r\n");
+        Print_Current_Time();
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Time sync FAILED!\r\n");
+      }
+      break;
+
+    case '9':
+    {
+      Serial_PutString((uint8_t *)"\r\nPublishing RTC time every 1s...\r\n");
+      Serial_PutString((uint8_t *)"Press 'q' or 'Q' to exit\r\n");
+
+      uint32_t publish_count = 0;
+      char rtc_time_str[64];
+      uint8_t key = 0;
+
+      while (1)
+      {
+        if (HAL_UART_Receive(&UartHandle, &key, 1, 10) == HAL_OK)
+        {
+          if (key == 'q' || key == 'Q')
+          {
+            Serial_PutString((uint8_t *)"\r\nExiting RTC time publish mode...\r\n");
+            snprintf(msg, sizeof(msg), "Total published: %lu times\r\n", (unsigned long)publish_count);
+            Serial_PutString((uint8_t *)msg);
+            break;
+          }
+        }
+
+        RTC_TimeTypeDef sTime;
+        RTC_DateTypeDef sDate;
+
+        if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK)
+        {
+          HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
+
+          uint16_t year = sDate.Year + 2000;
+          snprintf(rtc_time_str, sizeof(rtc_time_str), "%04d-%02d-%02d %02d:%02d:%02d",
+                   year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+
+          mqtt_property_t prop;
+          memset(&prop, 0, sizeof(prop));
+          strncpy(prop.key, "RTC_TIME", sizeof(prop.key) - 1);
+          strncpy(prop.id, rtc_time_str, sizeof(prop.id) - 1);
+          prop.value_type = MQTT_VALUE_TYPE_STRING;
+
+          if (esp8266_mqtt_publish_property(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME,
+                                            &prop, 1, "007") == ESP8266_EOK)
+          {
+            publish_count++;
+            snprintf(msg, sizeof(msg), "Published %lu times: %s\r\n", (unsigned long)publish_count, rtc_time_str);
+            Serial_PutString((uint8_t *)msg);
+          }
+        }
+
+        HAL_Delay(1000);
+      }
+      break;
+    }
+
     default:
-      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-7\r");
+      Serial_PutString((uint8_t *)"Invalid Number! ==> The number should be 0-9\r");
       break;
     }
   }
