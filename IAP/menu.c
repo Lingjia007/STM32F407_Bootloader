@@ -2366,12 +2366,12 @@ static void MQTT_TestMenu(void)
       Serial_PutString((uint8_t *)"\r\nSubscribing to property topics...\r\n");
 
       char topic[128];
+
+      // 设备属性上报响应
       snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/post/reply",
                ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-
       snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
       Serial_PutString((uint8_t *)msg);
-
       if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
       {
         Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
@@ -2381,12 +2381,67 @@ static void MQTT_TestMenu(void)
         Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
       }
 
+      // 设备属性设置请求
       snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/set",
                ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-
       snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
       Serial_PutString((uint8_t *)msg);
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
 
+      // 设备获取属性期望值响应
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/get/reply",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
+
+      // 设备清除属性期望值响应
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/delete/reply",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
+
+      // 设备属性获取请求
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/get",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
+      if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
+      {
+        Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
+      }
+      else
+      {
+        Serial_PutString((uint8_t *)"Subscribe FAILED!\r\n");
+      }
+
+      // 系统OTA升级通知
+      snprintf(topic, sizeof(topic), "$sys/%s/%s/ota/inform",
+               ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+      snprintf(msg, sizeof(msg), "Subscribing: %s\r\n", topic);
+      Serial_PutString((uint8_t *)msg);
       if (esp8266_mqtt_subscribe(0, topic, 0) == ESP8266_EOK)
       {
         Serial_PutString((uint8_t *)"Subscribe OK!\r\n");
