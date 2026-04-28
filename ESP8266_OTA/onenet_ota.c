@@ -1109,8 +1109,9 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
                 return 0;
             }
             bootloader_ctx.config.storage.fatfs = &fatfs;
-            strncpy(bootloader_ctx.config.storage.fatfs_path, "0:ota_firmware.bin",
-                    sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
+            snprintf(bootloader_ctx.config.storage.fatfs_path,
+                     sizeof(bootloader_ctx.config.storage.fatfs_path),
+                     "0:ota_firmware_%s.bin", info->target);
             target_if = &fatfs_target_if;
             fs_initialized = 1;
         }
@@ -1132,8 +1133,9 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
                 return 0;
             }
             bootloader_ctx.config.storage.lfs = &lfs;
-            strncpy(bootloader_ctx.config.storage.lfs_path, "ota_firmware.bin",
-                    sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
+            snprintf(bootloader_ctx.config.storage.lfs_path,
+                     sizeof(bootloader_ctx.config.storage.lfs_path),
+                     "ota_firmware_%s.bin", info->target);
             target_if = &lfs_target_if;
             fs_initialized = 2;
         }
