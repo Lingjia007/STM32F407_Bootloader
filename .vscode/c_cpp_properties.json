@@ -32,7 +32,10 @@
                 "IAP",
                 "Middlewares/Third_Party/LittleFs",
                 "Utils",
-                "ESP8266_OTA"
+                "ESP8266_OTA",
+                "Platform/Inc",
+                "Impl/Inc",
+                "Service/Inc"
             ],
             "defines": [
                 "USE_HAL_DRIVER",

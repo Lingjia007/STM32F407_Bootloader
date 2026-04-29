@@ -48,7 +48,9 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\LED\led.h \
-  ..\Core\Inc\sdio.h ..\USB_DEVICE\App\usb_device.h \
+  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
+  ..\Platform\Inc\platform_led.h ..\Core\Inc\sdio.h \
+  ..\USB_DEVICE\App\usb_device.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_DEVICE\Target\usbd_conf.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h ..\IAP\menu.h \

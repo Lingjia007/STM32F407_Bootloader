@@ -1,5 +1,5 @@
-stm32f407vgt6_bootloader/led.o: ..\LED\led.c ..\LED\led.h \
-  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
+stm32f407vgt6_bootloader/service_notify.o: \
+  ..\Service\Src\service_notify.c ..\Service\Inc\service_notify.h \
   ..\Platform\Inc\platform_led.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
@@ -38,5 +38,4 @@ stm32f407vgt6_bootloader/led.o: ..\LED\led.c ..\LED\led.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
-  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\main.h ..\Service\Inc\service_notify.h
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h

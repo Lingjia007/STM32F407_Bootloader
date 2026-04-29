@@ -341,7 +341,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F407xx</Define>
               <Undefine></Undefine>
-              <IncludePath>../Core/Inc;../LED;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bootloader_Core;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../IAP;../Middlewares/Third_Party/LittleFs;../Utils;../ESP8266_OTA</IncludePath>
+              <IncludePath>../Core/Inc;../LED;../Drivers/STM32F4xx_HAL_Driver/Inc;../Drivers/STM32F4xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F4xx/Include;../Drivers/CMSIS/Include;../Bootloader_Core;../FATFS/Target;../FATFS/App;../Middlewares/Third_Party/FatFs/src;../USB_DEVICE/App;../USB_DEVICE/Target;../Middlewares/ST/STM32_USB_Device_Library/Core/Inc;../Middlewares/ST/STM32_USB_Device_Library/Class/MSC/Inc;../IAP;../Middlewares/Third_Party/LittleFs;../Utils;../ESP8266_OTA;../Platform/Inc;../Impl/Inc;../Service/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -749,6 +749,36 @@
               <FileName>led.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\LED\led.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Platform</GroupName>
+          <Files>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Impl</GroupName>
+          <Files>
+            <File>
+              <FileName>platform_gpio_led_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_gpio_led_stm32_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_pwm_led_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_pwm_led_stm32_impl.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Service</GroupName>
+          <Files>
+            <File>
+              <FileName>service_notify.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\service_notify.c</FilePath>
             </File>
           </Files>
         </Group>

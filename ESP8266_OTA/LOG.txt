@@ -1,109 +1,480 @@
-Start to Rebuild target STM32F407VGT6_Bootloader
-*** Using Compiler 'V6.21', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
-Rebuild target 'STM32F407VGT6_Bootloader'
-compiling rtc.c...
-assembling startup_stm32f407xx.s...
-compiling gpio.c...
-compiling flash_if.c...
-compiling sdio.c...
-compiling dma.c...
-compiling system_stm32f4xx.c...
-compiling usart.c...
+；；；架构分层（从上到下调用）
+1. App 层 — 应用逻辑
+职责：实现产品功能、场景切换、用户交互。比如手表的不同运动模式、表盘切换。
+对象模型：app_xxx_ctx（上下文）等应用级结构体。
+依赖规则：可调用 Service 和 Platform，但禁止直接穿透调用 Vendor。
+2. Service 层 — 业务策略
+职责：实现低功耗策略、传感器融合算法、显示策略等业务规则。
+对象模型：service_sensor_t（传感器服务）等。
+关键约束：必须通过 Platform 调用 Impl，不能跳过 Platform 直接碰 Vendor。
+本质：这一层仍是纯逻辑的，不应包含具体硬件操作。
+3. Platform 层 — 平台抽象接口
+职责：定义接口，不做实现。抽象出 IO、Timer、Power（电源管理）等通用硬件接口。
+对象模型：platform_gpio_t、platform_timer_t 等结构体，通常采用 ops + ctx（操作函数指针 + 上下文）的方式实现多态。
+关键：这是阻挡硬件变化蔓延到业务层的一道“闸门”。
+4. Impl 层 — 平台具体实现
+职责：调用 Vendor 层，实现 Platform 定义的接口。例如使用某个具体芯片的 Timer 外设来填满 platform_timer_t 的函数指针。
+对象模型：platform_stm32_impl.c 这类文件，是 Platform 接口的“实体”。
+5. Vendor 层 — 厂商适配
+职责：芯片原厂或官方提供的驱动，如 STM32 CubeMX 生成的 HAL 库。
+对象模型：HAL_I2C_HandleTypeDef、GPIO_TypeDef、TIM_HandleTypeDef 等来自 SDK 的类型。
+规则：被 Impl 调用，绝不反向向上调用。实现当前项目的框架升级；先对led进行好的，我们直接在 Platform 层通过 **C 结构体模拟继承**，来统一管理与扩展 LED 的行为。
 
-compiling main.c...
-compiling stm32f4xx_hal_msp.c...
-compiling tim.c...
-compiling common.c...
-compiling stm32f4xx_it.c...
-compiling hpatch_upgrade.c...
-compiling spi.c...
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(813) warning: format specifies type 'unsigned long' but the argument has type 'uint32_t' (aka 'unsigned int') [-Wformat]
-  813 |       snprintf(msg, sizeof(msg), "Progress: %lu / %lu bytes\r", total_written, flash_size);
-      |                                             ~~~                 ^~~~~~~~~~~~~
-      |                                             %u
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(813) warning: format specifies type 'unsigned long' but the argument has type 'uint32_t' (aka 'unsigned int') [-Wformat]
-  813 |       snprintf(msg, sizeof(msg), "Progress: %lu / %lu bytes\r", total_written, flash_size);
-      |                                                   ~~~                          ^~~~~~~~~~
-      |                                                   %u
-2 warnings generated.
-compiling menu.c...
-compiling led.c...
-compiling ymodem.c...
-compiling stm32f4xx_hal_pcd_ex.c...
-compiling stm32f4xx_hal_pcd.c...
-compiling stm32f4xx_hal_rcc.c...
-compiling stm32f4xx_hal_rcc_ex.c...
-compiling stm32f4xx_hal_gpio.c...
-compiling stm32f4xx_hal_flash.c...
-compiling stm32f4xx_hal_flash_ramfunc.c...
-compiling stm32f4xx_hal_flash_ex.c...
-compiling stm32f4xx_hal_pwr.c...
-compiling stm32f4xx_ll_usb.c...
-compiling stm32f4xx_hal_pwr_ex.c...
-compiling stm32f4xx_hal_dma_ex.c...
-compiling stm32f4xx_hal_dma.c...
-compiling stm32f4xx_hal_exti.c...
-compiling stm32f4xx_hal_cortex.c...
+---
 
-compiling stm32f4xx_hal.c...
-compiling stm32f4xx_hal_rtc.c...
-compiling stm32f4xx_hal_rtc_ex.c...
-compiling stm32f4xx_ll_sdmmc.c...
-compiling stm32f4xx_hal_mmc.c...
-compiling fatfs.c...
-compiling stm32f4xx_hal_sd.c...
-compiling diskio.c...
-compiling sd_diskio.c...
-compiling fatfs_platform.c...
-compiling bsp_driver_sd.c...
-compiling stm32f4xx_hal_spi.c...
-compiling bootloader_core.c...
-compiling ff_gen_drv.c...
-compiling stm32f4xx_hal_tim_ex.c...
-compiling syscall.c...
-compiling stm32f4xx_hal_uart.c...
+### 一、C 中如何模拟继承
 
-compiling stm32f4xx_hal_tim.c...
-compiling ccsbcs.c...
-compiling lfs_util.c...
-compiling usbd_storage_if.c...
-compiling lfs_spi_flash_adapter.c...
-compiling w25q128.c...
-compiling ff.c...
-compiling usb_device.c...
-compiling usbd_core.c...
-compiling usbd_desc.c...
-compiling usbd_ctlreq.c...
-compiling usbd_ioreq.c...
-compiling usbd_conf.c...
-compiling usbd_msc.c...
-compiling usbd_msc_bot.c...
-compiling usbd_msc_data.c...
-compiling lfs.c...
-compiling usbd_msc_scsi.c...
-compiling bspatch.c...
-compiling aes.c...
-compiling hpatch_lite.c...
-compiling hkdf.c...
-compiling md5.c...
-compiling bsdiff.c...
-compiling aes_decrypt.c...
-compiling tuz_dec.c...
-compiling esp8266_uart.c...
-compiling esp8266_ota_api.c...
-compiling esp8266_driver.c...
-compiling transport.c...
+核心技巧：
+1. **基类**结构体作为**派生**结构体的**第一个成员**。
+2. 这样派生结构体指针可以**安全地强制转换**为基类指针。
+3. 通过函数指针表（`ops`）实现**多态**。
 
-compiling cJSON.c...
-compiling onenet_http_source.c...
-compiling onenet_ota.c...
-linking...
+这样，`Service` 层只接触基类，`Impl` 层负责构造具体的派生对象。
 
-.\STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.sct(19): warning: L6314W: No section matches pattern *(NoInit).
-Program Size: Code=112790 RO-data=17286 RW-data=620 ZI-data=97380  
-Finished: 0 information, 1 warning and 0 error messages.
-FromELF: creating hex file...
-"STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.axf" - 0 Error(s), 3 Warning(s).
-Build Time Elapsed:  00:00:08
+---
 
-Build Finished!
+### 二、Platform 层：定义基类与派生接口
+
+```c
+// platform_led.h
+#ifndef PLATFORM_LED_H
+#define PLATFORM_LED_H
+
+#include <stdint.h>
+
+// ---------- LED 操作集（纯抽象） ----------
+typedef struct {
+    void (*on)(void* ctx);
+    void (*off)(void* ctx);
+    void (*toggle)(void* ctx);
+    int  (*set_brightness)(void* ctx, uint8_t percent); // 可选实现
+    int  (*set_rgb)(void* ctx, uint8_t r, uint8_t g, uint8_t b);
+} platform_led_ops_t;
+
+// ---------- LED 基类 ----------
+typedef struct {
+    const platform_led_ops_t* ops; // 多态的关键
+} platform_led_base_t;
+
+// 便捷宏，让调用更自然
+#define LED_ON(led)         ((led)->ops->on((led)))
+#define LED_OFF(led)        ((led)->ops->off((led)))
+#define LED_TOGGLE(led)     ((led)->ops->toggle((led)))
+#define LED_SET_BRIGHTNESS(led, p) ((led)->ops->set_brightness((led), (p)))
+#define LED_SET_RGB(led,r,g,b)     ((led)->ops->set_rgb((led), (r), (g), (b)))
+
+// ---------- 派生类声明（对外只暴露类型，不暴露实现细节）----------
+
+// GPIO 型 LED
+typedef struct {
+    platform_led_base_t base;  // 继承
+    // 派生特有成员由 Impl 定义，这里不暴露
+} platform_gpio_led_t;
+
+// PWM 调光 LED
+typedef struct {
+    platform_led_base_t base;
+} platform_pwm_led_t;
+
+// RGB LED
+typedef struct {
+    platform_led_base_t base;
+} platform_rgb_led_t;
+
+#endif
+```
+
+> **关键**：`platform_led_base_t` 里只有 `ops`，而 `ctx` 被移到了派生结构体的实现部分，让继承更纯粹，类型也更安全。
+
+---
+
+### 三、Impl 层：实现各个派生类
+
+#### 3.1 GPIO LED（只需 on/off/toggle）
+
+```c
+// platform_gpio_led_stm32_impl.c
+#include "platform_led.h"
+#include "vendor_stm32_hal.h"
+
+typedef struct {
+    platform_gpio_led_t  led;      // 继承
+    GPIO_TypeDef*        port;
+    uint16_t             pin;
+} gpio_led_stm32_t;
+
+static void gpio_led_on(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_WritePin(self->port, self->pin, GPIO_PIN_SET);
+}
+
+static void gpio_led_off(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_WritePin(self->port, self->pin, GPIO_PIN_RESET);
+}
+
+static void gpio_led_toggle(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_TogglePin(self->port, self->pin);
+}
+
+static const platform_led_ops_t gpio_led_ops = {
+    .on = gpio_led_on,
+    .off = gpio_led_off,
+    .toggle = gpio_led_toggle,
+    .set_brightness = NULL,    // 不支持
+    .set_rgb = NULL,
+};
+
+// 构造一个 GPIO LED 实例
+gpio_led_stm32_t g_status_led = {
+    .led.base.ops = &gpio_led_ops,
+    .port = GPIOA,
+    .pin = GPIO_PIN_5,
+};
+```
+
+#### 3.2 PWM 调光 LED
+
+```c
+// platform_pwm_led_stm32_impl.c
+#include "platform_led.h"
+#include "vendor_stm32_hal.h"
+
+typedef struct {
+    platform_pwm_led_t  led;   // 继承
+    TIM_HandleTypeDef*  htim;
+    uint32_t            channel;
+} pwm_led_stm32_t;
+
+static void pwm_led_on(void* ctx) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, self->htim->Init.Period);
+}
+
+static void pwm_led_off(void* ctx) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, 0);
+}
+
+static int pwm_led_set_brightness(void* ctx, uint8_t percent) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    if (percent > 100) return -1;
+    uint32_t pulse = (self->htim->Init.Period * percent) / 100;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, pulse);
+    return 0;
+}
+
+static const platform_led_ops_t pwm_led_ops = {
+    .on = pwm_led_on,
+    .off = pwm_led_off,
+    .toggle = NULL,
+    .set_brightness = pwm_led_set_brightness,
+    .set_rgb = NULL,
+};
+
+// 构造实例
+pwm_led_stm32_t g_backlight = {
+    .led.base.ops = &pwm_led_ops,
+    .htim = &htim3,
+    .channel = TIM_CHANNEL_1,
+};
+```
+
+---
+
+### 四、Service 层：面对基类编程
+
+```c
+// service_notify.c
+#include "service_notify.h"
+#include "platform_led.h"
+
+void service_battery_alert(platform_led_base_t* led, uint8_t battery) {
+    if (battery < 10) {
+        // 快闪
+        for (int i = 0; i < 10; i++) {
+            LED_ON(led);
+            delay_ms(100);
+            LED_OFF(led);
+            delay_ms(100);
+        }
+    } else if (battery < 40) {
+        // 慢闪 + 若有调光则设为低亮度
+        if (led->ops->set_brightness) {
+            led->ops->set_brightness(led, 30);
+        }
+        LED_ON(led);
+    } else {
+        LED_ON(led);
+    }
+}
+```
+
+调用时只需将派生对象的**地址**向上转型为基类指针：
+
+```c
+// App 层
+extern gpio_led_stm32_t g_status_led;
+extern pwm_led_stm32_t g_backlight;
+
+void app_alert(void) {
+    service_battery_alert((platform_led_base_t*)&g_status_led,  15);
+    service_battery_alert((platform_led_base_t*)&g_backlight,   5);
+}
+```
+
+---
+
+### 五、继承链与分层依赖
+
+```
+Platform (抽象基类)
+ ├─ platform_led_base_t
+ ├─ platform_gpio_led_t
+ ├─ platform_pwm_led_t
+ └─ platform_rgb_led_t
+
+Impl (具体派生实现)
+ ├─ gpio_led_stm32_t : platform_gpio_led_t
+ ├─ pwm_led_stm32_t  : platform_pwm_led_t
+ └─ rgb_led_stm32_t  : platform_rgb_led_t
+
+Service 只知道 platform_led_base_t*
+```
+
+- **Platform 层**依然纯净：无任何 Vendor 依赖，只定义类型和方法签名。
+- **Impl 层**负责“组装”基类的 `ops` 并扩展具体硬件上下文。
+- **Service 层**通过 `ops` 指针调用，实现完全多态，不关心具体 LED 是 GPIO 还是 PWM。
+
+这样，我们的“LED 基类继承”就在严格的五层架构下实现了：扩展性强，换了芯片只需新增 Impl 派生类，上层业务零改动。
+好的，我们直接在 Platform 层通过 **C 结构体模拟继承**，来统一管理与扩展 LED 的行为。
+
+---
+
+### 一、C 中如何模拟继承
+
+核心技巧：
+1. **基类**结构体作为**派生**结构体的**第一个成员**。
+2. 这样派生结构体指针可以**安全地强制转换**为基类指针。
+3. 通过函数指针表（`ops`）实现**多态**。
+
+这样，`Service` 层只接触基类，`Impl` 层负责构造具体的派生对象。
+
+---
+
+### 二、Platform 层：定义基类与派生接口
+
+```c
+// platform_led.h
+#ifndef PLATFORM_LED_H
+#define PLATFORM_LED_H
+
+#include <stdint.h>
+
+// ---------- LED 操作集（纯抽象） ----------
+typedef struct {
+    void (*on)(void* ctx);
+    void (*off)(void* ctx);
+    void (*toggle)(void* ctx);
+    int  (*set_brightness)(void* ctx, uint8_t percent); // 可选实现
+    int  (*set_rgb)(void* ctx, uint8_t r, uint8_t g, uint8_t b);
+} platform_led_ops_t;
+
+// ---------- LED 基类 ----------
+typedef struct {
+    const platform_led_ops_t* ops; // 多态的关键
+} platform_led_base_t;
+
+// 便捷宏，让调用更自然
+#define LED_ON(led)         ((led)->ops->on((led)))
+#define LED_OFF(led)        ((led)->ops->off((led)))
+#define LED_TOGGLE(led)     ((led)->ops->toggle((led)))
+#define LED_SET_BRIGHTNESS(led, p) ((led)->ops->set_brightness((led), (p)))
+#define LED_SET_RGB(led,r,g,b)     ((led)->ops->set_rgb((led), (r), (g), (b)))
+
+// ---------- 派生类声明（对外只暴露类型，不暴露实现细节）----------
+
+// GPIO 型 LED
+typedef struct {
+    platform_led_base_t base;  // 继承
+    // 派生特有成员由 Impl 定义，这里不暴露
+} platform_gpio_led_t;
+
+// PWM 调光 LED
+typedef struct {
+    platform_led_base_t base;
+} platform_pwm_led_t;
+
+// RGB LED
+typedef struct {
+    platform_led_base_t base;
+} platform_rgb_led_t;
+
+#endif
+```
+
+> **关键**：`platform_led_base_t` 里只有 `ops`，而 `ctx` 被移到了派生结构体的实现部分，让继承更纯粹，类型也更安全。
+
+---
+
+### 三、Impl 层：实现各个派生类
+
+#### 3.1 GPIO LED（只需 on/off/toggle）
+
+```c
+// platform_gpio_led_stm32_impl.c
+#include "platform_led.h"
+#include "vendor_stm32_hal.h"
+
+typedef struct {
+    platform_gpio_led_t  led;      // 继承
+    GPIO_TypeDef*        port;
+    uint16_t             pin;
+} gpio_led_stm32_t;
+
+static void gpio_led_on(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_WritePin(self->port, self->pin, GPIO_PIN_SET);
+}
+
+static void gpio_led_off(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_WritePin(self->port, self->pin, GPIO_PIN_RESET);
+}
+
+static void gpio_led_toggle(void* ctx) {
+    gpio_led_stm32_t* self = (gpio_led_stm32_t*)ctx;
+    HAL_GPIO_TogglePin(self->port, self->pin);
+}
+
+static const platform_led_ops_t gpio_led_ops = {
+    .on = gpio_led_on,
+    .off = gpio_led_off,
+    .toggle = gpio_led_toggle,
+    .set_brightness = NULL,    // 不支持
+    .set_rgb = NULL,
+};
+
+// 构造一个 GPIO LED 实例
+gpio_led_stm32_t g_status_led = {
+    .led.base.ops = &gpio_led_ops,
+    .port = GPIOA,
+    .pin = GPIO_PIN_5,
+};
+```
+
+#### 3.2 PWM 调光 LED
+
+```c
+// platform_pwm_led_stm32_impl.c
+#include "platform_led.h"
+#include "vendor_stm32_hal.h"
+
+typedef struct {
+    platform_pwm_led_t  led;   // 继承
+    TIM_HandleTypeDef*  htim;
+    uint32_t            channel;
+} pwm_led_stm32_t;
+
+static void pwm_led_on(void* ctx) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, self->htim->Init.Period);
+}
+
+static void pwm_led_off(void* ctx) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, 0);
+}
+
+static int pwm_led_set_brightness(void* ctx, uint8_t percent) {
+    pwm_led_stm32_t* self = (pwm_led_stm32_t*)ctx;
+    if (percent > 100) return -1;
+    uint32_t pulse = (self->htim->Init.Period * percent) / 100;
+    __HAL_TIM_SET_COMPARE(self->htim, self->channel, pulse);
+    return 0;
+}
+
+static const platform_led_ops_t pwm_led_ops = {
+    .on = pwm_led_on,
+    .off = pwm_led_off,
+    .toggle = NULL,
+    .set_brightness = pwm_led_set_brightness,
+    .set_rgb = NULL,
+};
+
+// 构造实例
+pwm_led_stm32_t g_backlight = {
+    .led.base.ops = &pwm_led_ops,
+    .htim = &htim3,
+    .channel = TIM_CHANNEL_1,
+};
+```
+
+---
+
+### 四、Service 层：面对基类编程
+
+```c
+// service_notify.c
+#include "service_notify.h"
+#include "platform_led.h"
+
+void service_battery_alert(platform_led_base_t* led, uint8_t battery) {
+    if (battery < 10) {
+        // 快闪
+        for (int i = 0; i < 10; i++) {
+            LED_ON(led);
+            delay_ms(100);
+            LED_OFF(led);
+            delay_ms(100);
+        }
+    } else if (battery < 40) {
+        // 慢闪 + 若有调光则设为低亮度
+        if (led->ops->set_brightness) {
+            led->ops->set_brightness(led, 30);
+        }
+        LED_ON(led);
+    } else {
+        LED_ON(led);
+    }
+}
+```
+
+调用时只需将派生对象的**地址**向上转型为基类指针：
+
+```c
+// App 层
+extern gpio_led_stm32_t g_status_led;
+extern pwm_led_stm32_t g_backlight;
+
+void app_alert(void) {
+    service_battery_alert((platform_led_base_t*)&g_status_led,  15);
+    service_battery_alert((platform_led_base_t*)&g_backlight,   5);
+}
+```
+
+---
+
+### 五、继承链与分层依赖
+
+```
+Platform (抽象基类)
+ ├─ platform_led_base_t
+ ├─ platform_gpio_led_t
+ ├─ platform_pwm_led_t
+ └─ platform_rgb_led_t
+
+Impl (具体派生实现)
+ ├─ gpio_led_stm32_t : platform_gpio_led_t
+ ├─ pwm_led_stm32_t  : platform_pwm_led_t
+ └─ rgb_led_stm32_t  : platform_rgb_led_t
+
+Service 只知道 platform_led_base_t*
+```
+
+- **Platform 层**依然纯净：无任何 Vendor 依赖，只定义类型和方法签名。
+- **Impl 层**负责“组装”基类的 `ops` 并扩展具体硬件上下文。
+- **Service 层**通过 `ops` 指针调用，实现完全多态，不关心具体 LED 是 GPIO 还是 PWM。
+
+这样，我们的“LED 基类继承”就在严格的五层架构下实现了：扩展性强，换了芯片只需新增 Impl 派生类，上层业务零改动。
