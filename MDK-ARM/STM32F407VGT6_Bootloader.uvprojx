@@ -770,6 +770,11 @@
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_pwm_led_stm32_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_w25q128_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_w25q128_stm32_impl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -779,6 +784,11 @@
               <FileName>service_notify.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Service\Src\service_notify.c</FilePath>
+            </File>
+            <File>
+              <FileName>lfs_spi_flash_adapter.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\lfs_spi_flash_adapter.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3001,19 +3011,9 @@
               <FilePath>..\Middlewares\Third_Party\LittleFs\lfs.c</FilePath>
             </File>
             <File>
-              <FileName>lfs_spi_flash_adapter.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.c</FilePath>
-            </File>
-            <File>
               <FileName>lfs_util.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Middlewares\Third_Party\LittleFs\lfs_util.c</FilePath>
-            </File>
-            <File>
-              <FileName>w25q128.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Middlewares\Third_Party\LittleFs\w25q128.c</FilePath>
             </File>
           </Files>
         </Group>

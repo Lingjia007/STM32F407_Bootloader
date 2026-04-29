@@ -55,5 +55,6 @@ stm32f407vgt6_bootloader/onenet_ota.o: ..\ESP8266_OTA\onenet_ota.c \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h \
-  ..\Middlewares\Third_Party\LittleFs\w25q128.h ..\Core\Inc\spi.h
+  ..\Service\Inc\lfs_spi_flash_adapter.h \
+  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h

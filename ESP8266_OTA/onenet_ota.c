@@ -1187,7 +1187,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     {
         FIL fp;
         UINT bytes_read;
-        FRESULT res = f_open(&fp, "0:ota_firmware.bin", FA_READ);
+        FRESULT res = f_open(&fp, bootloader_ctx.config.storage.fatfs_path, FA_READ);
         if (res != FR_OK)
         {
             printf("OTA download: verify open failed, res=%d\r\n", res);
@@ -1221,7 +1221,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
         lfs_file_t file;
         lfs_ssize_t bytes_read;
 
-        int res = lfs_file_open(&lfs, &file, "ota_firmware.bin", LFS_O_RDONLY);
+        int res = lfs_file_open(&lfs, &file, bootloader_ctx.config.storage.lfs_path, LFS_O_RDONLY);
         if (res != LFS_ERR_OK)
         {
             printf("OTA download: verify open failed, res=%d\r\n", res);

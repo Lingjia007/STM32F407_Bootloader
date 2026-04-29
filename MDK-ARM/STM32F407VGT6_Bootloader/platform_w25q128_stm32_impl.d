@@ -1,17 +1,8 @@
-stm32f407vgt6_bootloader/lfs_spi_flash_adapter.o: \
-  ..\Service\Src\lfs_spi_flash_adapter.c \
-  ..\Service\Inc\lfs_spi_flash_adapter.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+stm32f407vgt6_bootloader/platform_w25q128_stm32_impl.o: \
+  ..\Impl\Src\platform_w25q128_stm32_impl.c \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
   ..\Platform\Inc\platform_spi_flash.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \

@@ -47,7 +47,7 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
   ..\Middlewares\Third_Party\FatFs\src\diskio.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_spi_flash_adapter.h \
+  ..\Service\Inc\lfs_spi_flash_adapter.h \
   ..\Middlewares\Third_Party\LittleFs\lfs.h \
   ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
@@ -55,7 +55,8 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
-  ..\Middlewares\Third_Party\LittleFs\w25q128.h ..\Core\Inc\spi.h \
+  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h \
   C:\Keil_v5\ARM\ARMCLANG\include\ctype.h ..\Utils\aes_decrypt.h \
   ..\IAP\hpatch_upgrade.h ..\Utils\hpatch_lite.h \
   ..\Utils\hpatch_lite_types.h ..\Utils\tuz_dec.h ..\Utils\tuz_types.h \
