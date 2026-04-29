@@ -599,14 +599,14 @@ static void StoreFromTFCard(void)
 
   Serial_PutString((uint8_t *)"\r\nStoring image to SPI Flash...\r\n");
 
-  bootloader_ctx.config.storage.fatfs = &SDFatFS;
-  bootloader_ctx.config.storage.lfs = &lfs;
+  g_fatfs_storage.fs = &SDFatFS;
+  g_lfs_storage.lfs = &lfs;
   strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
 
-  err = bootloader_download(&fatfs_source_if, &lfs_target_if, NULL);
+  err = bootloader_download(&g_fatfs_storage.base, &g_lfs_storage.base, bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -1006,14 +1006,14 @@ void SDCardDownload(void)
 
   Serial_PutString((uint8_t *)"\r\nStarting firmware update...\r\n");
 
-  bootloader_ctx.config.storage.fatfs = &SDFatFS;
+  g_fatfs_storage.fs = &SDFatFS;
   strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&fatfs_source_if,
-                            &internal_flash_target_if,
-                            NULL);
+  err = bootloader_download(&g_fatfs_storage.base,
+                            &g_internal_flash.base,
+                            bootloader_ctx.config.storage.fatfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -1124,14 +1124,14 @@ void SPIFlashDownload(void)
 
   Serial_PutString((uint8_t *)"\r\nStarting firmware update...\r\n");
 
-  bootloader_ctx.config.storage.lfs = &lfs;
+  g_lfs_storage.lfs = &lfs;
   strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&lfs_source_if,
-                            &internal_flash_target_if,
-                            NULL);
+  err = bootloader_download(&g_lfs_storage.base,
+                            &g_internal_flash.base,
+                            bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
   {

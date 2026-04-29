@@ -39,15 +39,15 @@ stm32f407vgt6_bootloader/onenet_ota.o: ..\ESP8266_OTA\onenet_ota.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\ESP8266_OTA\onenet_http_source.h ..\FATFS\App\fatfs.h \
+  ..\Platform\Inc\platform_storage.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \
   ..\Middlewares\Third_Party\FatFs\src\integer.h \
   ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
   ..\FATFS\Target\bsp_driver_sd.h ..\FATFS\Target\fatfs_platform.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
-  ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
-  ..\Middlewares\Third_Party\FatFs\src\diskio.h \
-  ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
   ..\Middlewares\Third_Party\LittleFs\lfs.h \
   ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
@@ -55,6 +55,10 @@ stm32f407vgt6_bootloader/onenet_ota.o: ..\ESP8266_OTA\onenet_ota.c \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\ESP8266_OTA\onenet_http_source.h ..\FATFS\App\fatfs.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
+  ..\Middlewares\Third_Party\FatFs\src\diskio.h \
+  ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
   ..\Service\Inc\lfs_spi_flash_adapter.h \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
   ..\Platform\Inc\platform_spi_flash.h

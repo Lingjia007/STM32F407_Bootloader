@@ -2,6 +2,10 @@
 #define BOOTLOADER_CORE_H
 
 #include "stm32f4xx_hal.h"
+#include "platform_storage.h"
+#include "platform_internal_flash_stm32_impl.h"
+#include "platform_fatfs_stm32_impl.h"
+#include "platform_lfs_stm32_impl.h"
 #include <stdint.h>
 
 #define APPLICATION_ADDRESS (uint32_t)0x08020000
@@ -48,20 +52,6 @@ typedef enum
 
 typedef struct
 {
-    bootloader_err_t (*open)(const char *path, uint32_t *total_size);
-    bootloader_err_t (*read)(uint8_t *buf, uint32_t size, uint32_t *bytes_read);
-    bootloader_err_t (*close)(void);
-} source_if_t;
-
-typedef struct
-{
-    bootloader_err_t (*open)(const char *path, uint32_t total_size);
-    bootloader_err_t (*write)(uint32_t offset, const uint8_t *data, uint32_t len);
-    bootloader_err_t (*close)(void);
-} target_if_t;
-
-typedef struct
-{
     void *lfs;
     void *fatfs;
     char lfs_path[BOOTLOADER_PATH_MAX];
@@ -96,19 +86,12 @@ typedef struct
     bootloader_err_t last_error;
 } bootloader_ctx_t;
 
-bootloader_err_t bootloader_download(const source_if_t *src_if,
-                                     const target_if_t *tgt_if,
+bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
+                                     const platform_storage_base_t *tgt_storage,
                                      const char *path);
 
 extern bootloader_ctx_t bootloader_ctx;
 
 void jump_to_app(uint32_t app_address);
-
-extern const source_if_t fatfs_source_if;
-extern const source_if_t lfs_source_if;
-
-extern const target_if_t fatfs_target_if;
-extern const target_if_t internal_flash_target_if;
-extern const target_if_t lfs_target_if;
 
 #endif

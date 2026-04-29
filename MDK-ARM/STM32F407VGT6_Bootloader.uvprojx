@@ -775,6 +775,21 @@
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_w25q128_stm32_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_internal_flash_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_internal_flash_stm32_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_fatfs_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_fatfs_stm32_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_lfs_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_lfs_stm32_impl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

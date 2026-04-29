@@ -55,11 +55,15 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\USB_DEVICE\Target\usbd_conf.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h ..\IAP\menu.h \
   ..\IAP\flash_if.h ..\IAP\ymodem.h ..\Bootloader_Core\Bootloader_core.h \
-  ..\IAP\common.h ..\Service\Inc\lfs_spi_flash_adapter.h \
+  ..\Platform\Inc\platform_storage.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
   ..\Middlewares\Third_Party\LittleFs\lfs.h \
   ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h ..\IAP\common.h \
+  ..\Service\Inc\lfs_spi_flash_adapter.h \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
   ..\Platform\Inc\platform_spi_flash.h

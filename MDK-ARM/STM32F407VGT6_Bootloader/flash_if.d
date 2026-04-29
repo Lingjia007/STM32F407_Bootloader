@@ -37,4 +37,20 @@ stm32f407vgt6_bootloader/flash_if.o: ..\IAP\flash_if.c ..\IAP\flash_if.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Bootloader_Core\bootloader_core.h
+  ..\Bootloader_Core\bootloader_core.h \
+  ..\Platform\Inc\platform_storage.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
+  ..\FATFS\Target\bsp_driver_sd.h ..\FATFS\Target\fatfs_platform.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h

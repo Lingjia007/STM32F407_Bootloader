@@ -1082,7 +1082,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     if (info == NULL)
         return 0;
 
-    const target_if_t *target_if = NULL;
+    platform_storage_base_t *target_storage = NULL;
     bootloader_err_t err = BOOTLOADER_OK;
     FATFS fatfs;
     lfs_t lfs;
@@ -1096,7 +1096,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     case OTA_TARGET_INTERNAL_FLASH:
         printf("OTA download: target = Internal Flash\r\n");
         bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
-        target_if = &internal_flash_target_if;
+        target_storage = &g_internal_flash.base;
         break;
 
     case OTA_TARGET_SD_CARD_FATFS:
@@ -1108,11 +1108,11 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
                 printf("OTA download: SD card mount failed, res=%d\r\n", res);
                 return 0;
             }
-            bootloader_ctx.config.storage.fatfs = &fatfs;
+            g_fatfs_storage.fs = &fatfs;
             snprintf(bootloader_ctx.config.storage.fatfs_path,
                      sizeof(bootloader_ctx.config.storage.fatfs_path),
                      "0:ota_firmware_%s.bin", info->target);
-            target_if = &fatfs_target_if;
+            target_storage = &g_fatfs_storage.base;
             fs_initialized = 1;
         }
         break;
@@ -1132,11 +1132,11 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
                 printf("OTA download: LittleFS mount failed, res=%d\r\n", res);
                 return 0;
             }
-            bootloader_ctx.config.storage.lfs = &lfs;
+            g_lfs_storage.lfs = &lfs;
             snprintf(bootloader_ctx.config.storage.lfs_path,
                      sizeof(bootloader_ctx.config.storage.lfs_path),
                      "ota_firmware_%s.bin", info->target);
-            target_if = &lfs_target_if;
+            target_storage = &g_lfs_storage.base;
             fs_initialized = 2;
         }
         break;
@@ -1149,7 +1149,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     onenet_http_source_init(info);
     onenet_http_source_set_progress_callback(ota_progress_callback_wrapper);
 
-    err = bootloader_download(&onenet_http_source_if, target_if, NULL);
+    err = bootloader_download(&g_onenet_http_source, target_storage, bootloader_ctx.config.storage.lfs_path);
 
     onenet_http_source_deinit();
 

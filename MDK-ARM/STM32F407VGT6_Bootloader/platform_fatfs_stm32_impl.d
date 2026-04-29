@@ -1,6 +1,12 @@
-stm32f407vgt6_bootloader/bootloader_core.o: \
-  ..\Bootloader_Core\bootloader_core.c \
-  ..\Bootloader_Core\bootloader_core.h \
+stm32f407vgt6_bootloader/platform_fatfs_stm32_impl.o: \
+  ..\Impl\Src\platform_fatfs_stm32_impl.c \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Platform\Inc\platform_storage.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -8,14 +14,12 @@ stm32f407vgt6_bootloader/bootloader_core.o: \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
   d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
   d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
   d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h \
@@ -39,19 +43,7 @@ stm32f407vgt6_bootloader/bootloader_core.o: \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Platform\Inc\platform_storage.h \
-  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
-  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
-  ..\Middlewares\Third_Party\FatFs\src\ff.h \
-  ..\Middlewares\Third_Party\FatFs\src\integer.h \
-  ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
   ..\FATFS\Target\bsp_driver_sd.h ..\FATFS\Target\fatfs_platform.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
-  ..\Impl\Inc\platform_lfs_stm32_impl.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs.h \
-  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h

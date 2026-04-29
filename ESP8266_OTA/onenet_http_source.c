@@ -1,6 +1,7 @@
 #include "onenet_http_source.h"
 #include "onenet_ota.h"
 #include "transport.h"
+#include "stm32f4xx_hal.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -89,40 +90,43 @@ static int http_source_download_chunk(uint32_t offset, uint32_t size, uint8_t *b
     return 1;
 }
 
-bootloader_err_t onenet_http_src_open(const char *path, uint32_t *total_size)
+static int16_t onenet_http_src_open(const void *ctx, const char *path, uint32_t *total_size)
 {
+    (void)ctx;
     (void)path;
 
     if (g_ota_info == NULL || total_size == NULL)
-        return BOOTLOADER_ERR_PARAM;
+        return STORAGE_STATUS_PARAM;
 
     if (!http_source_build_auth())
-        return BOOTLOADER_ERR_OPEN_SRC;
+        return STORAGE_STATUS_OPEN_SRC;
 
     g_http_offset = 0;
     g_http_is_open = 1;
     *total_size = g_ota_info->size;
 
     printf("HTTP Source: open success, total_size=%lu\r\n", (unsigned long)g_ota_info->size);
-    return BOOTLOADER_OK;
+    return STORAGE_STATUS_OK;
 }
 
-bootloader_err_t onenet_http_src_read(uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+static int16_t onenet_http_src_read(const void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
 {
+    (void)ctx;
+
     if (buf == NULL || bytes_read == NULL)
-        return BOOTLOADER_ERR_PARAM;
+        return STORAGE_STATUS_PARAM;
 
     if (!g_http_is_open)
     {
         printf("HTTP Source: read failed - not open\r\n");
-        return BOOTLOADER_ERR_READ;
+        return STORAGE_STATUS_READ;
     }
 
     if (g_http_offset >= g_ota_info->size)
     {
         *bytes_read = 0;
         printf("HTTP Source: read complete, offset=%lu\r\n", (unsigned long)g_http_offset);
-        return BOOTLOADER_OK;
+        return STORAGE_STATUS_OK;
     }
 
     uint32_t chunk_size = ONENET_DOWNLOAD_CHUNK_SIZE;
@@ -157,7 +161,7 @@ bootloader_err_t onenet_http_src_read(uint8_t *buf, uint32_t size, uint32_t *byt
     if (actual_read == 0)
     {
         printf("HTTP Source: read failed after retries\r\n");
-        return BOOTLOADER_ERR_READ;
+        return STORAGE_STATUS_READ;
     }
 
     if (actual_read > 4 && (g_http_offset + actual_read) < g_ota_info->size)
@@ -183,21 +187,30 @@ bootloader_err_t onenet_http_src_read(uint8_t *buf, uint32_t size, uint32_t *byt
         }
     }
 
-    return BOOTLOADER_OK;
+    return STORAGE_STATUS_OK;
 }
 
-bootloader_err_t onenet_http_src_close(void)
+static int16_t onenet_http_src_close(const void *ctx)
 {
+    (void)ctx;
     g_http_is_open = 0;
     g_http_offset = 0;
     printf("HTTP Source: closed\r\n");
-    return BOOTLOADER_OK;
+    return STORAGE_STATUS_OK;
 }
 
-const source_if_t onenet_http_source_if = {
+static const platform_storage_source_ops_t onenet_http_source_ops = {
     .open = onenet_http_src_open,
     .read = onenet_http_src_read,
     .close = onenet_http_src_close,
+};
+
+platform_storage_base_t g_onenet_http_source = {
+    .source_ops = &onenet_http_source_ops,
+    .target_ops = NULL,
+    .name = "onenet_http",
+    .type = STORAGE_TYPE_UNKNOWN,
+    .user_data = NULL,
 };
 
 void onenet_http_source_init(const OtaPackageInfo *info)

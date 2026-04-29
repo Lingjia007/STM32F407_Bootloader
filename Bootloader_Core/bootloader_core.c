@@ -1,12 +1,7 @@
 #include "bootloader_core.h"
 #include "main.h"
-#include "ff.h"
-#include "lfs.h"
 #include <string.h>
 #include <stdio.h>
-#include "flash_if.h"
-
-#define USER_FLASH_END_ADDRESS 0x080FFFFF
 
 bootloader_ctx_t bootloader_ctx = {
     .config = {
@@ -64,730 +59,77 @@ void jump_to_app(uint32_t app_address)
         ;
 }
 
-typedef struct
-{
-    uint32_t start_addr;
-    uint32_t total_size;
-    uint32_t written_size;
-    uint8_t pending_buf[4];
-    uint8_t pending_len;
-    uint8_t is_open;
-    uint8_t is_erased;
-} internal_flash_tgt_ctx_t;
-
-static internal_flash_tgt_ctx_t internal_flash_ctx;
-
-bootloader_err_t internal_flash_tgt_open(const char *path, uint32_t total_size)
-{
-    (void)path;
-
-    uint32_t StartSector, EndSector;
-    FLASH_EraseInitTypeDef pEraseInit;
-    uint32_t SectorError;
-
-    memset(&internal_flash_ctx, 0, sizeof(internal_flash_ctx));
-    internal_flash_ctx.start_addr = bootloader_ctx.config.storage.internal_flash_addr;
-    internal_flash_ctx.total_size = total_size;
-
-    HAL_FLASH_Unlock();
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
-                           FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-
-    if (total_size > 0)
-    {
-        StartSector = GetSector(internal_flash_ctx.start_addr);
-        EndSector = GetSector(internal_flash_ctx.start_addr + total_size - 1);
-
-        pEraseInit.TypeErase = TYPEERASE_SECTORS;
-        pEraseInit.Sector = StartSector;
-        pEraseInit.NbSectors = EndSector - StartSector + 1;
-        pEraseInit.VoltageRange = VOLTAGE_RANGE_3;
-
-        if (HAL_FLASHEx_Erase(&pEraseInit, &SectorError) != HAL_OK)
-        {
-            HAL_FLASH_Lock();
-            return BOOTLOADER_ERR_ERASE;
-        }
-    }
-
-    internal_flash_ctx.is_open = 1;
-    internal_flash_ctx.is_erased = 1;
-    internal_flash_ctx.written_size = 0;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t internal_flash_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
-{
-    uint32_t i;
-    uint32_t FlashAddress;
-    uint32_t DataWord;
-    uint32_t write_len;
-    uint8_t temp_buf[4];
-
-    if (data == NULL || len == 0)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (!internal_flash_ctx.is_open)
-    {
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    FlashAddress = internal_flash_ctx.start_addr + offset;
-
-    if ((FlashAddress % 4) != 0)
-    {
-        printf("internal_flash: write address not aligned 0x%08lX\r\n", (unsigned long)FlashAddress);
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    if (internal_flash_ctx.pending_len > 0)
-    {
-        uint32_t need = 4 - internal_flash_ctx.pending_len;
-        if (len < need)
-        {
-            memcpy(internal_flash_ctx.pending_buf + internal_flash_ctx.pending_len, data, len);
-            internal_flash_ctx.pending_len += len;
-            return BOOTLOADER_OK;
-        }
-
-        memcpy(internal_flash_ctx.pending_buf + internal_flash_ctx.pending_len, data, need);
-        DataWord = *(uint32_t *)internal_flash_ctx.pending_buf;
-
-        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
-        {
-            if (*(uint32_t *)FlashAddress != DataWord)
-            {
-                return BOOTLOADER_ERR_VERIFY;
-            }
-        }
-        else
-        {
-            return BOOTLOADER_ERR_WRITE;
-        }
-
-        FlashAddress += 4;
-        data += need;
-        len -= need;
-        internal_flash_ctx.pending_len = 0;
-    }
-
-    write_len = (len / 4) * 4;
-
-    for (i = 0; i < (write_len / 4); i++)
-    {
-        if (FlashAddress > (USER_FLASH_END_ADDRESS - 4))
-        {
-            break;
-        }
-
-        memcpy(temp_buf, data + (i * 4), 4);
-        DataWord = *(uint32_t *)temp_buf;
-
-        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
-        {
-            if (*(uint32_t *)FlashAddress != DataWord)
-            {
-                return BOOTLOADER_ERR_VERIFY;
-            }
-            FlashAddress += 4;
-        }
-        else
-        {
-            return BOOTLOADER_ERR_WRITE;
-        }
-    }
-
-    internal_flash_ctx.written_size = offset + write_len;
-
-    if (len > write_len)
-    {
-        uint32_t remain = len - write_len;
-        memcpy(internal_flash_ctx.pending_buf, data + write_len, remain);
-        internal_flash_ctx.pending_len = remain;
-    }
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t internal_flash_tgt_close(void)
-{
-    if (!internal_flash_ctx.is_open)
-    {
-        return BOOTLOADER_OK;
-    }
-
-    if (internal_flash_ctx.pending_len > 0)
-    {
-        uint32_t FlashAddress = internal_flash_ctx.start_addr + internal_flash_ctx.written_size;
-        uint32_t DataWord = 0xFFFFFFFF;
-
-        memcpy(&DataWord, internal_flash_ctx.pending_buf, internal_flash_ctx.pending_len);
-
-        printf("internal_flash: flushing %d pending bytes at 0x%08lX\r\n",
-               internal_flash_ctx.pending_len, (unsigned long)FlashAddress);
-
-        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord) == HAL_OK)
-        {
-            if (*(uint32_t *)FlashAddress != DataWord)
-            {
-                HAL_FLASH_Lock();
-                return BOOTLOADER_ERR_VERIFY;
-            }
-        }
-        else
-        {
-            HAL_FLASH_Lock();
-            return BOOTLOADER_ERR_WRITE;
-        }
-
-        internal_flash_ctx.pending_len = 0;
-    }
-
-    HAL_FLASH_Lock();
-
-    internal_flash_ctx.is_open = 0;
-
-    return BOOTLOADER_OK;
-}
-
-const target_if_t internal_flash_target_if = {
-    .open = internal_flash_tgt_open,
-    .write = internal_flash_tgt_write,
-    .close = internal_flash_tgt_close,
-};
-
-typedef struct
-{
-    FATFS *fs;
-    FIL file;
-    char path[BOOTLOADER_PATH_MAX];
-    uint32_t total_size;
-    uint8_t is_open;
-} fatfs_src_ctx_t;
-
-static fatfs_src_ctx_t fatfs_src_ctx;
-
-bootloader_err_t fatfs_src_open(const char *path, uint32_t *total_size)
-{
-    FRESULT res;
-    FILINFO fno;
-
-    if (total_size == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (bootloader_ctx.config.storage.fatfs == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    memset(&fatfs_src_ctx, 0, sizeof(fatfs_src_ctx));
-    fatfs_src_ctx.fs = (FATFS *)bootloader_ctx.config.storage.fatfs;
-
-    if (path != NULL)
-    {
-        strncpy(fatfs_src_ctx.path, path, sizeof(fatfs_src_ctx.path) - 1);
-    }
-    else
-    {
-        strncpy(fatfs_src_ctx.path, bootloader_ctx.config.storage.fatfs_path, sizeof(fatfs_src_ctx.path) - 1);
-    }
-    fatfs_src_ctx.path[sizeof(fatfs_src_ctx.path) - 1] = '\0';
-
-    res = f_stat(fatfs_src_ctx.path, &fno);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_SRC;
-    }
-
-    fatfs_src_ctx.total_size = (uint32_t)fno.fsize;
-    *total_size = fatfs_src_ctx.total_size;
-
-    res = f_open(&fatfs_src_ctx.file, fatfs_src_ctx.path, FA_READ);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_SRC;
-    }
-
-    fatfs_src_ctx.is_open = 1;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t fatfs_src_read(uint8_t *buf, uint32_t size, uint32_t *bytes_read)
-{
-    FRESULT res;
-    UINT br;
-
-    if (buf == NULL || bytes_read == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (!fatfs_src_ctx.is_open)
-    {
-        return BOOTLOADER_ERR_READ;
-    }
-
-    res = f_read(&fatfs_src_ctx.file, buf, size, &br);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_READ;
-    }
-
-    *bytes_read = (uint32_t)br;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t fatfs_src_close(void)
-{
-    FRESULT res;
-
-    if (!fatfs_src_ctx.is_open)
-    {
-        return BOOTLOADER_OK;
-    }
-
-    res = f_close(&fatfs_src_ctx.file);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    fatfs_src_ctx.is_open = 0;
-
-    return BOOTLOADER_OK;
-}
-
-const source_if_t fatfs_source_if = {
-    .open = fatfs_src_open,
-    .read = fatfs_src_read,
-    .close = fatfs_src_close,
-};
-
-typedef struct
-{
-    FATFS *fs;
-    FIL file;
-    char path[BOOTLOADER_PATH_MAX];
-    uint32_t total_size;
-    uint32_t written_size;
-    uint8_t is_open;
-} fatfs_tgt_ctx_t;
-
-static fatfs_tgt_ctx_t fatfs_tgt_ctx;
-
-bootloader_err_t fatfs_tgt_open(const char *path, uint32_t total_size)
-{
-    FRESULT res;
-
-    if (bootloader_ctx.config.storage.fatfs == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    memset(&fatfs_tgt_ctx, 0, sizeof(fatfs_tgt_ctx));
-    fatfs_tgt_ctx.fs = (FATFS *)bootloader_ctx.config.storage.fatfs;
-
-    if (path != NULL)
-    {
-        strncpy(fatfs_tgt_ctx.path, path, sizeof(fatfs_tgt_ctx.path) - 1);
-    }
-    else
-    {
-        strncpy(fatfs_tgt_ctx.path, bootloader_ctx.config.storage.fatfs_path, sizeof(fatfs_tgt_ctx.path) - 1);
-    }
-    fatfs_tgt_ctx.path[sizeof(fatfs_tgt_ctx.path) - 1] = '\0';
-
-    fatfs_tgt_ctx.total_size = total_size;
-
-    res = f_open(&fatfs_tgt_ctx.file, fatfs_tgt_ctx.path, FA_WRITE | FA_CREATE_ALWAYS);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_DST;
-    }
-
-    if (total_size > 0)
-    {
-        res = f_lseek(&fatfs_tgt_ctx.file, total_size);
-        if (res != FR_OK)
-        {
-            f_close(&fatfs_tgt_ctx.file);
-            return BOOTLOADER_ERR_OPEN_DST;
-        }
-
-        res = f_truncate(&fatfs_tgt_ctx.file);
-        if (res != FR_OK)
-        {
-            f_close(&fatfs_tgt_ctx.file);
-            return BOOTLOADER_ERR_OPEN_DST;
-        }
-
-        res = f_lseek(&fatfs_tgt_ctx.file, 0);
-        if (res != FR_OK)
-        {
-            f_close(&fatfs_tgt_ctx.file);
-            return BOOTLOADER_ERR_OPEN_DST;
-        }
-    }
-
-    fatfs_tgt_ctx.is_open = 1;
-    fatfs_tgt_ctx.written_size = 0;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t fatfs_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
-{
-    FRESULT res;
-    UINT bw;
-
-    if (data == NULL || len == 0)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (!fatfs_tgt_ctx.is_open)
-    {
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    if (offset != fatfs_tgt_ctx.written_size)
-    {
-        res = f_lseek(&fatfs_tgt_ctx.file, offset);
-        if (res != FR_OK)
-        {
-            return BOOTLOADER_ERR_WRITE;
-        }
-    }
-
-    res = f_write(&fatfs_tgt_ctx.file, data, len, &bw);
-    if (res != FR_OK || bw != len)
-    {
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    fatfs_tgt_ctx.written_size = offset + len;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t fatfs_tgt_close(void)
-{
-    FRESULT res;
-
-    if (!fatfs_tgt_ctx.is_open)
-    {
-        return BOOTLOADER_OK;
-    }
-
-    res = f_sync(&fatfs_tgt_ctx.file);
-    if (res != FR_OK)
-    {
-        f_close(&fatfs_tgt_ctx.file);
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    res = f_close(&fatfs_tgt_ctx.file);
-    if (res != FR_OK)
-    {
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    fatfs_tgt_ctx.is_open = 0;
-
-    return BOOTLOADER_OK;
-}
-
-const target_if_t fatfs_target_if = {
-    .open = fatfs_tgt_open,
-    .write = fatfs_tgt_write,
-    .close = fatfs_tgt_close,
-};
-
-typedef struct
-{
-    lfs_t *lfs;
-    lfs_file_t file;
-    char path[BOOTLOADER_PATH_MAX];
-    uint32_t total_size;
-    uint8_t is_open;
-} lfs_src_ctx_t;
-
-static lfs_src_ctx_t lfs_src_ctx;
-
-bootloader_err_t lfs_src_open(const char *path, uint32_t *total_size)
-{
-    struct lfs_info info;
-    int res;
-
-    if (total_size == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (bootloader_ctx.config.storage.lfs == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    memset(&lfs_src_ctx, 0, sizeof(lfs_src_ctx));
-    lfs_src_ctx.lfs = (lfs_t *)bootloader_ctx.config.storage.lfs;
-
-    if (path != NULL)
-    {
-        strncpy(lfs_src_ctx.path, path, sizeof(lfs_src_ctx.path) - 1);
-    }
-    else
-    {
-        strncpy(lfs_src_ctx.path, bootloader_ctx.config.storage.lfs_path, sizeof(lfs_src_ctx.path) - 1);
-    }
-    lfs_src_ctx.path[sizeof(lfs_src_ctx.path) - 1] = '\0';
-
-    res = lfs_stat(lfs_src_ctx.lfs, lfs_src_ctx.path, &info);
-    if (res != LFS_ERR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_SRC;
-    }
-
-    if (info.type != LFS_TYPE_REG)
-    {
-        return BOOTLOADER_ERR_OPEN_SRC;
-    }
-
-    lfs_src_ctx.total_size = (uint32_t)info.size;
-    *total_size = lfs_src_ctx.total_size;
-
-    res = lfs_file_open(lfs_src_ctx.lfs, &lfs_src_ctx.file, lfs_src_ctx.path, LFS_O_RDONLY);
-    if (res != LFS_ERR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_SRC;
-    }
-
-    lfs_src_ctx.is_open = 1;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t lfs_src_read(uint8_t *buf, uint32_t size, uint32_t *bytes_read)
-{
-    lfs_ssize_t res;
-
-    if (buf == NULL || bytes_read == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (!lfs_src_ctx.is_open)
-    {
-        return BOOTLOADER_ERR_READ;
-    }
-
-    res = lfs_file_read(lfs_src_ctx.lfs, &lfs_src_ctx.file, buf, size);
-    if (res < 0)
-    {
-        return BOOTLOADER_ERR_READ;
-    }
-
-    *bytes_read = (uint32_t)res;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t lfs_src_close(void)
-{
-    int res;
-
-    if (!lfs_src_ctx.is_open)
-    {
-        return BOOTLOADER_OK;
-    }
-
-    res = lfs_file_close(lfs_src_ctx.lfs, &lfs_src_ctx.file);
-    if (res != LFS_ERR_OK)
-    {
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    lfs_src_ctx.is_open = 0;
-
-    return BOOTLOADER_OK;
-}
-
-const source_if_t lfs_source_if = {
-    .open = lfs_src_open,
-    .read = lfs_src_read,
-    .close = lfs_src_close,
-};
-
-typedef struct
-{
-    lfs_t *lfs;
-    lfs_file_t file;
-    char path[BOOTLOADER_PATH_MAX];
-    uint32_t total_size;
-    uint32_t written_size;
-    uint8_t is_open;
-} lfs_tgt_ctx_t;
-
-static lfs_tgt_ctx_t lfs_tgt_ctx;
-
-bootloader_err_t lfs_tgt_open(const char *path, uint32_t total_size)
-{
-    int res;
-
-    if (bootloader_ctx.config.storage.lfs == NULL)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    memset(&lfs_tgt_ctx, 0, sizeof(lfs_tgt_ctx));
-    lfs_tgt_ctx.lfs = (lfs_t *)bootloader_ctx.config.storage.lfs;
-
-    if (path != NULL)
-    {
-        strncpy(lfs_tgt_ctx.path, path, sizeof(lfs_tgt_ctx.path) - 1);
-    }
-    else
-    {
-        strncpy(lfs_tgt_ctx.path, bootloader_ctx.config.storage.lfs_path, sizeof(lfs_tgt_ctx.path) - 1);
-    }
-    lfs_tgt_ctx.path[sizeof(lfs_tgt_ctx.path) - 1] = '\0';
-
-    lfs_tgt_ctx.total_size = total_size;
-
-    res = lfs_file_open(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, lfs_tgt_ctx.path,
-                        LFS_O_WRONLY | LFS_O_CREAT | LFS_O_TRUNC);
-    if (res != LFS_ERR_OK)
-    {
-        return BOOTLOADER_ERR_OPEN_DST;
-    }
-
-    lfs_tgt_ctx.is_open = 1;
-    lfs_tgt_ctx.written_size = 0;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t lfs_tgt_write(uint32_t offset, const uint8_t *data, uint32_t len)
-{
-    lfs_ssize_t res;
-
-    if (data == NULL || len == 0)
-    {
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    if (!lfs_tgt_ctx.is_open)
-    {
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    if (offset != lfs_tgt_ctx.written_size)
-    {
-        res = lfs_file_seek(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, offset, LFS_SEEK_SET);
-        if (res < 0)
-        {
-            return BOOTLOADER_ERR_WRITE;
-        }
-    }
-
-    res = lfs_file_write(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file, data, len);
-    if (res != (lfs_ssize_t)len)
-    {
-        return BOOTLOADER_ERR_WRITE;
-    }
-
-    lfs_tgt_ctx.written_size = offset + len;
-
-    return BOOTLOADER_OK;
-}
-
-bootloader_err_t lfs_tgt_close(void)
-{
-    int res;
-
-    if (!lfs_tgt_ctx.is_open)
-    {
-        return BOOTLOADER_OK;
-    }
-
-    res = lfs_file_sync(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
-    if (res != LFS_ERR_OK)
-    {
-        lfs_file_close(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    res = lfs_file_close(lfs_tgt_ctx.lfs, &lfs_tgt_ctx.file);
-    if (res != LFS_ERR_OK)
-    {
-        return BOOTLOADER_ERR_CLOSE;
-    }
-
-    lfs_tgt_ctx.is_open = 0;
-
-    return BOOTLOADER_OK;
-}
-
-const target_if_t lfs_target_if = {
-    .open = lfs_tgt_open,
-    .write = lfs_tgt_write,
-    .close = lfs_tgt_close,
-};
-
 #define BOOTLOADER_BUFFER_SIZE 4096
 
 static uint8_t bootloader_buffer[BOOTLOADER_BUFFER_SIZE] __attribute__((aligned(4)));
 
-bootloader_err_t bootloader_download(const source_if_t *src_if,
-                                     const target_if_t *tgt_if,
+static bootloader_err_t storage_status_to_bootloader(int16_t status)
+{
+    switch (status)
+    {
+    case STORAGE_STATUS_OK:
+        return BOOTLOADER_OK;
+    case STORAGE_STATUS_ERROR:
+        return BOOTLOADER_ERR_ABORT;
+    case STORAGE_STATUS_PARAM:
+        return BOOTLOADER_ERR_PARAM;
+    case STORAGE_STATUS_OPEN_SRC:
+        return BOOTLOADER_ERR_OPEN_SRC;
+    case STORAGE_STATUS_OPEN_DST:
+        return BOOTLOADER_ERR_OPEN_DST;
+    case STORAGE_STATUS_READ:
+        return BOOTLOADER_ERR_READ;
+    case STORAGE_STATUS_WRITE:
+        return BOOTLOADER_ERR_WRITE;
+    case STORAGE_STATUS_CLOSE:
+        return BOOTLOADER_ERR_CLOSE;
+    case STORAGE_STATUS_ERASE:
+        return BOOTLOADER_ERR_ERASE;
+    case STORAGE_STATUS_VERIFY:
+        return BOOTLOADER_ERR_VERIFY;
+    default:
+        return BOOTLOADER_ERR_ABORT;
+    }
+}
+
+bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
+                                     const platform_storage_base_t *tgt_storage,
                                      const char *path)
 {
-    bootloader_err_t err;
+    int16_t err;
     uint32_t total_size = 0;
     uint32_t bytes_read = 0;
     uint32_t total_read = 0;
     uint32_t offset = 0;
 
-    if (src_if == NULL || tgt_if == NULL)
+    if (src_storage == NULL || tgt_storage == NULL)
     {
         printf("bootloader_download: param null\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
-    if (src_if->open == NULL || src_if->read == NULL || src_if->close == NULL)
+    if (src_storage->source_ops == NULL || tgt_storage->target_ops == NULL)
     {
-        printf("bootloader_download: src_if missing funcs\r\n");
+        printf("bootloader_download: missing ops\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
-    if (tgt_if->open == NULL || tgt_if->write == NULL || tgt_if->close == NULL)
-    {
-        printf("bootloader_download: tgt_if missing funcs\r\n");
-        return BOOTLOADER_ERR_PARAM;
-    }
-
-    printf("bootloader_download: opening source...\r\n");
-    err = src_if->open(path, &total_size);
-    if (err != BOOTLOADER_OK)
+    printf("bootloader_download: opening source [%s]...\r\n", src_storage->name);
+    err = STORAGE_SOURCE_OPEN(src_storage, path, &total_size);
+    if (err != STORAGE_STATUS_OK)
     {
         printf("bootloader_download: src open failed err=%d\r\n", err);
-        return err;
+        return storage_status_to_bootloader(err);
     }
 
-    printf("bootloader_download: total_size=%lu, opening target...\r\n", (unsigned long)total_size);
-    err = tgt_if->open(path, total_size);
-    if (err != BOOTLOADER_OK)
+    printf("bootloader_download: total_size=%lu, opening target [%s]...\r\n",
+           (unsigned long)total_size, tgt_storage->name);
+    err = STORAGE_TARGET_OPEN(tgt_storage, path, total_size);
+    if (err != STORAGE_STATUS_OK)
     {
         printf("bootloader_download: tgt open failed err=%d\r\n", err);
-        src_if->close();
-        return err;
+        STORAGE_SOURCE_CLOSE(src_storage);
+        return storage_status_to_bootloader(err);
     }
 
     printf("bootloader_download: starting download loop...\r\n");
@@ -799,14 +141,13 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
             to_read = total_size - total_read;
         }
 
-        printf("bootloader_download: reading %lu bytes...\r\n", (unsigned long)to_read);
-        err = src_if->read(bootloader_buffer, to_read, &bytes_read);
-        if (err != BOOTLOADER_OK)
+        err = STORAGE_SOURCE_READ(src_storage, bootloader_buffer, to_read, &bytes_read);
+        if (err != STORAGE_STATUS_OK)
         {
             printf("bootloader_download: src read failed err=%d\r\n", err);
-            tgt_if->close();
-            src_if->close();
-            return err;
+            STORAGE_TARGET_CLOSE(tgt_storage);
+            STORAGE_SOURCE_CLOSE(src_storage);
+            return storage_status_to_bootloader(err);
         }
 
         if (bytes_read == 0)
@@ -815,14 +156,13 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
             break;
         }
 
-        printf("bootloader_download: writing %lu bytes at offset %lu...\r\n", (unsigned long)bytes_read, (unsigned long)offset);
-        err = tgt_if->write(offset, bootloader_buffer, bytes_read);
-        if (err != BOOTLOADER_OK)
+        err = STORAGE_TARGET_WRITE(tgt_storage, offset, bootloader_buffer, bytes_read);
+        if (err != STORAGE_STATUS_OK)
         {
             printf("bootloader_download: tgt write failed err=%d\r\n", err);
-            tgt_if->close();
-            src_if->close();
-            return err;
+            STORAGE_TARGET_CLOSE(tgt_storage);
+            STORAGE_SOURCE_CLOSE(src_storage);
+            return storage_status_to_bootloader(err);
         }
 
         total_read += bytes_read;
@@ -831,20 +171,20 @@ bootloader_err_t bootloader_download(const source_if_t *src_if,
     }
 
     printf("bootloader_download: closing target...\r\n");
-    err = tgt_if->close();
-    if (err != BOOTLOADER_OK)
+    err = STORAGE_TARGET_CLOSE(tgt_storage);
+    if (err != STORAGE_STATUS_OK)
     {
         printf("bootloader_download: tgt close failed err=%d\r\n", err);
-        src_if->close();
-        return err;
+        STORAGE_SOURCE_CLOSE(src_storage);
+        return storage_status_to_bootloader(err);
     }
 
     printf("bootloader_download: closing source...\r\n");
-    err = src_if->close();
-    if (err != BOOTLOADER_OK)
+    err = STORAGE_SOURCE_CLOSE(src_storage);
+    if (err != STORAGE_STATUS_OK)
     {
         printf("bootloader_download: src close failed err=%d\r\n", err);
-        return err;
+        return storage_status_to_bootloader(err);
     }
 
     printf("bootloader_download: success\r\n");
