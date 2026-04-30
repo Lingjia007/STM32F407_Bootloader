@@ -17,8 +17,6 @@ typedef struct {
     DIR dir;
 } fs_fatfs_dir_t;
 
-extern fs_fatfs_t g_fs_fatfs;
-
 void platform_fs_fatfs_register(fs_fatfs_t* fs, FATFS* fatfs, const char* name);
 
 #endif

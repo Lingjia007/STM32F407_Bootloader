@@ -2,7 +2,7 @@
 #define LFS_SPI_FLASH_ADAPTER_H
 
 #include "lfs.h"
-#include "platform_w25q128_stm32_impl.h"
+#include "platform_config.h"
 
 #define SPI_FLASH_BLOCK_SIZE (W25Q128_SECTOR_SIZE)
 #define SPI_FLASH_BLOCK_COUNT ((W25Q128_TOTAL_SIZE) / (W25Q128_SECTOR_SIZE))

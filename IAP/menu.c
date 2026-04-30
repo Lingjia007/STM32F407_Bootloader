@@ -8,10 +8,9 @@
 
 #include "main.h"
 #include "menu_service.h"
-#include "platform_uart_stm32_impl.h"
+#include "platform_config.h"
 #include "platform_filesystem_fatfs_impl.h"
 #include "platform_filesystem_lfs_impl.h"
-#include "flash_if.h"
 #include "menu.h"
 #include "ymodem.h"
 #include "fatfs.h"
@@ -34,8 +33,12 @@
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
 #define RX_TIMEOUT ((uint32_t)0xFFFFFFFF)
+#define USER_FLASH_SIZE (g_internal_flash.flash_base.total_size)
 
 static menu_ctx_t g_menu_ctx;
+
+static fs_fatfs_t g_fs_fatfs;
+static fs_lfs_t g_fs_lfs;
 
 uint32_t FlashProtection = 0;
 uint8_t aFileName[FILE_NAME_LENGTH];
@@ -381,7 +384,7 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_fatfs_transport.base, &g_internal_flash.base, bootloader_ctx.config.storage.fatfs_path);
+  err = bootloader_download(&g_fatfs_transport.base, &g_internal_flash.transport_base, bootloader_ctx.config.storage.fatfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -473,7 +476,7 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_lfs_transport.base, &g_internal_flash.base, bootloader_ctx.config.storage.lfs_path);
+  err = bootloader_download(&g_lfs_transport.base, &g_internal_flash.transport_base, bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -518,11 +521,11 @@ static void cmd_execute_app(menu_ctx_t *ctx, int argc, char *argv[])
 
 static void cmd_flash_protection(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  FlashProtection = FLASH_If_GetWriteProtectionStatus();
+  FlashProtection = INTERNAL_FLASH_GET_PROTECTION_STATUS(&g_internal_flash.flash_base);
 
-  if (FlashProtection != FLASHIF_PROTECTION_NONE)
+  if (FlashProtection != INTERNAL_FLASH_PROTECTION_NONE)
   {
-    if (FLASH_If_WriteProtectionConfig(OB_WRPSTATE_DISABLE) == HAL_OK)
+    if (INTERNAL_FLASH_SET_PROTECTION(&g_internal_flash.flash_base, 0, 0) == INTERNAL_FLASH_STATUS_OK)
     {
       menu_service_println(ctx, "Write Protection disabled...");
       menu_service_println(ctx, "System will now restart...");
@@ -536,7 +539,10 @@ static void cmd_flash_protection(menu_ctx_t *ctx, int argc, char *argv[])
   }
   else
   {
-    if (FLASH_If_WriteProtectionConfig(OB_WRPSTATE_ENABLE) == HAL_OK)
+    if (INTERNAL_FLASH_SET_PROTECTION(&g_internal_flash.flash_base,
+                                      OB_WRP_SECTOR_5 | OB_WRP_SECTOR_6 | OB_WRP_SECTOR_7 |
+                                          OB_WRP_SECTOR_8 | OB_WRP_SECTOR_9 | OB_WRP_SECTOR_10 | OB_WRP_SECTOR_11,
+                                      1) == INTERNAL_FLASH_STATUS_OK)
     {
       menu_service_println(ctx, "Write Protection enabled...");
       menu_service_println(ctx, "System will now restart...");

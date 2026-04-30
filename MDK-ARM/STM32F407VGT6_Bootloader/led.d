@@ -1,4 +1,5 @@
 stm32f407vgt6_bootloader/led.o: ..\LED\led.c ..\LED\led.h \
+  ..\Core\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
   ..\Platform\Inc\platform_led.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
@@ -39,4 +40,24 @@ stm32f407vgt6_bootloader/led.o: ..\LED\led.c ..\LED\led.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\main.h ..\Service\Inc\service_notify.h
+  ..\Core\Inc\main.h ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Platform\Inc\platform_internal_flash.h \
+  ..\Platform\Inc\platform_transport.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\FATFS\Target\bsp_driver_sd.h \
+  ..\FATFS\Target\fatfs_platform.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Service\Inc\service_notify.h

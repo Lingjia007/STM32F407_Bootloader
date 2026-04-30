@@ -1,6 +1,6 @@
 #include "aes_decrypt.h"
 #include "aes.h"
-#include "flash_if.h"
+#include "platform_config.h"
 #include <string.h>
 
 #define DECRYPT_BUFFER_SIZE 4096
@@ -377,8 +377,8 @@ int aes_decrypt_to_flash_fatfs(FATFS *fs, const char *src_path, uint32_t flash_a
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
                            FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
-    StartSector = GetSector(flash_addr);
-    EndSector = GetSector(flash_addr + encrypted_data_size - 1);
+    StartSector = internal_flash_get_sector_by_addr(flash_addr);
+    EndSector = internal_flash_get_sector_by_addr(flash_addr + encrypted_data_size - 1);
 
     pEraseInit.TypeErase = TYPEERASE_SECTORS;
     pEraseInit.Sector = StartSector;
@@ -435,7 +435,7 @@ int aes_decrypt_to_flash_fatfs(FATFS *fs, const char *src_path, uint32_t flash_a
             uint32_t FlashAddress = flash_addr + flash_offset;
             uint32_t *DataWord = (uint32_t *)buffer_ptr;
 
-            for (i = 0; (i < (decrypted_size / 4)) && (FlashAddress <= (USER_FLASH_END_ADDRESS - 4)); i++)
+            for (i = 0; (i < (decrypted_size / 4)) && (FlashAddress <= (INTERNAL_FLASH_END_ADDR - 4)); i++)
             {
                 if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord[i]) == HAL_OK)
                 {
@@ -531,8 +531,8 @@ int aes_decrypt_to_flash_lfs(lfs_t *lfs, const char *src_path, uint32_t flash_ad
     __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_EOP | FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR |
                            FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
 
-    StartSector = GetSector(flash_addr);
-    EndSector = GetSector(flash_addr + encrypted_data_size - 1);
+    StartSector = internal_flash_get_sector_by_addr(flash_addr);
+    EndSector = internal_flash_get_sector_by_addr(flash_addr + encrypted_data_size - 1);
 
     pEraseInit.TypeErase = TYPEERASE_SECTORS;
     pEraseInit.Sector = StartSector;
@@ -589,7 +589,7 @@ int aes_decrypt_to_flash_lfs(lfs_t *lfs, const char *src_path, uint32_t flash_ad
             uint32_t FlashAddress = flash_addr + flash_offset;
             uint32_t *DataWord = (uint32_t *)buffer_ptr;
 
-            for (i = 0; (i < (decrypted_size / 4)) && (FlashAddress <= (USER_FLASH_END_ADDRESS - 4)); i++)
+            for (i = 0; (i < (decrypted_size / 4)) && (FlashAddress <= (INTERNAL_FLASH_END_ADDR - 4)); i++)
             {
                 if (HAL_FLASH_Program(TYPEPROGRAM_WORD, FlashAddress, DataWord[i]) == HAL_OK)
                 {

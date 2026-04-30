@@ -19,6 +19,7 @@ typedef struct {
     uint16_t device_id;
 } w25q128_stm32_t;
 
-extern w25q128_stm32_t g_w25q128_flash;
+void platform_w25q128_stm32_register(w25q128_stm32_t *flash, SPI_HandleTypeDef *hspi, 
+                                      GPIO_TypeDef *cs_port, uint16_t cs_pin, const char *name);
 
 #endif

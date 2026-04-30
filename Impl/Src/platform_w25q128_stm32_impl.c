@@ -250,21 +250,22 @@ static const platform_spi_flash_ops_t w25q128_ops = {
     .wait_busy = w25q128_wait_busy,
 };
 
-extern SPI_HandleTypeDef hspi1;
+void platform_w25q128_stm32_register(w25q128_stm32_t *flash, SPI_HandleTypeDef *hspi, 
+                                      GPIO_TypeDef *cs_port, uint16_t cs_pin, const char *name)
+{
+    if (flash == NULL || hspi == NULL || cs_port == NULL)
+    {
+        return;
+    }
 
-w25q128_stm32_t g_w25q128_flash = {
-    .base = {
-        .ops = &w25q128_ops,
-        .name = "w25q128",
-        .type = SPI_FLASH_TYPE_W25Q128,
-        .total_size = W25Q128_TOTAL_SIZE,
-        .sector_size = W25Q128_SECTOR_SIZE,
-        .block_size = W25Q128_BLOCK_SIZE,
-        .page_size = W25Q128_PAGE_SIZE,
-        .user_data = NULL,
-    },
-    .hspi = &hspi1,
-    .cs_port = GPIOA,
-    .cs_pin = GPIO_PIN_4,
-    .device_id = 0,
-};
+    flash->hspi = hspi;
+    flash->cs_port = cs_port;
+    flash->cs_pin = cs_pin;
+    flash->device_id = 0;
+    
+    SPI_FLASH_INIT_BASE(&flash->base, &w25q128_ops, name, SPI_FLASH_TYPE_W25Q128);
+    flash->base.total_size = W25Q128_TOTAL_SIZE;
+    flash->base.sector_size = W25Q128_SECTOR_SIZE;
+    flash->base.block_size = W25Q128_BLOCK_SIZE;
+    flash->base.page_size = W25Q128_PAGE_SIZE;
+}

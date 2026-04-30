@@ -205,13 +205,3 @@ void platform_fs_lfs_register(fs_lfs_t *fs, lfs_t *lfs, const char *name)
     fs->base.name = name;
     fs->base.user_data = NULL;
 }
-
-fs_lfs_t g_fs_lfs = {
-    .base = {
-        .ops = &lfs_ops,
-        .dir_ops = &lfs_dir_ops,
-        .name = "lfs",
-        .user_data = NULL,
-    },
-    .lfs = NULL,
-};

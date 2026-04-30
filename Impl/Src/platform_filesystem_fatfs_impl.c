@@ -194,13 +194,3 @@ void platform_fs_fatfs_register(fs_fatfs_t *fs, FATFS *fatfs, const char *name)
     fs->base.name = name;
     fs->base.user_data = NULL;
 }
-
-fs_fatfs_t g_fs_fatfs = {
-    .base = {
-        .ops = &fatfs_ops,
-        .dir_ops = &fatfs_dir_ops,
-        .name = "fatfs",
-        .user_data = NULL,
-    },
-    .fs = NULL,
-};

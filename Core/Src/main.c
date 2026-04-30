@@ -35,7 +35,7 @@
 #include "usb_device.h"
 #include "menu.h"
 #include "menu_service.h"
-#include "platform_uart_stm32_impl.h"
+#include "platform_config.h"
 #include "lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
 /* USER CODE END Includes */
@@ -110,7 +110,7 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   MX_SDIO_SD_Init_Fix();
-  platform_uart_stm32_register(&g_uart4_console, &huart4, "uart4_console");
+  platform_config_init();
   bootloader_ctx.config.ymodem.huart = &huart4;
   bootloader_ctx.config.ymodem.dest_addr = bootloader_ctx.config.jump.app_jump_addr;
   lfs_spi_flash_init();
@@ -150,7 +150,7 @@ int main(void)
   {
     printf("TF card detected and ready\r\n\r\n");
 
-    MX_USB_DEVICE_Init();
+    //MX_USB_DEVICE_Init();
   }
   if (uart_wait_command(&cmd, 1500) && cmd == 'M')
   {

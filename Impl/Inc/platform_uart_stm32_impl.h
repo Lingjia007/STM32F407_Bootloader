@@ -4,13 +4,12 @@
 #include "platform_uart.h"
 #include "stm32f4xx_hal.h"
 
-typedef struct {
+typedef struct
+{
     platform_uart_base_t base;
-    UART_HandleTypeDef* huart;
+    UART_HandleTypeDef *huart;
 } uart_stm32_t;
 
-extern uart_stm32_t g_uart4_console;
-
-void platform_uart_stm32_register(uart_stm32_t* uart, UART_HandleTypeDef* huart, const char* name);
+void platform_uart_stm32_register(uart_stm32_t *uart, UART_HandleTypeDef *huart, const char *name);
 
 #endif

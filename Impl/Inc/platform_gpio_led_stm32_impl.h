@@ -12,6 +12,6 @@ typedef struct
     uint16_t pin;
 } gpio_led_stm32_t;
 
-extern gpio_led_stm32_t g_status_led;
+void platform_gpio_led_stm32_register(gpio_led_stm32_t *led, GPIO_TypeDef *port, uint16_t pin, const char *name);
 
 #endif

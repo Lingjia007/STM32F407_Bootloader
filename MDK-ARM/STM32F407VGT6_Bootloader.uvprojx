@@ -716,11 +716,6 @@
           <GroupName>IAP</GroupName>
           <Files>
             <File>
-              <FileName>flash_if.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IAP\flash_if.c</FilePath>
-            </File>
-            <File>
               <FileName>menu.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IAP\menu.c</FilePath>
@@ -744,6 +739,13 @@
         </Group>
         <Group>
           <GroupName>Platform</GroupName>
+          <Files>
+            <File>
+              <FileName>platform_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Platform\Src\platform_config.c</FilePath>
+            </File>
+          </Files>
         </Group>
         <Group>
           <GroupName>Impl</GroupName>

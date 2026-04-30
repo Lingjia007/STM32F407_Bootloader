@@ -20,9 +20,10 @@
 #define __MENU_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "flash_if.h"
 #include "ymodem.h"
 #include "Bootloader_core.h"
+#include "platform_config.h"
+
 /* Imported variables --------------------------------------------------------*/
 extern uint8_t aFileName[FILE_NAME_LENGTH];
 

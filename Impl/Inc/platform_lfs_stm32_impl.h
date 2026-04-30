@@ -6,9 +6,10 @@
 
 #define LFS_PATH_MAX 128
 
-typedef struct {
+typedef struct
+{
     platform_transport_base_t base;
-    lfs_t* lfs;
+    lfs_t *lfs;
     lfs_file_t file;
     char path[LFS_PATH_MAX];
     uint32_t total_size;
@@ -17,6 +18,6 @@ typedef struct {
     uint8_t is_source;
 } lfs_stm32_t;
 
-extern lfs_stm32_t g_lfs_transport;
+void platform_lfs_stm32_register(lfs_stm32_t *transport, const char *name);
 
 #endif

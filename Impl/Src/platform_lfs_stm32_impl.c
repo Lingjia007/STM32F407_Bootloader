@@ -212,17 +212,22 @@ static const platform_transport_target_ops_t lfs_target_ops = {
     .close = lfs_tgt_close,
 };
 
-lfs_stm32_t g_lfs_transport = {
-    .base = {
-        .source_ops = &lfs_source_ops,
-        .target_ops = &lfs_target_ops,
-        .name = "lfs",
-        .type = TRANSPORT_TYPE_SPI_FLASH_LFS,
-        .user_data = NULL,
-    },
-    .lfs = NULL,
-    .total_size = 0,
-    .written_size = 0,
-    .is_open = 0,
-    .is_source = 0,
-};
+void platform_lfs_stm32_register(lfs_stm32_t *transport, const char *name)
+{
+    if (transport == NULL)
+    {
+        return;
+    }
+
+    transport->base.source_ops = &lfs_source_ops;
+    transport->base.target_ops = &lfs_target_ops;
+    transport->base.name = name;
+    transport->base.type = TRANSPORT_TYPE_SPI_FLASH_LFS;
+    transport->base.user_data = NULL;
+    
+    transport->lfs = NULL;
+    transport->total_size = 0;
+    transport->written_size = 0;
+    transport->is_open = 0;
+    transport->is_source = 0;
+}

@@ -6,9 +6,10 @@
 
 #define FATFS_PATH_MAX 128
 
-typedef struct {
+typedef struct
+{
     platform_transport_base_t base;
-    FATFS* fs;
+    FATFS *fs;
     FIL file;
     char path[FATFS_PATH_MAX];
     uint32_t total_size;
@@ -17,6 +18,6 @@ typedef struct {
     uint8_t is_source;
 } fatfs_stm32_t;
 
-extern fatfs_stm32_t g_fatfs_transport;
+void platform_fatfs_stm32_register(fatfs_stm32_t *transport, const char *name);
 
 #endif

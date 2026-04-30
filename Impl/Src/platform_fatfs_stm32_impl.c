@@ -101,20 +101,25 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
 
     if (self->fs == NULL)
     {
+        printf("FATFS: fs not mounted\r\n");
+        return TRANSPORT_STATUS_PARAM;
+    }
+
+    if (path == NULL || path[0] == '\0')
+    {
+        printf("FATFS: invalid path (null or empty)\r\n");
         return TRANSPORT_STATUS_PARAM;
     }
 
     memset(&self->file, 0, sizeof(self->file));
     self->is_source = 0;
 
-    if (path != NULL)
-    {
-        strncpy(self->path, path, sizeof(self->path) - 1);
-    }
+    strncpy(self->path, path, sizeof(self->path) - 1);
     self->path[sizeof(self->path) - 1] = '\0';
 
     self->total_size = total_size;
 
+    printf("FATFS: creating file %s\r\n", self->path);
     res = f_open(&self->file, self->path, FA_WRITE | FA_CREATE_ALWAYS);
     if (res != FR_OK)
     {
@@ -235,17 +240,22 @@ static const platform_transport_target_ops_t fatfs_target_ops = {
     .close = fatfs_tgt_close,
 };
 
-fatfs_stm32_t g_fatfs_transport = {
-    .base = {
-        .source_ops = &fatfs_source_ops,
-        .target_ops = &fatfs_target_ops,
-        .name = "fatfs",
-        .type = TRANSPORT_TYPE_SD_CARD_FATFS,
-        .user_data = NULL,
-    },
-    .fs = NULL,
-    .total_size = 0,
-    .written_size = 0,
-    .is_open = 0,
-    .is_source = 0,
-};
+void platform_fatfs_stm32_register(fatfs_stm32_t *transport, const char *name)
+{
+    if (transport == NULL)
+    {
+        return;
+    }
+
+    transport->base.source_ops = &fatfs_source_ops;
+    transport->base.target_ops = &fatfs_target_ops;
+    transport->base.name = name;
+    transport->base.type = TRANSPORT_TYPE_SD_CARD_FATFS;
+    transport->base.user_data = NULL;
+
+    transport->fs = NULL;
+    transport->total_size = 0;
+    transport->written_size = 0;
+    transport->is_open = 0;
+    transport->is_source = 0;
+}

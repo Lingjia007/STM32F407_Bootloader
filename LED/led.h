@@ -1,7 +1,7 @@
 #ifndef __LED_H
 #define __LED_H
 
-#include "platform_gpio_led_stm32_impl.h"
+#include "platform_config.h"
 
 extern uint16_t led_timer_counter;
 

@@ -37,14 +37,14 @@ static const platform_led_ops_t gpio_led_ops = {
     .get_rgb = NULL,
 };
 
-gpio_led_stm32_t g_status_led = {
-    .base = {
-        .ops = &gpio_led_ops,
-        .name = "status_led",
-        .type = LED_TYPE_GPIO,
-        .state = LED_STATE_OFF,
-        .user_data = NULL,
-    },
-    .port = LED_GPIO_Port,
-    .pin = LED_Pin,
-};
+void platform_gpio_led_stm32_register(gpio_led_stm32_t *led, GPIO_TypeDef *port, uint16_t pin, const char *name)
+{
+    if (led == NULL || port == NULL)
+    {
+        return;
+    }
+
+    led->port = port;
+    led->pin = pin;
+    LED_INIT_BASE(&led->base, &gpio_led_ops, name, LED_TYPE_GPIO);
+}

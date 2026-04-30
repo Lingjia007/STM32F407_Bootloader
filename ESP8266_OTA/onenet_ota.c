@@ -7,6 +7,7 @@
 #include "fatfs.h"
 #include "lfs.h"
 #include "lfs_spi_flash_adapter.h"
+#include "platform_config.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -1083,6 +1084,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
         return 0;
 
     platform_transport_base_t *target_transport = NULL;
+    const char *target_path = NULL;
     bootloader_err_t err = BOOTLOADER_OK;
     FATFS fatfs;
     lfs_t lfs;
@@ -1096,7 +1098,8 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     case OTA_TARGET_INTERNAL_FLASH:
         printf("OTA download: target = Internal Flash\r\n");
         bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
-        target_transport = &g_internal_flash.base;
+        target_transport = &g_internal_flash.transport_base;
+        target_path = NULL;
         break;
 
     case OTA_TARGET_SD_CARD_FATFS:
@@ -1111,8 +1114,9 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
             g_fatfs_transport.fs = &fatfs;
             snprintf(bootloader_ctx.config.storage.fatfs_path,
                      sizeof(bootloader_ctx.config.storage.fatfs_path),
-                     "0:ota_firmware_%s.bin", info->target);
+                     "0:ota_%s.bin", info->target);
             target_transport = &g_fatfs_transport.base;
+            target_path = bootloader_ctx.config.storage.fatfs_path;
             fs_initialized = 1;
         }
         break;
@@ -1135,8 +1139,9 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
             g_lfs_transport.lfs = &lfs;
             snprintf(bootloader_ctx.config.storage.lfs_path,
                      sizeof(bootloader_ctx.config.storage.lfs_path),
-                     "ota_firmware_%s.bin", info->target);
+                     "ota_%s.bin", info->target);
             target_transport = &g_lfs_transport.base;
+            target_path = bootloader_ctx.config.storage.lfs_path;
             fs_initialized = 2;
         }
         break;
@@ -1149,7 +1154,7 @@ static int ota_download_and_verify(const OtaPackageInfo *info)
     onenet_http_source_init(info);
     onenet_http_source_set_progress_callback(ota_progress_callback_wrapper);
 
-    err = bootloader_download(&g_onenet_http_source, target_transport, bootloader_ctx.config.storage.lfs_path);
+    err = bootloader_download(&g_onenet_http_source, target_transport, target_path);
 
     onenet_http_source_deinit();
 

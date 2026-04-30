@@ -49,4 +49,14 @@ stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\Utils\aes.h \
-  ..\IAP\flash_if.h
+  ..\Core\Inc\platform_config.h \
+  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
+  ..\Platform\Inc\platform_led.h \
+  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Platform\Inc\platform_internal_flash.h \
+  ..\Platform\Inc\platform_transport.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h

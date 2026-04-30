@@ -48,24 +48,25 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\LED\led.h \
+  ..\Core\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
-  ..\Platform\Inc\platform_led.h ..\Core\Inc\sdio.h \
-  ..\USB_DEVICE\App\usb_device.h \
-  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
-  ..\USB_DEVICE\Target\usbd_conf.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\string.h ..\IAP\menu.h \
-  ..\IAP\flash_if.h ..\IAP\ymodem.h ..\Service\Inc\ymodem_service.h \
-  ..\Platform\Inc\platform_transport.h ..\Platform\Inc\platform_uart.h \
-  ..\Bootloader_Core\Bootloader_core.h \
+  ..\Platform\Inc\platform_led.h \
+  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Platform\Inc\platform_internal_flash.h \
+  ..\Platform\Inc\platform_transport.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Impl\Inc\platform_lfs_stm32_impl.h \
   ..\Middlewares\Third_Party\LittleFs\lfs.h \
   ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h ..\Service\Inc\menu_service.h \
-  ..\Impl\Inc\platform_uart_stm32_impl.h \
-  ..\Service\Inc\lfs_spi_flash_adapter.h \
-  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
-  ..\Platform\Inc\platform_spi_flash.h
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h ..\Core\Inc\sdio.h \
+  ..\USB_DEVICE\App\usb_device.h \
+  ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
+  ..\USB_DEVICE\Target\usbd_conf.h ..\IAP\menu.h ..\IAP\ymodem.h \
+  ..\Service\Inc\ymodem_service.h ..\Bootloader_Core\Bootloader_core.h \
+  ..\Service\Inc\menu_service.h ..\Service\Inc\lfs_spi_flash_adapter.h
