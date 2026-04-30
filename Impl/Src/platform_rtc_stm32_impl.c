@@ -1,6 +1,11 @@
 #include "platform_rtc_stm32_impl.h"
 #include <string.h>
 
+static uint8_t is_leap_year(uint16_t year)
+{
+    return ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+}
+
 static int16_t rtc_stm32_init(void *ctx)
 {
     rtc_stm32_t *self = container_of(ctx, rtc_stm32_t, base);
@@ -190,7 +195,7 @@ uint32_t platform_rtc_datetime_to_timestamp(const platform_rtc_date_t *date, con
     }
     
     uint16_t year = date->year;
-    uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+    uint8_t is_leap = is_leap_year(year);
     
     static const uint16_t days_before_month[2][12] = {
         {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
@@ -200,7 +205,7 @@ uint32_t platform_rtc_datetime_to_timestamp(const platform_rtc_date_t *date, con
     uint32_t days = 0;
     for (uint16_t y = 1970; y < year; y++)
     {
-        days += ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) ? 366 : 365;
+        days += is_leap_year(y) ? 366 : 365;
     }
     
     if (date->month >= 1 && date->month <= 12)
@@ -232,7 +237,7 @@ void platform_rtc_timestamp_to_datetime(uint32_t timestamp, platform_rtc_date_t 
     uint16_t year = 1970;
     while (1)
     {
-        uint16_t days_in_year = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 366 : 365;
+        uint16_t days_in_year = is_leap_year(year) ? 366 : 365;
         if (days < days_in_year)
         {
             break;
@@ -243,7 +248,7 @@ void platform_rtc_timestamp_to_datetime(uint32_t timestamp, platform_rtc_date_t 
     
     date->year = year;
     
-    uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
+    uint8_t is_leap = is_leap_year(year);
     static const uint8_t days_in_month[2][12] = {
         {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31},
         {31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31}
