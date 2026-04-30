@@ -10,7 +10,7 @@ static int16_t lfs_src_open(const void* ctx, const char* path, uint32_t* total_s
 
     if (total_size == NULL || self->lfs == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     memset(&self->file, 0, sizeof(self->file));
@@ -26,13 +26,13 @@ static int16_t lfs_src_open(const void* ctx, const char* path, uint32_t* total_s
     if (res != LFS_ERR_OK)
     {
         printf("LFS: file not found %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
     }
 
     if (info.type != LFS_TYPE_REG)
     {
         printf("LFS: not a regular file %s\r\n", self->path);
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
     }
 
     self->total_size = (uint32_t)info.size;
@@ -42,12 +42,12 @@ static int16_t lfs_src_open(const void* ctx, const char* path, uint32_t* total_s
     if (res != LFS_ERR_OK)
     {
         printf("LFS: open failed %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
     }
 
     self->is_open = 1;
     printf("LFS source opened: %s, size=%lu\r\n", self->path, (unsigned long)self->total_size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t lfs_src_read(const void* ctx, uint8_t* buf, uint32_t size, uint32_t* bytes_read)
@@ -57,24 +57,24 @@ static int16_t lfs_src_read(const void* ctx, uint8_t* buf, uint32_t size, uint32
 
     if (buf == NULL || bytes_read == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     if (!self->is_open)
     {
         printf("LFS: read failed, not open\r\n");
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     res = lfs_file_read(self->lfs, &self->file, buf, size);
     if (res < 0)
     {
         printf("LFS: read failed, res=%ld\r\n", (long)res);
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     *bytes_read = (uint32_t)res;
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t lfs_src_close(const void* ctx)
@@ -84,19 +84,19 @@ static int16_t lfs_src_close(const void* ctx)
 
     if (!self->is_open)
     {
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     res = lfs_file_close(self->lfs, &self->file);
     if (res != LFS_ERR_OK)
     {
         printf("LFS: close failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     self->is_open = 0;
     printf("LFS source closed\r\n");
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t lfs_tgt_open(const void* ctx, const char* path, uint32_t total_size)
@@ -106,7 +106,7 @@ static int16_t lfs_tgt_open(const void* ctx, const char* path, uint32_t total_si
 
     if (self->lfs == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     memset(&self->file, 0, sizeof(self->file));
@@ -124,13 +124,13 @@ static int16_t lfs_tgt_open(const void* ctx, const char* path, uint32_t total_si
     if (res != LFS_ERR_OK)
     {
         printf("LFS: create failed %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_DST;
+        return TRANSPORT_STATUS_OPEN_DST;
     }
 
     self->is_open = 1;
     self->written_size = 0;
     printf("LFS target opened: %s, size=%lu\r\n", self->path, (unsigned long)total_size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t lfs_tgt_write(const void* ctx, uint32_t offset, const uint8_t* data, uint32_t len)
@@ -140,13 +140,13 @@ static int16_t lfs_tgt_write(const void* ctx, uint32_t offset, const uint8_t* da
 
     if (data == NULL || len == 0)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     if (!self->is_open)
     {
         printf("LFS: write failed, not open\r\n");
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     if (offset != self->written_size)
@@ -155,7 +155,7 @@ static int16_t lfs_tgt_write(const void* ctx, uint32_t offset, const uint8_t* da
         if (res < 0)
         {
             printf("LFS: seek failed at offset %lu, res=%ld\r\n", (unsigned long)offset, (long)res);
-            return STORAGE_STATUS_WRITE;
+            return TRANSPORT_STATUS_WRITE;
         }
     }
 
@@ -163,11 +163,11 @@ static int16_t lfs_tgt_write(const void* ctx, uint32_t offset, const uint8_t* da
     if (res != (lfs_ssize_t)len)
     {
         printf("LFS: write failed, res=%ld, expected=%lu\r\n", (long)res, (unsigned long)len);
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     self->written_size = offset + len;
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t lfs_tgt_close(const void* ctx)
@@ -177,7 +177,7 @@ static int16_t lfs_tgt_close(const void* ctx)
 
     if (!self->is_open)
     {
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     res = lfs_file_sync(self->lfs, &self->file);
@@ -185,39 +185,39 @@ static int16_t lfs_tgt_close(const void* ctx)
     {
         lfs_file_close(self->lfs, &self->file);
         printf("LFS: sync failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     res = lfs_file_close(self->lfs, &self->file);
     if (res != LFS_ERR_OK)
     {
         printf("LFS: close failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     self->is_open = 0;
     printf("LFS target closed\r\n");
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
-static const platform_storage_source_ops_t lfs_source_ops = {
+static const platform_transport_source_ops_t lfs_source_ops = {
     .open = lfs_src_open,
     .read = lfs_src_read,
     .close = lfs_src_close,
 };
 
-static const platform_storage_target_ops_t lfs_target_ops = {
+static const platform_transport_target_ops_t lfs_target_ops = {
     .open = lfs_tgt_open,
     .write = lfs_tgt_write,
     .close = lfs_tgt_close,
 };
 
-lfs_stm32_t g_lfs_storage = {
+lfs_stm32_t g_lfs_transport = {
     .base = {
         .source_ops = &lfs_source_ops,
         .target_ops = &lfs_target_ops,
         .name = "lfs",
-        .type = STORAGE_TYPE_SPI_FLASH_LFS,
+        .type = TRANSPORT_TYPE_SPI_FLASH_LFS,
         .user_data = NULL,
     },
     .lfs = NULL,

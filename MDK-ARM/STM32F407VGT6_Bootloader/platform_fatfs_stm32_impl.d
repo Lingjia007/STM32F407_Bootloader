@@ -1,7 +1,7 @@
 stm32f407vgt6_bootloader/platform_fatfs_stm32_impl.o: \
   ..\Impl\Src\platform_fatfs_stm32_impl.c \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
-  ..\Platform\Inc\platform_storage.h \
+  ..\Platform\Inc\platform_transport.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \

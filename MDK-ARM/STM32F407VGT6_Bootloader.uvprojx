@@ -726,11 +726,6 @@
               <FilePath>..\IAP\menu.c</FilePath>
             </File>
             <File>
-              <FileName>hpatch_upgrade.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IAP\hpatch_upgrade.c</FilePath>
-            </File>
-            <File>
               <FileName>ymodem.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IAP\ymodem.c</FilePath>
@@ -749,8 +744,6 @@
         </Group>
         <Group>
           <GroupName>Platform</GroupName>
-          <Files>
-          </Files>
         </Group>
         <Group>
           <GroupName>Impl</GroupName>
@@ -790,6 +783,16 @@
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_uart_stm32_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_filesystem_fatfs_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_filesystem_fatfs_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_filesystem_lfs_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_filesystem_lfs_impl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -814,6 +817,11 @@
               <FileName>menu_service.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Service\Src\menu_service.c</FilePath>
+            </File>
+            <File>
+              <FileName>hpatch_service.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\hpatch_service.c</FilePath>
             </File>
           </Files>
         </Group>

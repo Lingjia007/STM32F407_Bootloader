@@ -10,7 +10,7 @@ static int16_t fatfs_src_open(const void *ctx, const char *path, uint32_t *total
 
     if (total_size == NULL || self->fs == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     memset(&self->file, 0, sizeof(self->file));
@@ -26,7 +26,7 @@ static int16_t fatfs_src_open(const void *ctx, const char *path, uint32_t *total
     if (res != FR_OK)
     {
         printf("FATFS: file not found %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
     }
 
     self->total_size = (uint32_t)fno.fsize;
@@ -36,12 +36,12 @@ static int16_t fatfs_src_open(const void *ctx, const char *path, uint32_t *total
     if (res != FR_OK)
     {
         printf("FATFS: open failed %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
     }
 
     self->is_open = 1;
     printf("FATFS source opened: %s, size=%lu\r\n", self->path, (unsigned long)self->total_size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t fatfs_src_read(const void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
@@ -52,24 +52,24 @@ static int16_t fatfs_src_read(const void *ctx, uint8_t *buf, uint32_t size, uint
 
     if (buf == NULL || bytes_read == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     if (!self->is_open)
     {
         printf("FATFS: read failed, not open\r\n");
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     res = f_read(&self->file, buf, size, &br);
     if (res != FR_OK)
     {
         printf("FATFS: read failed, res=%d\r\n", res);
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     *bytes_read = (uint32_t)br;
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t fatfs_src_close(const void *ctx)
@@ -79,19 +79,19 @@ static int16_t fatfs_src_close(const void *ctx)
 
     if (!self->is_open)
     {
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     res = f_close(&self->file);
     if (res != FR_OK)
     {
         printf("FATFS: close failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     self->is_open = 0;
     printf("FATFS source closed\r\n");
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_size)
@@ -101,7 +101,7 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
 
     if (self->fs == NULL)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     memset(&self->file, 0, sizeof(self->file));
@@ -119,7 +119,7 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
     if (res != FR_OK)
     {
         printf("FATFS: create failed %s, res=%d\r\n", self->path, res);
-        return STORAGE_STATUS_OPEN_DST;
+        return TRANSPORT_STATUS_OPEN_DST;
     }
 
     if (total_size > 0)
@@ -129,7 +129,7 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
         {
             f_close(&self->file);
             printf("FATFS: seek failed, res=%d\r\n", res);
-            return STORAGE_STATUS_OPEN_DST;
+            return TRANSPORT_STATUS_OPEN_DST;
         }
 
         res = f_truncate(&self->file);
@@ -137,7 +137,7 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
         {
             f_close(&self->file);
             printf("FATFS: truncate failed, res=%d\r\n", res);
-            return STORAGE_STATUS_OPEN_DST;
+            return TRANSPORT_STATUS_OPEN_DST;
         }
 
         res = f_lseek(&self->file, 0);
@@ -145,14 +145,14 @@ static int16_t fatfs_tgt_open(const void *ctx, const char *path, uint32_t total_
         {
             f_close(&self->file);
             printf("FATFS: seek to 0 failed, res=%d\r\n", res);
-            return STORAGE_STATUS_OPEN_DST;
+            return TRANSPORT_STATUS_OPEN_DST;
         }
     }
 
     self->is_open = 1;
     self->written_size = 0;
     printf("FATFS target opened: %s, size=%lu\r\n", self->path, (unsigned long)total_size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
@@ -163,13 +163,13 @@ static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *
 
     if (data == NULL || len == 0)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     if (!self->is_open)
     {
         printf("FATFS: write failed, not open\r\n");
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     if (offset != self->written_size)
@@ -178,7 +178,7 @@ static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *
         if (res != FR_OK)
         {
             printf("FATFS: seek failed at offset %lu, res=%d\r\n", (unsigned long)offset, res);
-            return STORAGE_STATUS_WRITE;
+            return TRANSPORT_STATUS_WRITE;
         }
     }
 
@@ -186,11 +186,11 @@ static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *
     if (res != FR_OK || bw != len)
     {
         printf("FATFS: write failed, res=%d, bw=%u\r\n", res, bw);
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     self->written_size = offset + len;
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t fatfs_tgt_close(const void *ctx)
@@ -200,7 +200,7 @@ static int16_t fatfs_tgt_close(const void *ctx)
 
     if (!self->is_open)
     {
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     res = f_sync(&self->file);
@@ -208,39 +208,39 @@ static int16_t fatfs_tgt_close(const void *ctx)
     {
         f_close(&self->file);
         printf("FATFS: sync failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     res = f_close(&self->file);
     if (res != FR_OK)
     {
         printf("FATFS: close failed, res=%d\r\n", res);
-        return STORAGE_STATUS_CLOSE;
+        return TRANSPORT_STATUS_CLOSE;
     }
 
     self->is_open = 0;
     printf("FATFS target closed\r\n");
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
-static const platform_storage_source_ops_t fatfs_source_ops = {
+static const platform_transport_source_ops_t fatfs_source_ops = {
     .open = fatfs_src_open,
     .read = fatfs_src_read,
     .close = fatfs_src_close,
 };
 
-static const platform_storage_target_ops_t fatfs_target_ops = {
+static const platform_transport_target_ops_t fatfs_target_ops = {
     .open = fatfs_tgt_open,
     .write = fatfs_tgt_write,
     .close = fatfs_tgt_close,
 };
 
-fatfs_stm32_t g_fatfs_storage = {
+fatfs_stm32_t g_fatfs_transport = {
     .base = {
         .source_ops = &fatfs_source_ops,
         .target_ops = &fatfs_target_ops,
         .name = "fatfs",
-        .type = STORAGE_TYPE_SD_CARD_FATFS,
+        .type = TRANSPORT_TYPE_SD_CARD_FATFS,
         .user_data = NULL,
     },
     .fs = NULL,

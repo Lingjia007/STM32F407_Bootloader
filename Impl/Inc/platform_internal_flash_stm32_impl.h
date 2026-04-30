@@ -1,14 +1,14 @@
 #ifndef PLATFORM_INTERNAL_FLASH_STM32_IMPL_H
 #define PLATFORM_INTERNAL_FLASH_STM32_IMPL_H
 
-#include "platform_storage.h"
+#include "platform_transport.h"
 #include "stm32f4xx_hal.h"
 
 #define INTERNAL_FLASH_APP_ADDRESS 0x08020000
 #define INTERNAL_FLASH_END_ADDRESS 0x080FFFFF
 
 typedef struct {
-    platform_storage_base_t base;
+    platform_transport_base_t base;
     uint32_t start_addr;
     uint32_t total_size;
     uint32_t written_size;

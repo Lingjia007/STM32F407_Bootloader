@@ -96,17 +96,17 @@ static int16_t onenet_http_src_open(const void *ctx, const char *path, uint32_t 
     (void)path;
 
     if (g_ota_info == NULL || total_size == NULL)
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
 
     if (!http_source_build_auth())
-        return STORAGE_STATUS_OPEN_SRC;
+        return TRANSPORT_STATUS_OPEN_SRC;
 
     g_http_offset = 0;
     g_http_is_open = 1;
     *total_size = g_ota_info->size;
 
     printf("HTTP Source: open success, total_size=%lu\r\n", (unsigned long)g_ota_info->size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t onenet_http_src_read(const void *ctx, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
@@ -114,19 +114,19 @@ static int16_t onenet_http_src_read(const void *ctx, uint8_t *buf, uint32_t size
     (void)ctx;
 
     if (buf == NULL || bytes_read == NULL)
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
 
     if (!g_http_is_open)
     {
         printf("HTTP Source: read failed - not open\r\n");
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     if (g_http_offset >= g_ota_info->size)
     {
         *bytes_read = 0;
         printf("HTTP Source: read complete, offset=%lu\r\n", (unsigned long)g_http_offset);
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     uint32_t chunk_size = ONENET_DOWNLOAD_CHUNK_SIZE;
@@ -161,7 +161,7 @@ static int16_t onenet_http_src_read(const void *ctx, uint8_t *buf, uint32_t size
     if (actual_read == 0)
     {
         printf("HTTP Source: read failed after retries\r\n");
-        return STORAGE_STATUS_READ;
+        return TRANSPORT_STATUS_READ;
     }
 
     if (actual_read > 4 && (g_http_offset + actual_read) < g_ota_info->size)
@@ -187,7 +187,7 @@ static int16_t onenet_http_src_read(const void *ctx, uint8_t *buf, uint32_t size
         }
     }
 
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t onenet_http_src_close(const void *ctx)
@@ -196,20 +196,20 @@ static int16_t onenet_http_src_close(const void *ctx)
     g_http_is_open = 0;
     g_http_offset = 0;
     printf("HTTP Source: closed\r\n");
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
-static const platform_storage_source_ops_t onenet_http_source_ops = {
+static const platform_transport_source_ops_t onenet_http_source_ops = {
     .open = onenet_http_src_open,
     .read = onenet_http_src_read,
     .close = onenet_http_src_close,
 };
 
-platform_storage_base_t g_onenet_http_source = {
+platform_transport_base_t g_onenet_http_source = {
     .source_ops = &onenet_http_source_ops,
     .target_ops = NULL,
     .name = "onenet_http",
-    .type = STORAGE_TYPE_UNKNOWN,
+    .type = TRANSPORT_TYPE_HTTP_OTA,
     .user_data = NULL,
 };
 

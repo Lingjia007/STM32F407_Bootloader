@@ -38,7 +38,7 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\flash_if.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\IAP\ymodem.h ..\Service\Inc\ymodem_service.h \
-  ..\Platform\Inc\platform_storage.h ..\Platform\Inc\platform_uart.h \
+  ..\Platform\Inc\platform_transport.h ..\Platform\Inc\platform_uart.h \
   ..\Impl\Inc\platform_uart_stm32_impl.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
   ..\Bootloader_Core\bootloader_core.h \

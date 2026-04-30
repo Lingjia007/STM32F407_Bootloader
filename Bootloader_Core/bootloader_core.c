@@ -63,37 +63,37 @@ void jump_to_app(uint32_t app_address)
 
 static uint8_t bootloader_buffer[BOOTLOADER_BUFFER_SIZE] __attribute__((aligned(4)));
 
-static bootloader_err_t storage_status_to_bootloader(int16_t status)
+static bootloader_err_t transport_status_to_bootloader(int16_t status)
 {
     switch (status)
     {
-    case STORAGE_STATUS_OK:
+    case TRANSPORT_STATUS_OK:
         return BOOTLOADER_OK;
-    case STORAGE_STATUS_ERROR:
+    case TRANSPORT_STATUS_ERROR:
         return BOOTLOADER_ERR_ABORT;
-    case STORAGE_STATUS_PARAM:
+    case TRANSPORT_STATUS_PARAM:
         return BOOTLOADER_ERR_PARAM;
-    case STORAGE_STATUS_OPEN_SRC:
+    case TRANSPORT_STATUS_OPEN_SRC:
         return BOOTLOADER_ERR_OPEN_SRC;
-    case STORAGE_STATUS_OPEN_DST:
+    case TRANSPORT_STATUS_OPEN_DST:
         return BOOTLOADER_ERR_OPEN_DST;
-    case STORAGE_STATUS_READ:
+    case TRANSPORT_STATUS_READ:
         return BOOTLOADER_ERR_READ;
-    case STORAGE_STATUS_WRITE:
+    case TRANSPORT_STATUS_WRITE:
         return BOOTLOADER_ERR_WRITE;
-    case STORAGE_STATUS_CLOSE:
+    case TRANSPORT_STATUS_CLOSE:
         return BOOTLOADER_ERR_CLOSE;
-    case STORAGE_STATUS_ERASE:
+    case TRANSPORT_STATUS_ERASE:
         return BOOTLOADER_ERR_ERASE;
-    case STORAGE_STATUS_VERIFY:
+    case TRANSPORT_STATUS_VERIFY:
         return BOOTLOADER_ERR_VERIFY;
     default:
         return BOOTLOADER_ERR_ABORT;
     }
 }
 
-bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
-                                     const platform_storage_base_t *tgt_storage,
+bootloader_err_t bootloader_download(const platform_transport_base_t *src_transport,
+                                     const platform_transport_base_t *tgt_transport,
                                      const char *path)
 {
     int16_t err;
@@ -102,34 +102,34 @@ bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
     uint32_t total_read = 0;
     uint32_t offset = 0;
 
-    if (src_storage == NULL || tgt_storage == NULL)
+    if (src_transport == NULL || tgt_transport == NULL)
     {
         printf("bootloader_download: param null\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
-    if (src_storage->source_ops == NULL || tgt_storage->target_ops == NULL)
+    if (src_transport->source_ops == NULL || tgt_transport->target_ops == NULL)
     {
         printf("bootloader_download: missing ops\r\n");
         return BOOTLOADER_ERR_PARAM;
     }
 
-    printf("bootloader_download: opening source [%s]...\r\n", src_storage->name);
-    err = STORAGE_SOURCE_OPEN(src_storage, path, &total_size);
-    if (err != STORAGE_STATUS_OK)
+    printf("bootloader_download: opening source [%s]...\r\n", src_transport->name);
+    err = TRANSPORT_SOURCE_OPEN(src_transport, path, &total_size);
+    if (err != TRANSPORT_STATUS_OK)
     {
         printf("bootloader_download: src open failed err=%d\r\n", err);
-        return storage_status_to_bootloader(err);
+        return transport_status_to_bootloader(err);
     }
 
     printf("bootloader_download: total_size=%lu, opening target [%s]...\r\n",
-           (unsigned long)total_size, tgt_storage->name);
-    err = STORAGE_TARGET_OPEN(tgt_storage, path, total_size);
-    if (err != STORAGE_STATUS_OK)
+           (unsigned long)total_size, tgt_transport->name);
+    err = TRANSPORT_TARGET_OPEN(tgt_transport, path, total_size);
+    if (err != TRANSPORT_STATUS_OK)
     {
         printf("bootloader_download: tgt open failed err=%d\r\n", err);
-        STORAGE_SOURCE_CLOSE(src_storage);
-        return storage_status_to_bootloader(err);
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return transport_status_to_bootloader(err);
     }
 
     printf("bootloader_download: starting download loop...\r\n");
@@ -141,13 +141,13 @@ bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
             to_read = total_size - total_read;
         }
 
-        err = STORAGE_SOURCE_READ(src_storage, bootloader_buffer, to_read, &bytes_read);
-        if (err != STORAGE_STATUS_OK)
+        err = TRANSPORT_SOURCE_READ(src_transport, bootloader_buffer, to_read, &bytes_read);
+        if (err != TRANSPORT_STATUS_OK)
         {
             printf("bootloader_download: src read failed err=%d\r\n", err);
-            STORAGE_TARGET_CLOSE(tgt_storage);
-            STORAGE_SOURCE_CLOSE(src_storage);
-            return storage_status_to_bootloader(err);
+            TRANSPORT_TARGET_CLOSE(tgt_transport);
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return transport_status_to_bootloader(err);
         }
 
         if (bytes_read == 0)
@@ -156,13 +156,13 @@ bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
             break;
         }
 
-        err = STORAGE_TARGET_WRITE(tgt_storage, offset, bootloader_buffer, bytes_read);
-        if (err != STORAGE_STATUS_OK)
+        err = TRANSPORT_TARGET_WRITE(tgt_transport, offset, bootloader_buffer, bytes_read);
+        if (err != TRANSPORT_STATUS_OK)
         {
             printf("bootloader_download: tgt write failed err=%d\r\n", err);
-            STORAGE_TARGET_CLOSE(tgt_storage);
-            STORAGE_SOURCE_CLOSE(src_storage);
-            return storage_status_to_bootloader(err);
+            TRANSPORT_TARGET_CLOSE(tgt_transport);
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return transport_status_to_bootloader(err);
         }
 
         total_read += bytes_read;
@@ -171,20 +171,20 @@ bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
     }
 
     printf("bootloader_download: closing target...\r\n");
-    err = STORAGE_TARGET_CLOSE(tgt_storage);
-    if (err != STORAGE_STATUS_OK)
+    err = TRANSPORT_TARGET_CLOSE(tgt_transport);
+    if (err != TRANSPORT_STATUS_OK)
     {
         printf("bootloader_download: tgt close failed err=%d\r\n", err);
-        STORAGE_SOURCE_CLOSE(src_storage);
-        return storage_status_to_bootloader(err);
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return transport_status_to_bootloader(err);
     }
 
     printf("bootloader_download: closing source...\r\n");
-    err = STORAGE_SOURCE_CLOSE(src_storage);
-    if (err != STORAGE_STATUS_OK)
+    err = TRANSPORT_SOURCE_CLOSE(src_transport);
+    if (err != TRANSPORT_STATUS_OK)
     {
         printf("bootloader_download: src close failed err=%d\r\n", err);
-        return storage_status_to_bootloader(err);
+        return transport_status_to_bootloader(err);
     }
 
     printf("bootloader_download: success\r\n");

@@ -2,7 +2,7 @@
 #define BOOTLOADER_CORE_H
 
 #include "stm32f4xx_hal.h"
-#include "platform_storage.h"
+#include "platform_transport.h"
 #include "platform_internal_flash_stm32_impl.h"
 #include "platform_fatfs_stm32_impl.h"
 #include "platform_lfs_stm32_impl.h"
@@ -86,8 +86,8 @@ typedef struct
     bootloader_err_t last_error;
 } bootloader_ctx_t;
 
-bootloader_err_t bootloader_download(const platform_storage_base_t *src_storage,
-                                     const platform_storage_base_t *tgt_storage,
+bootloader_err_t bootloader_download(const platform_transport_base_t *src_transport,
+                                     const platform_transport_base_t *tgt_transport,
                                      const char *path);
 
 extern bootloader_ctx_t bootloader_ctx;

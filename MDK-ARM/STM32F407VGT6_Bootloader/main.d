@@ -55,7 +55,7 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\USB_DEVICE\Target\usbd_conf.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h ..\IAP\menu.h \
   ..\IAP\flash_if.h ..\IAP\ymodem.h ..\Service\Inc\ymodem_service.h \
-  ..\Platform\Inc\platform_storage.h ..\Platform\Inc\platform_uart.h \
+  ..\Platform\Inc\platform_transport.h ..\Platform\Inc\platform_uart.h \
   ..\Bootloader_Core\Bootloader_core.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \

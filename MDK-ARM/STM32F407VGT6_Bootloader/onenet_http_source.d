@@ -1,6 +1,7 @@
 stm32f407vgt6_bootloader/onenet_http_source.o: \
   ..\ESP8266_OTA\onenet_http_source.c \
-  ..\ESP8266_OTA\onenet_http_source.h ..\Platform\Inc\platform_storage.h \
+  ..\ESP8266_OTA\onenet_http_source.h \
+  ..\Platform\Inc\platform_transport.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h ..\ESP8266_OTA\onenet_ota.h \
   ..\ESP8266_OTA\transport.h \

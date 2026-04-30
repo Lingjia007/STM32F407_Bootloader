@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include "platform_storage.h"
+#include "platform_transport.h"
 #include "platform_uart.h"
 
 #define PACKET_HEADER_SIZE ((uint32_t)3)
@@ -48,7 +48,7 @@ typedef enum
 typedef struct
 {
     platform_uart_base_t *uart;
-    platform_storage_base_t *storage;
+    platform_transport_base_t *transport;
     uint32_t max_size;
     uint8_t *file_name;
     uint32_t file_name_len;
@@ -64,7 +64,7 @@ typedef struct
     uint8_t session_done;
     uint8_t file_done;
     uint8_t session_begin;
-    uint8_t storage_opened;
+    uint8_t transport_opened;
 } ymodem_ctx_t;
 
 ymodem_status_t ymodem_service_receive(ymodem_config_t *config, ymodem_ctx_t *ctx, uint32_t *p_size);

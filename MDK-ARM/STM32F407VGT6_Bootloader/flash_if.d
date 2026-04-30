@@ -38,7 +38,7 @@ stm32f407vgt6_bootloader/flash_if.o: ..\IAP\flash_if.c ..\IAP\flash_if.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
   ..\Bootloader_Core\bootloader_core.h \
-  ..\Platform\Inc\platform_storage.h \
+  ..\Platform\Inc\platform_transport.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \

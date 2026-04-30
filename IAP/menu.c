@@ -9,6 +9,8 @@
 #include "main.h"
 #include "menu_service.h"
 #include "platform_uart_stm32_impl.h"
+#include "platform_filesystem_fatfs_impl.h"
+#include "platform_filesystem_lfs_impl.h"
 #include "flash_if.h"
 #include "menu.h"
 #include "ymodem.h"
@@ -20,7 +22,7 @@
 #include "string.h"
 #include "ctype.h"
 #include "aes_decrypt.h"
-#include "hpatch_upgrade.h"
+#include "hpatch_service.h"
 #include "usart.h"
 #include "esp8266_driver.h"
 #include "esp8266_ota_api.h"
@@ -374,12 +376,12 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting firmware update...");
 
-  g_fatfs_storage.fs = &SDFatFS;
+  g_fatfs_transport.fs = &SDFatFS;
   strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_fatfs_storage.base, &g_internal_flash.base, bootloader_ctx.config.storage.fatfs_path);
+  err = bootloader_download(&g_fatfs_transport.base, &g_internal_flash.base, bootloader_ctx.config.storage.fatfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -466,12 +468,12 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting firmware update...");
 
-  g_lfs_storage.lfs = &lfs;
+  g_lfs_transport.lfs = &lfs;
   strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_lfs_storage.base, &g_internal_flash.base, bootloader_ctx.config.storage.lfs_path);
+  err = bootloader_download(&g_lfs_transport.base, &g_internal_flash.base, bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
   {
@@ -832,14 +834,14 @@ static void StoreFromTFCard(void)
   menu_service_println(&g_menu_ctx, msg);
   menu_service_println(&g_menu_ctx, "Storing image to SPI Flash...");
 
-  g_fatfs_storage.fs = &SDFatFS;
-  g_lfs_storage.lfs = &lfs;
+  g_fatfs_transport.fs = &SDFatFS;
+  g_lfs_transport.lfs = &lfs;
   strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
 
-  err = bootloader_download(&g_fatfs_storage.base, &g_lfs_storage.base, bootloader_ctx.config.storage.lfs_path);
+  err = bootloader_download(&g_fatfs_transport.base, &g_lfs_transport.base, bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
     menu_service_println(&g_menu_ctx, "Image stored successfully!");
@@ -2257,8 +2259,10 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t i;
   char msg[256];
   FRESULT res;
-  hpatch_upgrade_err_t patch_result;
+  hpatch_err_t patch_result;
   hpatch_config_t config;
+  char diff_path[HPATCH_MAX_PATH_LEN];
+  char old_path[HPATCH_MAX_PATH_LEN];
   char out_path[HPATCH_MAX_PATH_LEN];
   char *dot_pos;
   const char *upgrade_tag = "_HdiffUpgraded";
@@ -2352,10 +2356,10 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected_old - 1]);
   menu_service_println(ctx, msg);
 
-  snprintf(config.diff_path, sizeof(config.diff_path), "0:/%s", hdiff_list[selected_diff - 1]);
-  snprintf(config.old_path, sizeof(config.old_path), "0:/%s", file_list[selected_old - 1]);
+  snprintf(diff_path, sizeof(diff_path), "0:/%s", hdiff_list[selected_diff - 1]);
+  snprintf(old_path, sizeof(old_path), "0:/%s", file_list[selected_old - 1]);
 
-  strncpy(out_path, config.old_path, sizeof(out_path) - 1);
+  strncpy(out_path, old_path, sizeof(out_path) - 1);
   out_path[sizeof(out_path) - 1] = '\0';
 
   dot_pos = strrchr(out_path, '.');
@@ -2373,8 +2377,11 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     strncat(out_path, ".bin", sizeof(out_path) - strlen(out_path) - 1);
   }
 
-  snprintf(config.out_path, sizeof(config.out_path), "%s", out_path);
-  config.fatfs = &SDFatFS;
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+  config.fs = &g_fs_fatfs.base;
+  config.diff_path = diff_path;
+  config.old_path = old_path;
+  config.out_path = out_path;
 
   snprintf(msg, sizeof(msg), "\rDiff file: %s", config.diff_path);
   menu_service_println(ctx, msg);
@@ -2384,7 +2391,7 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting HPatch differential upgrade...");
 
-  patch_result = hpatch_upgrade_fatfs(&config);
+  patch_result = hpatch_upgrade(&config);
 
   if (patch_result == HPATCH_OK)
   {
@@ -2395,9 +2402,8 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   }
   else
   {
-    menu_service_print(ctx, "HPatch upgrade failed! Error code: ");
-    menu_service_int2str((uint8_t *)msg, (uint32_t)(-patch_result));
-    menu_service_println(ctx, msg);
+    menu_service_print(ctx, "HPatch upgrade failed! Error: ");
+    menu_service_println(ctx, hpatch_err_to_string(patch_result));
   }
 
   f_mount(NULL, (TCHAR const *)SDPath, 0);
@@ -2412,8 +2418,8 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
   char msg[256];
   int res;
   lfs_t lfs;
-  hpatch_upgrade_err_t patch_result;
-  hpatch_lfs_config_t config;
+  hpatch_err_t patch_result;
+  hpatch_config_t config;
   char out_path[HPATCH_MAX_PATH_LEN];
   char *dot_pos;
   const char *upgrade_tag = "_HdiffUpgraded";
@@ -2531,7 +2537,8 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
     strncat(out_path, ".bin", sizeof(out_path) - strlen(out_path) - 1);
   }
 
-  config.lfs = &lfs;
+  platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
+  config.fs = &g_fs_lfs.base;
   config.diff_path = hdiff_list[selected_diff - 1];
   config.old_path = file_list[selected_old - 1];
   config.out_path = out_path;
@@ -2544,7 +2551,7 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting HPatch differential upgrade...");
 
-  patch_result = hpatch_upgrade_lfs(&config);
+  patch_result = hpatch_upgrade(&config);
 
   if (patch_result == HPATCH_OK)
   {
@@ -2555,9 +2562,8 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
   }
   else
   {
-    menu_service_print(ctx, "HPatch upgrade failed! Error code: ");
-    menu_service_int2str((uint8_t *)msg, (uint32_t)(-patch_result));
-    menu_service_println(ctx, msg);
+    menu_service_print(ctx, "HPatch upgrade failed! Error: ");
+    menu_service_println(ctx, hpatch_err_to_string(patch_result));
   }
 
   lfs_spi_flash_unmount(&lfs);

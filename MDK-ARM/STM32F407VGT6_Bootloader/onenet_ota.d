@@ -39,7 +39,7 @@ stm32f407vgt6_bootloader/onenet_ota.o: ..\ESP8266_OTA\onenet_ota.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Platform\Inc\platform_storage.h \
+  ..\Platform\Inc\platform_transport.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \

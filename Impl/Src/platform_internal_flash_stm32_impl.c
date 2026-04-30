@@ -36,7 +36,7 @@ static int16_t internal_flash_tgt_open(const void* ctx, const char* path, uint32
         {
             HAL_FLASH_Lock();
             printf("Internal flash erase failed\r\n");
-            return STORAGE_STATUS_ERASE;
+            return TRANSPORT_STATUS_ERASE;
         }
     }
 
@@ -45,7 +45,7 @@ static int16_t internal_flash_tgt_open(const void* ctx, const char* path, uint32
 
     printf("Internal flash opened, addr=0x%08lX, size=%lu\r\n", 
            (unsigned long)self->start_addr, (unsigned long)total_size);
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const uint8_t* data, uint32_t len)
@@ -59,13 +59,13 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
 
     if (data == NULL || len == 0)
     {
-        return STORAGE_STATUS_PARAM;
+        return TRANSPORT_STATUS_PARAM;
     }
 
     if (!self->is_open)
     {
         printf("Internal flash not open\r\n");
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     FlashAddress = self->start_addr + offset;
@@ -73,7 +73,7 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
     if ((FlashAddress % 4) != 0)
     {
         printf("Internal flash: write address not aligned 0x%08lX\r\n", (unsigned long)FlashAddress);
-        return STORAGE_STATUS_WRITE;
+        return TRANSPORT_STATUS_WRITE;
     }
 
     if (self->pending_len > 0)
@@ -83,7 +83,7 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
         {
             memcpy(self->pending_buf + self->pending_len, data, len);
             self->pending_len += len;
-            return STORAGE_STATUS_OK;
+            return TRANSPORT_STATUS_OK;
         }
 
         memcpy(self->pending_buf + self->pending_len, data, need);
@@ -94,13 +94,13 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
             if (*(uint32_t*)FlashAddress != DataWord)
             {
                 printf("Internal flash verify failed at 0x%08lX\r\n", (unsigned long)FlashAddress);
-                return STORAGE_STATUS_VERIFY;
+                return TRANSPORT_STATUS_VERIFY;
             }
         }
         else
         {
             printf("Internal flash program failed at 0x%08lX\r\n", (unsigned long)FlashAddress);
-            return STORAGE_STATUS_WRITE;
+            return TRANSPORT_STATUS_WRITE;
         }
 
         FlashAddress += 4;
@@ -126,14 +126,14 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
             if (*(uint32_t*)FlashAddress != DataWord)
             {
                 printf("Internal flash verify failed at 0x%08lX\r\n", (unsigned long)FlashAddress);
-                return STORAGE_STATUS_VERIFY;
+                return TRANSPORT_STATUS_VERIFY;
             }
             FlashAddress += 4;
         }
         else
         {
             printf("Internal flash program failed at 0x%08lX\r\n", (unsigned long)FlashAddress);
-            return STORAGE_STATUS_WRITE;
+            return TRANSPORT_STATUS_WRITE;
         }
     }
 
@@ -146,7 +146,7 @@ static int16_t internal_flash_tgt_write(const void* ctx, uint32_t offset, const 
         self->pending_len = remain;
     }
 
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
 static int16_t internal_flash_tgt_close(const void* ctx)
@@ -155,7 +155,7 @@ static int16_t internal_flash_tgt_close(const void* ctx)
 
     if (!self->is_open)
     {
-        return STORAGE_STATUS_OK;
+        return TRANSPORT_STATUS_OK;
     }
 
     if (self->pending_len > 0)
@@ -174,14 +174,14 @@ static int16_t internal_flash_tgt_close(const void* ctx)
             {
                 HAL_FLASH_Lock();
                 printf("Internal flash verify failed\r\n");
-                return STORAGE_STATUS_VERIFY;
+                return TRANSPORT_STATUS_VERIFY;
             }
         }
         else
         {
             HAL_FLASH_Lock();
             printf("Internal flash program failed\r\n");
-            return STORAGE_STATUS_WRITE;
+            return TRANSPORT_STATUS_WRITE;
         }
 
         self->pending_len = 0;
@@ -192,10 +192,10 @@ static int16_t internal_flash_tgt_close(const void* ctx)
     self->is_open = 0;
     printf("Internal flash closed\r\n");
 
-    return STORAGE_STATUS_OK;
+    return TRANSPORT_STATUS_OK;
 }
 
-static const platform_storage_target_ops_t internal_flash_target_ops = {
+static const platform_transport_target_ops_t internal_flash_target_ops = {
     .open = internal_flash_tgt_open,
     .write = internal_flash_tgt_write,
     .close = internal_flash_tgt_close,
@@ -206,7 +206,7 @@ internal_flash_stm32_t g_internal_flash = {
         .source_ops = NULL,
         .target_ops = &internal_flash_target_ops,
         .name = "internal_flash",
-        .type = STORAGE_TYPE_INTERNAL_FLASH,
+        .type = TRANSPORT_TYPE_INTERNAL_FLASH,
         .user_data = NULL,
     },
     .start_addr = INTERNAL_FLASH_APP_ADDRESS,

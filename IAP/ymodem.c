@@ -37,7 +37,7 @@ extern uint8_t aFileName[FILE_NAME_LENGTH];
 COM_StatusTypeDef Ymodem_Receive(uint32_t *p_size)
 {
   g_ymodem_config.uart = (platform_uart_base_t *)&g_uart4_console.base;
-  g_ymodem_config.storage = (platform_storage_base_t *)&g_internal_flash.base;
+  g_ymodem_config.transport = (platform_transport_base_t *)&g_internal_flash.base;
   g_ymodem_config.max_size = USER_FLASH_SIZE;
   g_ymodem_config.file_name = aFileName;
   g_ymodem_config.file_name_len = FILE_NAME_LENGTH;
@@ -50,7 +50,7 @@ COM_StatusTypeDef Ymodem_Receive(uint32_t *p_size)
 COM_StatusTypeDef Ymodem_Transmit(uint8_t *p_buf, const uint8_t *p_file_name, uint32_t file_size)
 {
   g_ymodem_config.uart = (platform_uart_base_t *)&g_uart4_console.base;
-  g_ymodem_config.storage = (platform_storage_base_t *)&g_internal_flash.base;
+  g_ymodem_config.transport = (platform_transport_base_t *)&g_internal_flash.base;
   g_ymodem_config.max_size = USER_FLASH_SIZE;
   g_ymodem_config.file_name = g_file_name;
   g_ymodem_config.file_name_len = FILE_NAME_LENGTH;

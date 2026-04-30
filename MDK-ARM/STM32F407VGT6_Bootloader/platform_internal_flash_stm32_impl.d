@@ -1,7 +1,7 @@
 stm32f407vgt6_bootloader/platform_internal_flash_stm32_impl.o: \
   ..\Impl\Src\platform_internal_flash_stm32_impl.c \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
-  ..\Platform\Inc\platform_storage.h \
+  ..\Platform\Inc\platform_transport.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \

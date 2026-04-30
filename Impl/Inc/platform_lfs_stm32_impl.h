@@ -1,13 +1,13 @@
 #ifndef PLATFORM_LFS_STM32_IMPL_H
 #define PLATFORM_LFS_STM32_IMPL_H
 
-#include "platform_storage.h"
+#include "platform_transport.h"
 #include "lfs.h"
 
 #define LFS_PATH_MAX 128
 
 typedef struct {
-    platform_storage_base_t base;
+    platform_transport_base_t base;
     lfs_t* lfs;
     lfs_file_t file;
     char path[LFS_PATH_MAX];
@@ -17,6 +17,6 @@ typedef struct {
     uint8_t is_source;
 } lfs_stm32_t;
 
-extern lfs_stm32_t g_lfs_storage;
+extern lfs_stm32_t g_lfs_transport;
 
 #endif

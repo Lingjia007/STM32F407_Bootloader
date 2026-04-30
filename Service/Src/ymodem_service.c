@@ -224,7 +224,7 @@ ymodem_status_t ymodem_service_receive(ymodem_config_t *config, ymodem_ctx_t *ct
     ctx->session_done = 0;
     ctx->errors = 0;
     ctx->session_begin = 0;
-    ctx->storage_opened = 0;
+    ctx->transport_opened = 0;
     ctx->total_size = 0;
 
     while ((ctx->session_done == 0) && (result == YMODEM_OK))
@@ -306,12 +306,12 @@ ymodem_status_t ymodem_service_receive(ymodem_config_t *config, ymodem_ctx_t *ct
                                     ctx->total_size = filesize;
                                     *p_size = filesize;
 
-                                    if (config->storage)
+                                    if (config->transport)
                                     {
-                                        int16_t open_result = STORAGE_TARGET_OPEN(config->storage, NULL, filesize);
-                                        if (open_result == (int16_t)STORAGE_STATUS_OK)
+                                        int16_t open_result = TRANSPORT_TARGET_OPEN(config->transport, NULL, filesize);
+                                        if (open_result == (int16_t)TRANSPORT_STATUS_OK)
                                         {
-                                            ctx->storage_opened = 1;
+                                            ctx->transport_opened = 1;
                                         }
                                         else
                                         {
@@ -338,15 +338,15 @@ ymodem_status_t ymodem_service_receive(ymodem_config_t *config, ymodem_ctx_t *ct
                         }
                         else
                         {
-                            if (config->storage && ctx->storage_opened)
+                            if (config->transport && ctx->transport_opened)
                             {
-                                int16_t write_status = STORAGE_TARGET_WRITE(
-                                    config->storage,
+                                int16_t write_status = TRANSPORT_TARGET_WRITE(
+                                    config->transport,
                                     ctx->write_offset,
                                     &ctx->packet_data[PACKET_DATA_INDEX],
                                     packet_length);
 
-                                if (write_status == (int16_t)STORAGE_STATUS_OK)
+                                if (write_status == (int16_t)TRANSPORT_STATUS_OK)
                                 {
                                     ctx->write_offset += packet_length;
                                     UART_TRANSMIT(config->uart, (uint8_t[]){ACK}, 1, 100);
@@ -399,10 +399,10 @@ ymodem_status_t ymodem_service_receive(ymodem_config_t *config, ymodem_ctx_t *ct
         }
     }
 
-    if (ctx->storage_opened && config->storage)
+    if (ctx->transport_opened && config->transport)
     {
-        STORAGE_TARGET_CLOSE(config->storage);
-        ctx->storage_opened = 0;
+        TRANSPORT_TARGET_CLOSE(config->transport);
+        ctx->transport_opened = 0;
     }
 
     return result;
