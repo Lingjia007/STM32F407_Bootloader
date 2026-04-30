@@ -59,4 +59,5 @@ stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
   ..\Platform\Inc\platform_transport.h \
   ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
-  ..\Impl\Inc\platform_lfs_stm32_impl.h
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h

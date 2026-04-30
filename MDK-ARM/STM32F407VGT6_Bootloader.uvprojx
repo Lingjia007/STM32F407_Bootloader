@@ -691,6 +691,11 @@
               <FilePath>../Core/Src/usart.c</FilePath>
             </File>
             <File>
+              <FileName>platform_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Core/Src/platform_config.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f4xx_it.c</FilePath>
@@ -740,11 +745,6 @@
         <Group>
           <GroupName>Platform</GroupName>
           <Files>
-            <File>
-              <FileName>platform_config.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Platform\Src\platform_config.c</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
@@ -794,6 +794,11 @@
               <FileName>platform_filesystem_lfs_impl.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_filesystem_lfs_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_rtc_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_rtc_stm32_impl.c</FilePath>
             </File>
           </Files>
         </Group>

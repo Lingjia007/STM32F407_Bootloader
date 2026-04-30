@@ -27,7 +27,6 @@
 #include "esp8266_ota_api.h"
 #include "onenet_ota.h"
 #include "esp8266_ota_config.h"
-#include "rtc.h"
 #include "esp8266_mqtt.h"
 
 #define MAX_FILES 20
@@ -560,6 +559,8 @@ static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t rx_data;
   uint8_t q_count = 0;
   uint32_t q_timer = 0;
+  platform_uart_base_t *uart4 = &g_uart4_console.base;
+  platform_uart_base_t *usart1 = &g_usart1_esp8266.base;
 
   menu_service_println(ctx, "\r\n========== UART4 <-> USART1 Passthrough Mode ==========");
   menu_service_println(ctx, "  UART4 (PA0/PA1) <--> USART1 (PA9/PA10)");
@@ -568,19 +569,19 @@ static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, "  Press 'q' 3 times within 1 second to exit");
   menu_service_println(ctx, "========================================================\n");
 
-  HAL_UART_AbortReceive_IT(&huart1);
-  __HAL_UART_DISABLE_IT(&huart1, UART_IT_RXNE);
-  __HAL_UART_DISABLE_IT(&huart1, UART_IT_IDLE);
-  __HAL_UART_FLUSH_DRREGISTER(&huart4);
-  __HAL_UART_FLUSH_DRREGISTER(&huart1);
-  __HAL_UART_CLEAR_OREFLAG(&huart4);
-  __HAL_UART_CLEAR_OREFLAG(&huart1);
+  UART_ABORT(usart1);
+  UART_DISABLE_IT(usart1, PLATFORM_UART_IT_RXNE);
+  UART_DISABLE_IT(usart1, PLATFORM_UART_IT_IDLE);
+  UART_FLUSH(uart4);
+  UART_FLUSH(usart1);
+  UART_CLEAR_FLAG(uart4, PLATFORM_UART_FLAG_ORE);
+  UART_CLEAR_FLAG(usart1, PLATFORM_UART_FLAG_ORE);
 
   while (1)
   {
-    if ((huart4.Instance->SR & UART_FLAG_RXNE) != RESET)
+    if (UART_GET_FLAG(uart4, PLATFORM_UART_FLAG_RXNE))
     {
-      rx_data = (uint8_t)(huart4.Instance->DR & 0xFF);
+      rx_data = UART_READ_BYTE(uart4);
       if (rx_data == 'q')
       {
         if (q_count == 0 || (HAL_GetTick() - q_timer) < 1000)
@@ -590,8 +591,8 @@ static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
           if (q_count >= 3)
           {
             menu_service_println(ctx, "\n\nExiting passthrough mode...");
-            __HAL_UART_ENABLE_IT(&huart1, UART_IT_RXNE);
-            __HAL_UART_ENABLE_IT(&huart1, UART_IT_IDLE);
+            UART_ENABLE_IT(usart1, PLATFORM_UART_IT_RXNE);
+            UART_ENABLE_IT(usart1, PLATFORM_UART_IT_IDLE);
             return;
           }
         }
@@ -600,33 +601,33 @@ static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
           q_count = 1;
           q_timer = HAL_GetTick();
         }
-        while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
+        while (!UART_GET_FLAG(usart1, PLATFORM_UART_FLAG_TXE))
           ;
-        huart1.Instance->DR = rx_data;
+        UART_WRITE_BYTE(usart1, rx_data);
       }
       else
       {
         q_count = 0;
-        while ((huart1.Instance->SR & UART_FLAG_TXE) == RESET)
+        while (!UART_GET_FLAG(usart1, PLATFORM_UART_FLAG_TXE))
           ;
-        huart1.Instance->DR = rx_data;
+        UART_WRITE_BYTE(usart1, rx_data);
       }
     }
-    else if ((huart4.Instance->SR & UART_FLAG_ORE) != RESET)
+    else if (UART_GET_FLAG(uart4, PLATFORM_UART_FLAG_ORE))
     {
-      __HAL_UART_CLEAR_OREFLAG(&huart4);
+      UART_CLEAR_FLAG(uart4, PLATFORM_UART_FLAG_ORE);
     }
 
-    if ((huart1.Instance->SR & UART_FLAG_RXNE) != RESET)
+    if (UART_GET_FLAG(usart1, PLATFORM_UART_FLAG_RXNE))
     {
-      rx_data = (uint8_t)(huart1.Instance->DR & 0xFF);
-      while ((huart4.Instance->SR & UART_FLAG_TXE) == RESET)
+      rx_data = UART_READ_BYTE(usart1);
+      while (!UART_GET_FLAG(uart4, PLATFORM_UART_FLAG_TXE))
         ;
-      huart4.Instance->DR = rx_data;
+      UART_WRITE_BYTE(uart4, rx_data);
     }
-    else if ((huart1.Instance->SR & UART_FLAG_ORE) != RESET)
+    else if (UART_GET_FLAG(usart1, PLATFORM_UART_FLAG_ORE))
     {
-      __HAL_UART_CLEAR_OREFLAG(&huart1);
+      UART_CLEAR_FLAG(usart1, PLATFORM_UART_FLAG_ORE);
     }
   }
 }
@@ -1123,42 +1124,39 @@ static void cmd_delete_fs(menu_ctx_t *ctx, int argc, char *argv[])
 
 static void Print_Current_Time(void)
 {
-  RTC_TimeTypeDef sTime;
-  RTC_DateTypeDef sDate;
+  platform_rtc_time_t rtc_time;
+  platform_rtc_date_t rtc_date;
   char msg[128];
 
-  if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) != HAL_OK)
+  if (RTC_GET_TIME(&g_rtc.base, &rtc_time) != RTC_STATUS_OK)
   {
     menu_service_println(&g_menu_ctx, "Failed to get RTC time!");
     return;
   }
-  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
-  if (sDate.Year < 25)
+  if (RTC_GET_DATE(&g_rtc.base, &rtc_date) != RTC_STATUS_OK)
+  {
+    menu_service_println(&g_menu_ctx, "Failed to get RTC date!");
+    return;
+  }
+
+  if (rtc_date.year < 2025)
   {
     menu_service_println(&g_menu_ctx, "RTC time not set (year < 2025)");
     return;
   }
 
-  uint16_t year = sDate.Year + 2000;
   snprintf(msg, sizeof(msg), "\rCurrent Time: %04d-%02d-%02d %02d:%02d:%02d (UTC+8)",
-           year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+           rtc_date.year, rtc_date.month, rtc_date.date,
+           rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
   menu_service_println(&g_menu_ctx, msg);
 
-  uint8_t is_leap = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
-  static const uint16_t days_before_month[2][12] = {
-      {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334},
-      {0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335}};
-
-  uint32_t days = 0;
-  for (uint16_t y = 1970; y < year; y++)
-    days += ((y % 4 == 0 && y % 100 != 0) || (y % 400 == 0)) ? 366 : 365;
-  days += days_before_month[is_leap][sDate.Month - 1];
-  days += sDate.Date - 1;
-
-  uint32_t timestamp = days * 86400UL + sTime.Hours * 3600UL + sTime.Minutes * 60UL + sTime.Seconds;
-  snprintf(msg, sizeof(msg), "Unix Timestamp: %lu", (unsigned long)timestamp);
-  menu_service_println(&g_menu_ctx, msg);
+  uint32_t timestamp;
+  if (RTC_GET_TIMESTAMP(&g_rtc.base, &timestamp) == RTC_STATUS_OK)
+  {
+    snprintf(msg, sizeof(msg), "Unix Timestamp: %lu", (unsigned long)timestamp);
+    menu_service_println(&g_menu_ctx, msg);
+  }
 }
 
 static void cmd_esp8266_init(menu_ctx_t *ctx, int argc, char *argv[])
@@ -1855,16 +1853,15 @@ static void cmd_mqtt_publish_rtc(menu_ctx_t *ctx, int argc, char *argv[])
       }
     }
 
-    RTC_TimeTypeDef sTime;
-    RTC_DateTypeDef sDate;
+    platform_rtc_time_t rtc_time;
+    platform_rtc_date_t rtc_date;
 
-    if (HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN) == HAL_OK)
+    if (RTC_GET_TIME(&g_rtc.base, &rtc_time) == RTC_STATUS_OK &&
+        RTC_GET_DATE(&g_rtc.base, &rtc_date) == RTC_STATUS_OK)
     {
-      HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-
-      uint16_t year = sDate.Year + 2000;
       snprintf(rtc_time_str, sizeof(rtc_time_str), "%04d-%02d-%02d %02d:%02d:%02d",
-               year, sDate.Month, sDate.Date, sTime.Hours, sTime.Minutes, sTime.Seconds);
+               rtc_date.year, rtc_date.month, rtc_date.date,
+               rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
 
       mqtt_property_t prop;
       memset(&prop, 0, sizeof(prop));

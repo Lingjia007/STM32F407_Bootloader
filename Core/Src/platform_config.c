@@ -6,11 +6,15 @@ gpio_led_stm32_t g_status_led;
 w25q128_stm32_t g_w25q128_flash;
 internal_flash_stm32_t g_internal_flash;
 uart_stm32_t g_uart4_console;
+uart_stm32_t g_usart1_esp8266;
 fatfs_stm32_t g_fatfs_transport;
 lfs_stm32_t g_lfs_transport;
+rtc_stm32_t g_rtc;
 
 extern SPI_HandleTypeDef hspi1;
 extern UART_HandleTypeDef huart4;
+extern UART_HandleTypeDef huart1;
+extern RTC_HandleTypeDef hrtc;
 
 void platform_config_init(void)
 {
@@ -25,7 +29,11 @@ void platform_config_init(void)
     
     platform_uart_stm32_register(&g_uart4_console, &huart4, "uart4_console");
     
+    platform_uart_stm32_register(&g_usart1_esp8266, &huart1, "usart1_esp8266");
+    
     platform_fatfs_stm32_register(&g_fatfs_transport, "fatfs");
     
     platform_lfs_stm32_register(&g_lfs_transport, "lfs");
+    
+    platform_rtc_stm32_register(&g_rtc, &hrtc, "rtc");
 }

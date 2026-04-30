@@ -1,5 +1,5 @@
-stm32f407vgt6_bootloader/platform_config.o: \
-  ..\Platform\Src\platform_config.c ..\Core\Inc\platform_config.h \
+stm32f407vgt6_bootloader/platform_config.o: ..\Core\Src\platform_config.c \
+  ..\Core\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
   ..\Platform\Inc\platform_led.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
@@ -60,4 +60,5 @@ stm32f407vgt6_bootloader/platform_config.o: \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
   ..\Bootloader_Core\bootloader_core.h

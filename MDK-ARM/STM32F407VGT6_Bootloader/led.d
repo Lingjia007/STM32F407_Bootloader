@@ -60,4 +60,5 @@ stm32f407vgt6_bootloader/led.o: ..\LED\led.c ..\LED\led.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
   ..\Service\Inc\service_notify.h

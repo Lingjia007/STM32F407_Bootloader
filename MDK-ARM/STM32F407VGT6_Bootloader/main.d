@@ -64,8 +64,9 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\assert.h ..\Core\Inc\sdio.h \
-  ..\USB_DEVICE\App\usb_device.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
+  ..\Core\Inc\sdio.h ..\USB_DEVICE\App\usb_device.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_DEVICE\Target\usbd_conf.h ..\IAP\menu.h ..\IAP\ymodem.h \
   ..\Service\Inc\ymodem_service.h ..\Bootloader_Core\Bootloader_core.h \

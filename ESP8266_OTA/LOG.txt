@@ -2,149 +2,690 @@ Start to Rebuild target STM32F407VGT6_Bootloader
 *** Using Compiler 'V6.21', folder: 'C:\Keil_v5\ARM\ARMCLANG\Bin'
 Rebuild target 'STM32F407VGT6_Bootloader'
 
-assembling startup_stm32f407xx.s...
-d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(36): warning: In file included from.....\IAP\menu.h(24): warning: In file included from.....\Bootloader_Core\Bootloader_core.h(11) warning: 'APPLICATION_ADDRESS' macro redefined [-Wmacro-redefined]
-   11 | #define APPLICATION_ADDRESS (uint32_t)0x08020000
-      |         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\Core\Inc\platform_config.h(11) note: previous definition is here
-   11 | #define APPLICATION_ADDRESS 0x08020000
-      |         ^
-1 warning generated.
-compiling main.c...
-compiling dma.c...
-compiling flash_if.c...
-compiling stm32f4xx_hal_msp.c...
-compiling stm32f4xx_it.c...
-compiling led.c...
 compiling rtc.c...
-compiling sdio.c...
-compiling system_stm32f4xx.c...
-compiling usart.c...
+compiling dma.c...
+compiling gpio.c...
+compiling stm32f4xx_it.c...
 compiling spi.c...
 compiling tim.c...
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\ymodem.c(26): warning: In file included from.....\Bootloader_Core\bootloader_core.h(11) warning: 'APPLICATION_ADDRESS' macro redefined [-Wmacro-redefined]
-   11 | #define APPLICATION_ADDRESS (uint32_t)0x08020000
-      |         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\Core\Inc\platform_config.h(11) note: previous definition is here
-   11 | #define APPLICATION_ADDRESS 0x08020000
-      |         ^
-1 warning generated.
-compiling ymodem.c...
-compiling gpio.c...
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(14): warning: In file included from.....\IAP\menu.h(24): warning: In file included from.....\Bootloader_Core\Bootloader_core.h(11) warning: 'APPLICATION_ADDRESS' macro redefined [-Wmacro-redefined]
-   11 | #define APPLICATION_ADDRESS (uint32_t)0x08020000
-      |         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\Core\Inc\platform_config.h(11) note: previous definition is here
-   11 | #define APPLICATION_ADDRESS 0x08020000
-      |         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(503) error: use of undeclared identifier 'USER_FLASH_SIZE'
-  503 |     status = Ymodem_Transmit((uint8_t *)APPLICATION_ADDRESS, (const uint8_t *)"UploadedFlashImage.bin", USER_FLASH_SIZE);
+compiling usart.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected identifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\LED\led.c(1): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE =
+compiling platform_internal_flash_stm32_impl.c...
+compiling platform_lfs_stm32_impl.c...
+compiling platform_fatfs_stm32_impl.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(133) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  133 |     case UART_FLAG_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(139) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  139 |     case UART_FLAG_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(136) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  136 |     case UART_FLAG_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(195) warning: overflow converting case value to switch condition type (268435472 to 16) [-Wswitch]
+  195 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(192) warning: overflow converting case value to switch condition type (268435520 to 64) [-Wswitch]
+  192 |     case UART_IT_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(189) warning: overflow converting case value to switch condition type (268435584 to 128) [-Wswitch]
+  189 |     case UART_IT_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(186) warning: overflow converting case value to switch condition type (268435488 to 32) [-Wswitch]
+  186 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(195) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  195 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(186) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  186 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+../Impl/Src/plat
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_ll_usb.c...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_dma_ex.c...
+compiling stm32f4xx_hal_dma.c...
+compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_pwr_ex.c...
+compiling stm32f4xx_hal_rtc.c...
+compiling stm32f4xx_hal.c...
+compiling stm32f4xx_hal_mmc.c...
+compiling stm32f4xx_ll_sdmmc.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal_exti.c...
+compiling stm32f4xx_hal_rtc_ex.c...
+compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_sd.c...
+compiling stm32f4xx_hal_spi.c...
 
-      |                                                                                                         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(970) error: use of undeclared identifier 'USER_FLASH_SIZE'
-  970 |     size = USER_FLASH_SIZE;
-      |            ^
-d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(982) error: use of undeclared identifier 'USER_FLASH_SIZE'
-  982 |   if (size == 0 || size > USER_FLASH_SIZE)
-      |                           ^
-1 warning and 3 errors generated.
+compiling bsp_driver_sd.c...
+compiling sd_diskio.c...
+compiling fatfs_platform.c...
+compiling bootloader_core.c...
+compiling stm32f4xx_hal_uart.c...
+compiling stm32f4xx_hal_tim.c...
+compiling fatfs.c...
+compiling syscall.c...
+compiling ff_gen_drv.c...
+compiling lfs_util.c...
+compiling ccsbcs.c...
+compiling diskio.c...
+compiling usbd_desc.c...
+compiling usb_device.c...
+compiling usbd_storage_if.c...
+compiling usbd_core.c...
+compiling usbd_ioreq.c...
+compiling usbd_conf.c...
+compiling usbd_ctlreq.c...
+compiling usbd_msc.c...
+
+compiling ff.c...
+compiling usbd_msc_bot.c...
+compiling lfs.c...
+compiling usbd_msc_data.c...
+compiling aes.c...
+compiling usbd_msc_scsi.c...
+compiling bspatch.c...
+compiling bsdiff.c...
+compiling hkdf.c...
+compiling hpatch_lite.c...
+compiling tuz_dec.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected identifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE          
+d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(10): warning: In file included from.....\Service\Inc\menu_service.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(10): warning: In file included from.....\Service\Inc\menu_service.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(42) error: expected identifier
+   42 |     UART_IT_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(10): warning: In file included from.....\Service\Inc\menu_service.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(43) error: expected identifier
+   43 |     UART_IT_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(573) warning: implicit conversion from 'uint32_t' (aka 'unsigned int') to 'platform_uart_it_t' changes value from 268435488 to 32 [-Wconstant-conversion]
+  573 |   UART_DISABLE_IT(usart1, UART_IT_RXNE);
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                           ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Platform\Inc\platform_uart.h(116) note: expanded from macro 'UART_DISABLE_IT'
+  116 |      (void)(uart)->ops->disable_it((uart), (it)) : (void)0)
+      |            ~                                ^~
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(574) warning: implicit conversion from 'uint32_t' (aka 'unsigned int') to 'platform_uart_it_t' changes value from 268435472 to 16 [-Wconstant-conversion]
+  574 |   UART_DISABLE_IT(usart1, UART_IT_IDLE);
+      |   ~~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                           ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Platform\Inc\platform_uart.h(116) note: expanded from macro 'UART_DISABLE_IT'
+  116 |      (void)(uart)->ops->disable_it((uart), (it)) : (void)0)
+      |            ~                                ^~
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(594) warning: implicit conversion from 'uint32_t' (aka 'unsigned int') to 'platform_uart_it_t' changes value from 268435488 to 32 [-Wconstant-conversion]
+  594 |             UART_ENABLE_IT(usart1, UART_IT_RXNE);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                           ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Platform\Inc\platform_uart.h(112) note: expanded from macro 'UART_ENABLE_IT'
+  112 |      (void)(uart)->ops->enable_it((uart), (it)) : (void)
+0)
+      |            ~                               ^~
+d:\edgedownload\STM32F407VGT6_Bootloader\IAP\menu.c(595) warning: implicit conversion from 'uint32_t' (aka 'unsigned int') to 'platform_uart_it_t' changes value from 268435472 to 16 [-Wconstant-conversion]
+  595 |             UART_ENABLE_IT(usart1, UART_IT_IDLE);
+      |             ~~~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                           ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Platform\Inc\platform_uart.h(112) note: expanded from macro 'UART_ENABLE_IT'
+  112 |      (void)(uart)->ops->enable_it((uart), (it)) : (void)0)
+      |            ~                               ^~
+4 warnings and 9 errors generated.
 compiling menu.c...
-d:\edgedownload\STM32F407VGT6_Bootloader\Platform\Src\platform_config.c(20) error: use of undeclared identifier 'INTERNAL_FLASH_APP_ADDRESS'
-   20 |     platform_internal_flash_stm32_register(&g_internal_flash, INTERNAL_FLASH_APP_ADDRESS, "internal_flash");
-      |                                                               ^
-1 error generated.
-compiling platform_config.c...
+compiling stm32f4xx_hal_msp.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected identifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7) warning: In file includ
+d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\ed from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(42) error: expected identifier
+   42 |     UART_IT_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Core\Src\main.c(32): warning: In file included from.....\LED\led.h(4): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(43) error: expected identifier
+   43 |     UART_IT_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+9 errors generated.
+compiling main.c...
+compiling system_stm32f4xx.c...
+compiling ymodem.c...
 compiling platform_pwm_led_stm32_impl.c...
 compiling platform_gpio_led_stm32_impl.c...
 compiling platform_w25q128_stm32_impl.c...
+compiling platform_internal_flash_stm32_impl.c...
+compiling platform_lfs_stm32_impl.c...
+compiling platform_fatfs_stm32_impl.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(133) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  133 |     case UART_FLAG_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(139) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  139 |     case UART_FLAG_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(136) warning: case value not in enumerated type 'platform_uart_flag_t' [-Wswitch]
+  136 |     case UART_FLAG_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(195) warning: overflow converting case value to switch condition type (268435472 to 16) [-Wswitch]
+
+  195 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(192) warning: overflow converting case value to switch condition type (268435520 to 64) [-Wswitch]
+  192 |     case UART_IT_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(189) warning: overflow converting case value to switch condition type (268435584 to 128) [-Wswitch]
+  189 |     case UART_IT_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(186) warning: overflow converting case value to switch condition type (268435488 to 32) [-Wswitch]
+  186 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(195) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  195 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(186) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  186 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(192) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  192 |     case UART_IT_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(189) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  189 |     case UART_IT_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(222) warning: overflow converting case value to switch condition type (268435472 to 16) [-Wswitch]
+  222 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(219) warning: overflow converting case value to switch condition type (268435520 to 64) [-Wswitch]
+  219 |     case UART_IT_TC:
+      |          ^
+../Drivers/STM32F
+d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(216) warning: overflow converting case value to switch condition type (268435584 to 128) [-Wswitch]
+  216 |     case UART_IT_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(213) warning: overflow converting case value to switch condition type (268435488 to 32) [-Wswitch]
+  213 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(222) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  222 |     case UART_IT_IDLE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(213) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  213 |     case UART_IT_RXNE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(219) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  219 |     case UART_IT_TC:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Impl\Src\platform_uart_stm32_impl.c(216) warning: case value not in enumerated type 'platform_uart_it_t' [-Wswitch]
+  216 |     case UART_IT_TXE:
+      |          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+19 warnings generated.
 compiling platform_uart_stm32_impl.c...
 compiling platform_filesystem_lfs_impl.c...
-compiling platform_lfs_stm32_impl.c...
-compiling platform_internal_flash_stm32_impl.c...
 compiling platform_filesystem_fatfs_impl.c...
 compiling service_notify.c...
-compiling platform_fatfs_stm32_impl.c...
-compiling menu_service.c...
-compiling hpatch_service.c...
-compiling ymodem_service.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected id
+entifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(42) error: expected identifier
+   42 |     UART_IT_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_I
+T_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Service\Src\lfs_spi_flash_adapter.c(1): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(43) error: expected identifier
+   43 |     UART_IT_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+9 errors generated.
 compiling lfs_spi_flash_adapter.c...
-
-compiling stm32f4xx_hal_pcd.c...
-compiling stm32f4xx_hal_pcd_ex.c...
-compiling stm32f4xx_hal_rcc.c...
-compiling stm32f4xx_ll_usb.c...
-compiling stm32f4xx_hal_dma_ex.c...
+compiling menu_service.c...
+compiling ymodem_service.c...
 compiling stm32f4xx_hal_rcc_ex.c...
-compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_hal_pcd_ex.c...
+compiling hpatch_service.c...
 compiling stm32f4xx_hal_flash.c...
-compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_rcc.c...
+compiling stm32f4xx_hal_pcd.c...
 compiling stm32f4xx_hal_flash_ramfunc.c...
-compiling stm32f4xx_hal_cortex.c...
-compiling stm32f4xx_hal_pwr.c...
+compiling stm32f4xx_hal_flash_ex.c...
+compiling stm32f4xx_ll_usb.c...
+compiling stm32f4xx_hal_gpio.c...
+compiling stm32f4xx_hal_dma_ex.c...
 compiling stm32f4xx_hal_dma.c...
-compiling stm32f4xx_hal_exti.c...
+compiling stm32f4xx_hal_pwr.c...
 compiling stm32f4xx_hal_pwr_ex.c...
-compiling stm32f4xx_hal.c...
-
 compiling stm32f4xx_hal_rtc.c...
-compiling stm32f4xx_hal_rtc_ex.c...
-compiling stm32f4xx_ll_sdmmc.c...
+compiling stm32f4xx_hal.c...
 compiling stm32f4xx_hal_mmc.c...
-compiling bootloader_core.c...
-compiling stm32f4xx_hal_sd.c...
-compiling fatfs_platform.c...
-compiling fatfs.c...
-compiling sd_diskio.c...
-compiling bsp_driver_sd.c...
+compiling stm32f4xx_ll_sdmmc.c...
+compiling stm32f4xx_hal_cortex.c...
+compiling stm32f4xx_hal_exti.c...
+compiling stm32f4xx_hal_rtc_ex.c...
 compiling stm32f4xx_hal_tim_ex.c...
+compiling stm32f4xx_hal_sd.c...
 compiling stm32f4xx_hal_spi.c...
-compiling stm32f4xx_hal_tim.c...
-compiling diskio.c...
+compiling bsp_driver_sd.c...
+compiling sd_diskio.c...
+compiling fatfs_platform.c...
+compiling bootloader_core.c...
 compiling stm32f4xx_hal_uart.c...
-compiling ccsbcs.c...
-compiling ff_gen_drv.c...
-compiling ff.c...
+compiling stm32f4xx_hal_tim.c...
+compiling fatfs.c...
 compiling syscall.c...
+compiling ff_gen_drv.c...
 compiling lfs_util.c...
-
+compiling ccsbcs.c...
+compiling diskio.c...
+compiling usbd_desc.c...
+compiling usb_device.c...
+compiling usbd_storage_if.c...
 compiling usbd_core.c...
 compiling usbd_ioreq.c...
-compiling usbd_storage_if.c...
-compiling usbd_desc.c...
-compiling usbd_msc_data.c...
 compiling usbd_conf.c...
-compiling usbd_msc_bot.c...
-compiling usbd_msc.c...
-compiling usb_device.c...
 compiling usbd_ctlreq.c...
-compiling aes.c...
+compiling usbd_msc.c...
+compiling ff.c...
+compiling usbd_msc_bot.c...
 compiling lfs.c...
-compiling aes_decrypt.c...
+compiling usbd_msc_data.c...
+compiling aes.c...
 compiling usbd_msc_scsi.c...
-compiling bsdiff.c...
 compiling bspatch.c...
+compiling bsdiff.c...
 compiling hkdf.c...
 compiling hpatch_lite.c...
-compiling md5.c...
 compiling tuz_dec.c...
-compiling esp8266_uart.c...
-
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected identifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+../Drivers/STM32F4xx_HAL_Driver/Inc\s
+d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\tm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE                      ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(42) error: expected identifier
+   42 |     UART_IT_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Utils\aes_decrypt.c(3): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(43) error: expected identifier
+   43 |     UART_IT_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+9 errors generated.
+compiling aes_decrypt.c...
+compiling md5.c...
 compiling esp8266_ota_api.c...
 compiling esp8266_driver.c...
-compiling transport.c...
-compiling esp8266_mqtt.c...
-compiling onenet_http_source.c...
-compiling cJSON.c...
-d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(11) warning: 'APPLICATION_ADDRESS' macro redefined [-Wmacro-redefined]
-   11 | #define APPLICATION_ADDRESS 0x08020000
-      |         ^
-d:\edgedownload\STM32F407VGT6_Bootloader\Bootloader_Core\bootloader_core.h(11) note: previous definition is here
-   11 | #define APPLICATION_ADDRESS (uint32_t)0x08020000
-      |         ^
-1 warning generated.
+compiling esp8266_uart.c...
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4) warning: In file included from...../Platform
+d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\Inc\platform_uart.h(32) error: expected identifier
+   32 |     UART_FLAG_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(363) note: expanded from macro 'UART_FLAG_RXNE'
+  363 | #define UART_FLAG_RXNE                      ((uint32_t)USART_SR_RXNE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(33) error: expected identifier
+   33 |     UART_FLAG_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(361) note: expanded from macro 'UART_FLAG_TXE'
+  361 | #define UART_FLAG_TXE                       ((uint32_t)USART_SR_TXE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(34) error: expected identifier
+   34 |     UART_FLAG_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(362) note: expanded from macro 'UART_FLAG_TC'
+  362 | #define UART_FLAG_TC                        ((uint32_t)USART_SR_TC)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(35) error: expected identifier
+   35 |     UART_FLAG_ORE = 0x08,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(365) note: expanded from macro 'UART_FLAG_ORE'
+  365 | #define UART_FLAG_ORE                       ((uint32_t)USART_SR_ORE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(36) error: expected identifier
+   36 |     UART_FLAG_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(364) note: expanded from macro 'UART_FLAG_IDLE'
+  364 | #define UART_FLAG_IDLE                      ((uint32_t)USART_SR_IDLE)
+      |                                             ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(40) error: expected identifier
+   40 |     UART_IT_RXNE = 0x01,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(386) note: expanded from macro 'UART_IT_RXNE'
+  386 | #define UART_IT_RXNE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_RXNEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(41) error: expected identifier
+   41 |     UART_IT_TXE = 0x02,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(384) note: expanded from macro 'UART_IT_TXE'
+  384 | #define UART_IT_TXE      
+                ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TXEIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(42) error: expected identifier
+   42 |     UART_IT_TC = 0x04,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(385) note: expanded from macro 'UART_IT_TC'
+  385 | #define UART_IT_TC                       ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_TCIE))
+      |                                          ^
+d:\edgedownload\STM32F407VGT6_Bootloader\ESP8266_OTA\onenet_ota.c(9): warning: In file included from.....\Service\Inc\lfs_spi_flash_adapter.h(5): warning: In file included from.....\Core\Inc\platform_config.h(7): warning: In file included from.....\Impl\Inc\platform_uart_stm32_impl.h(4): warning: In file included from.....\Platform\Inc\platform_uart.h(43) error: expected identifier
+   43 |     UART_IT_IDLE = 0x10,
+      |     ^
+d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h(387) note: expanded from macro 'UART_IT_IDLE'
+  387 | #define UART_IT_IDLE                     ((uint32_t)(UART_CR1_REG_INDEX << 28U | USART_CR1_IDLEIE))
+      |                                          ^
+9 errors generated.
 compiling onenet_ota.c...
-"STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.axf" - 4 Error(s), 4 Warning(s).
+compiling cJSON.c...
+compiling transport.c...
+compiling onenet_http_source.c...
+compiling esp8266_mqtt.c...
+"STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.axf" - 63 Error(s), 23 Warning(s).
 Target not created.
-Build Time Elapsed:  00:00:06
+Build Time Elapsed:  00:00:05
 
 Build Finished!

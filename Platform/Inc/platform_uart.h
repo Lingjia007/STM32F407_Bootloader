@@ -28,6 +28,21 @@ typedef enum {
     UART_TYPE_UNKNOWN
 } platform_uart_type_t;
 
+typedef enum {
+    PLATFORM_UART_FLAG_RXNE = 0x01,
+    PLATFORM_UART_FLAG_TXE = 0x02,
+    PLATFORM_UART_FLAG_TC = 0x04,
+    PLATFORM_UART_FLAG_ORE = 0x08,
+    PLATFORM_UART_FLAG_IDLE = 0x10,
+} platform_uart_flag_t;
+
+typedef enum {
+    PLATFORM_UART_IT_RXNE = 0x01,
+    PLATFORM_UART_IT_TXE = 0x02,
+    PLATFORM_UART_IT_TC = 0x04,
+    PLATFORM_UART_IT_IDLE = 0x10,
+} platform_uart_it_t;
+
 typedef struct {
     int16_t (*init)(void* ctx);
     int16_t (*deinit)(void* ctx);
@@ -37,6 +52,12 @@ typedef struct {
     int16_t (*receive_it)(void* ctx, uint8_t* data, uint16_t size);
     int16_t (*flush)(void* ctx);
     int16_t (*abort)(void* ctx);
+    uint8_t (*get_flag)(void* ctx, platform_uart_flag_t flag);
+    void (*clear_flag)(void* ctx, platform_uart_flag_t flag);
+    void (*enable_it)(void* ctx, platform_uart_it_t it);
+    void (*disable_it)(void* ctx, platform_uart_it_t it);
+    uint8_t (*read_byte)(void* ctx);
+    void (*write_byte)(void* ctx, uint8_t data);
 } platform_uart_ops_t;
 
 typedef struct {
@@ -77,6 +98,30 @@ typedef struct {
 #define UART_DEINIT(uart) \
     ((uart) && (uart)->ops && (uart)->ops->deinit ? \
      (uart)->ops->deinit((uart)) : (int16_t)UART_STATUS_ERROR)
+
+#define UART_GET_FLAG(uart, flag) \
+    ((uart) && (uart)->ops && (uart)->ops->get_flag ? \
+     (uart)->ops->get_flag((uart), (flag)) : 0)
+
+#define UART_CLEAR_FLAG(uart, flag) \
+    ((uart) && (uart)->ops && (uart)->ops->clear_flag ? \
+     (void)(uart)->ops->clear_flag((uart), (flag)) : (void)0)
+
+#define UART_ENABLE_IT(uart, it) \
+    ((uart) && (uart)->ops && (uart)->ops->enable_it ? \
+     (void)(uart)->ops->enable_it((uart), (it)) : (void)0)
+
+#define UART_DISABLE_IT(uart, it) \
+    ((uart) && (uart)->ops && (uart)->ops->disable_it ? \
+     (void)(uart)->ops->disable_it((uart), (it)) : (void)0)
+
+#define UART_READ_BYTE(uart) \
+    ((uart) && (uart)->ops && (uart)->ops->read_byte ? \
+     (uart)->ops->read_byte((uart)) : 0)
+
+#define UART_WRITE_BYTE(uart, data) \
+    ((uart) && (uart)->ops && (uart)->ops->write_byte ? \
+     (void)(uart)->ops->write_byte((uart), (data)) : (void)0)
 
 #define UART_INIT_BASE(uart_ptr, ops_ptr, uart_name, uart_type) \
     do { \

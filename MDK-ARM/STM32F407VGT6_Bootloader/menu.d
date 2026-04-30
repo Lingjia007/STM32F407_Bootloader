@@ -61,6 +61,7 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
   ..\Impl\Inc\platform_filesystem_fatfs_impl.h \
   ..\Platform\Inc\platform_filesystem.h ..\FATFS\App\fatfs.h \
   ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \

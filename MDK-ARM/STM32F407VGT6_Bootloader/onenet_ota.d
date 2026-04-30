@@ -65,4 +65,5 @@ stm32f407vgt6_bootloader/onenet_ota.o: ..\ESP8266_OTA\onenet_ota.c \
   ..\Platform\Inc\platform_led.h \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
   ..\Platform\Inc\platform_spi_flash.h \
-  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h

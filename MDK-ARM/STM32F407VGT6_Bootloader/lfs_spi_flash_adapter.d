@@ -59,4 +59,5 @@ stm32f407vgt6_bootloader/lfs_spi_flash_adapter.o: \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \
   ..\Middlewares\Third_Party\FatFs\src\integer.h \
   ..\FATFS\Target\ffconf.h ..\FATFS\Target\bsp_driver_sd.h \
-  ..\FATFS\Target\fatfs_platform.h ..\Impl\Inc\platform_lfs_stm32_impl.h
+  ..\FATFS\Target\fatfs_platform.h ..\Impl\Inc\platform_lfs_stm32_impl.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h
