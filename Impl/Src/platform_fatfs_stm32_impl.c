@@ -165,6 +165,7 @@ static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *
     fatfs_stm32_t *self = container_of(ctx, fatfs_stm32_t, base);
     FRESULT res;
     UINT bw;
+    uint32_t written = 0;
 
     if (data == NULL || len == 0)
     {
@@ -187,11 +188,35 @@ static int16_t fatfs_tgt_write(const void *ctx, uint32_t offset, const uint8_t *
         }
     }
 
-    res = f_write(&self->file, data, len, &bw);
-    if (res != FR_OK || bw != len)
+    while (written < len)
     {
-        printf("FATFS: write failed, res=%d, bw=%u\r\n", res, bw);
-        return TRANSPORT_STATUS_WRITE;
+        const uint8_t *write_ptr = data + written;
+        uint32_t remaining = len - written;
+        uint32_t write_len;
+
+        if (((uint32_t)write_ptr & 0x03U) == 0)
+        {
+            write_len = remaining & ~3U;
+            if (write_len == 0)
+                write_len = remaining;
+            res = f_write(&self->file, write_ptr, write_len, &bw);
+        }
+        else
+        {
+            write_len = remaining;
+            if (write_len > FATFS_DMA_BUF_SIZE)
+                write_len = FATFS_DMA_BUF_SIZE;
+            memcpy(self->dma_buf, write_ptr, write_len);
+            res = f_write(&self->file, self->dma_buf, write_len, &bw);
+        }
+
+        if (res != FR_OK || bw != write_len)
+        {
+            printf("FATFS: write failed, res=%d, bw=%u, len=%lu\r\n", res, bw, (unsigned long)write_len);
+            return TRANSPORT_STATUS_WRITE;
+        }
+
+        written += write_len;
     }
 
     self->written_size = offset + len;

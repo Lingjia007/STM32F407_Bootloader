@@ -1,6 +1,12 @@
 stm32f407vgt6_bootloader/esp8266_ota_api.o: \
-  ..\ESP8266_OTA\esp8266_ota_api.c ..\ESP8266_OTA\esp8266_ota_config.h \
-  ..\ESP8266_OTA\esp8266_driver.h ..\Core\Inc\main.h \
+  ..\ESP8266_OTA\esp8266_ota_api.c ..\ESP8266_OTA\esp8266_ota_api.h \
+  ..\Service\Inc\service_onenet_ota.h ..\Platform\Inc\platform_wifi.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
+  ..\Platform\Inc\platform_rtc.h ..\Platform\Inc\platform_transport.h \
+  ..\Platform\Inc\platform_config.h \
+  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
+  ..\Platform\Inc\platform_led.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -8,14 +14,12 @@ stm32f407vgt6_bootloader/esp8266_ota_api.o: \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_gpio_ex.h \
@@ -39,5 +43,27 @@ stm32f407vgt6_bootloader/esp8266_ota_api.o: \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\ESP8266_OTA\esp8266_uart.h ..\ESP8266_OTA\onenet_ota.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h
+  ..\Core\Inc\main.h ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_spi_flash.h \
+  ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Platform\Inc\platform_internal_flash.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
+  ..\Impl\Inc\platform_fatfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\FatFs\src\ff.h \
+  ..\Middlewares\Third_Party\FatFs\src\integer.h \
+  ..\FATFS\Target\ffconf.h ..\FATFS\Target\bsp_driver_sd.h \
+  ..\FATFS\Target\fatfs_platform.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
+  ..\Impl\Inc\platform_lfs_stm32_impl.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs.h \
+  ..\Middlewares\Third_Party\LittleFs\lfs_util.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Impl\Inc\platform_rtc_stm32_impl.h \
+  ..\Impl\Inc\platform_wifi_esp8266_impl.h \
+  ..\Impl\Inc\platform_mqtt_esp8266_impl.h \
+  ..\Platform\Inc\platform_mqtt.h ..\Impl\Inc\platform_tick_stm32_impl.h \
+  ..\Platform\Inc\platform_tick.h ..\ESP8266_OTA\esp8266_ota_config.h

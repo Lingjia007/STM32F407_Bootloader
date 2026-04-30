@@ -12,10 +12,10 @@ stm32f407vgt6_bootloader/usbd_desc.o: ..\USB_DEVICE\App\usbd_desc.c \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \

@@ -7,10 +7,10 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
@@ -48,7 +48,7 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h ..\Core\Inc\spi.h \
   ..\Core\Inc\tim.h ..\Core\Inc\usart.h ..\Core\Inc\gpio.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\LED\led.h \
-  ..\Core\Inc\platform_config.h \
+  ..\Platform\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
   ..\Platform\Inc\platform_led.h \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
@@ -66,7 +66,12 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
-  ..\Core\Inc\sdio.h ..\USB_DEVICE\App\usb_device.h \
+  ..\Impl\Inc\platform_wifi_esp8266_impl.h \
+  ..\Platform\Inc\platform_wifi.h \
+  ..\Impl\Inc\platform_mqtt_esp8266_impl.h \
+  ..\Platform\Inc\platform_mqtt.h ..\Impl\Inc\platform_tick_stm32_impl.h \
+  ..\Platform\Inc\platform_tick.h ..\Core\Inc\sdio.h \
+  ..\USB_DEVICE\App\usb_device.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_DEVICE\Target\usbd_conf.h ..\IAP\menu.h ..\IAP\ymodem.h \
   ..\Service\Inc\ymodem_service.h ..\Bootloader_Core\Bootloader_core.h \

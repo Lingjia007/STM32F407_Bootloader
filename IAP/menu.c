@@ -18,16 +18,16 @@
 #include "bootloader_core.h"
 #include "lfs.h"
 #include "stdio.h"
+#include "stdlib.h"
 #include "string.h"
 #include "ctype.h"
 #include "aes_decrypt.h"
 #include "hpatch_service.h"
 #include "usart.h"
-#include "esp8266_driver.h"
 #include "esp8266_ota_api.h"
-#include "onenet_ota.h"
 #include "esp8266_ota_config.h"
-#include "esp8266_mqtt.h"
+#include "service_wifi_transport.h"
+#include "service_onenet_ota.h"
 
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
@@ -1161,14 +1161,65 @@ static void Print_Current_Time(void)
 
 static void cmd_esp8266_init(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  menu_service_println(ctx, "Initializing ESP8266 and connecting to AP...");
+  char msg[128];
+
+  menu_service_println(ctx, "Initializing ESP8266...");
+
+  menu_service_println(ctx, "Step 1: AT test...");
+  if (WIFI_AT_TEST(&g_esp8266_wifi.base) == PLATFORM_WIFI_OK)
+    menu_service_println(ctx, "  AT test OK!");
+  else
+  {
+    menu_service_println(ctx, "  AT test FAILED!");
+    return;
+  }
+
+  char ip_buf[48] = {0};
+  if (WIFI_GET_IP(&g_esp8266_wifi.base, ip_buf, sizeof(ip_buf)) == PLATFORM_WIFI_OK && ip_buf[0] != '\0')
+  {
+    snprintf(msg, sizeof(msg), "  Already connected! IP: %s", ip_buf);
+    menu_service_println(ctx, msg);
+    menu_service_println(ctx, "Step 2: Init OTA context...");
+    esp8266_ota_init();
+    menu_service_println(ctx, "ESP8266 init done!");
+    return;
+  }
+
+  menu_service_println(ctx, "Step 2: Set STA mode...");
+  if (WIFI_SET_MODE(&g_esp8266_wifi.base, PLATFORM_WIFI_MODE_STA) == PLATFORM_WIFI_OK)
+    menu_service_println(ctx, "  STA mode OK!");
+  else
+  {
+    menu_service_println(ctx, "  Set STA mode FAILED!");
+    return;
+  }
+
+  snprintf(msg, sizeof(msg), "Step 3: Join AP %s...", ESP8266_WIFI_SSID);
+  menu_service_println(ctx, msg);
+  if (WIFI_JOIN_AP(&g_esp8266_wifi.base, ESP8266_WIFI_SSID, ESP8266_WIFI_PASSWORD) == PLATFORM_WIFI_OK)
+  {
+    menu_service_println(ctx, "  Join AP OK!");
+    if (WIFI_GET_IP(&g_esp8266_wifi.base, ip_buf, sizeof(ip_buf)) == PLATFORM_WIFI_OK)
+    {
+      snprintf(msg, sizeof(msg), "  IP: %s", ip_buf);
+      menu_service_println(ctx, msg);
+    }
+  }
+  else
+  {
+    menu_service_println(ctx, "  Join AP FAILED!");
+    return;
+  }
+
+  menu_service_println(ctx, "Step 4: Init OTA context...");
   esp8266_ota_init();
+  menu_service_println(ctx, "ESP8266 init done!");
 }
 
 static void cmd_esp8266_at_test(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Testing AT command...");
-  if (esp8266_at_test() == ESP8266_EOK)
+  if (WIFI_AT_TEST(&g_esp8266_wifi.base) == PLATFORM_WIFI_OK)
     menu_service_println(ctx, "AT test OK!");
   else
     menu_service_println(ctx, "AT test FAILED!");
@@ -1239,7 +1290,7 @@ static void cmd_esp8266_tcp_connect(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\r\nConnecting to %s:%s...", server_ip, server_port);
   menu_service_println(ctx, msg);
 
-  if (esp8266_connect_tcp_server(server_ip, server_port) == ESP8266_EOK)
+  if (WIFI_CONNECT_TCP(&g_esp8266_wifi.base, server_ip, (uint16_t)atoi(server_port)) == PLATFORM_WIFI_OK)
     menu_service_println(ctx, "TCP connect OK!");
   else
     menu_service_println(ctx, "TCP connect FAILED!");
@@ -1248,7 +1299,7 @@ static void cmd_esp8266_tcp_connect(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_esp8266_transparent_enter(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Entering transparent mode...");
-  if (esp8266_enter_unvarnished() == ESP8266_EOK)
+  if (WIFI_ENTER_TRANSPARENT(&g_esp8266_wifi.base) == PLATFORM_WIFI_OK)
   {
     menu_service_println(ctx, "Transparent mode enabled!");
     menu_service_println(ctx, "You can now send data directly.");
@@ -1260,32 +1311,32 @@ static void cmd_esp8266_transparent_enter(menu_ctx_t *ctx, int argc, char *argv[
 static void cmd_esp8266_transparent_exit(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Exiting transparent mode...");
-  esp8266_exit_unvarnished();
+  WIFI_EXIT_TRANSPARENT(&g_esp8266_wifi.base);
   menu_service_println(ctx, "Transparent mode exited.");
 }
 
 static void cmd_ota_target_internal(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Setting OTA target to Internal Flash...");
-  ONENET_OTA_SetTargetType(0);
+  esp8266_ota_set_target_internal_flash();
 }
 
 static void cmd_ota_target_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Setting OTA target to SD Card (FATFS)...");
-  ONENET_OTA_SetTargetType(1);
+  esp8266_ota_set_target_sd_card();
 }
 
 static void cmd_ota_target_spi(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Setting OTA target to SPI Flash (LFS)...");
-  ONENET_OTA_SetTargetType(2);
+  esp8266_ota_set_target_spi_flash();
 }
 
 static void cmd_onenet_ota_download(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Starting OneNET OTA download...");
-  ONENET_OTA_ProcessUpgrade();
+  esp8266_ota_download();
 }
 
 static void cmd_show_time(menu_ctx_t *ctx, int argc, char *argv[])
@@ -1296,59 +1347,22 @@ static void cmd_show_time(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_mqtt_check_status(menu_ctx_t *ctx, int argc, char *argv[])
 {
   char msg[256];
-  char mqtt_cmd[256];
 
   menu_service_println(ctx, "Checking MQTT connection status...");
-  snprintf(mqtt_cmd, sizeof(mqtt_cmd), "AT+MQTTCONN?");
-  esp8266_uart_rx_restart();
-  esp8266_uart_printf("%s\r\n", mqtt_cmd);
-
-  uint32_t timeout = 2000;
-  uint8_t *resp = NULL;
-  while (timeout > 0)
+  int16_t ret = MQTT_CHECK_CONNECTED(&g_esp8266_mqtt.base, 0);
+  if (ret == PLATFORM_MQTT_OK)
   {
-    resp = esp8266_uart_rx_get_frame();
-    if (resp != NULL)
-    {
-      if (strstr((const char *)resp, "+MQTTCONN:") != NULL)
-      {
-        char *conn_line = strstr((const char *)resp, "+MQTTCONN:");
-        if (conn_line != NULL)
-        {
-          char *server_start = strstr(conn_line, ",\"");
-          if (server_start != NULL)
-          {
-            server_start += 2;
-            if (*server_start == '"')
-              menu_service_println(ctx, "MQTT: Not connected (server is empty)");
-            else
-            {
-              menu_service_println(ctx, "MQTT: Connected");
-              menu_service_println(ctx, conn_line);
-            }
-          }
-          else
-            menu_service_println(ctx, "MQTT: Not connected");
-        }
-        break;
-      }
-      else if (strstr((const char *)resp, "ERROR") != NULL)
-      {
-        menu_service_println(ctx, "MQTT: Not configured");
-        break;
-      }
-      esp8266_uart_rx_restart();
-    }
-    timeout--;
-    HAL_Delay(1);
+    menu_service_println(ctx, "MQTT: Connected");
   }
-  if (timeout == 0)
-    menu_service_println(ctx, "MQTT: Check timeout");
+  else
+  {
+    menu_service_println(ctx, "MQTT: Not connected");
+  }
 }
 
 static void cmd_mqtt_configure(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  mqtt_user_config_t config;
+  platform_mqtt_user_config_t config;
   char msg[256];
   uint8_t key = 0;
   uint8_t idx = 0;
@@ -1470,7 +1484,7 @@ static void cmd_mqtt_configure(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\rConfiguring MQTT user: client=%s, user=%s", config.client_id, config.username);
   menu_service_println(ctx, msg);
 
-  if (esp8266_mqtt_usercfg(0, &config) == ESP8266_EOK)
+  if (MQTT_USERCFG(&g_esp8266_mqtt.base, 0, &config) == PLATFORM_MQTT_OK)
     menu_service_println(ctx, "MQTT user config OK!");
   else
     menu_service_println(ctx, "MQTT user config FAILED!");
@@ -1479,7 +1493,6 @@ static void cmd_mqtt_configure(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_mqtt_connect(menu_ctx_t *ctx, int argc, char *argv[])
 {
   char msg[256];
-  char mqtt_cmd[256];
   char host[64] = ONENET_MQTT_HOST;
   uint16_t port = ONENET_MQTT_PORT;
   uint8_t key = 0;
@@ -1487,46 +1500,12 @@ static void cmd_mqtt_connect(menu_ctx_t *ctx, int argc, char *argv[])
   char input_buf[128];
 
   menu_service_println(ctx, "Checking if already connected...");
-  snprintf(mqtt_cmd, sizeof(mqtt_cmd), "AT+MQTTCONN?");
-  esp8266_uart_rx_restart();
-  esp8266_uart_printf("%s\r\n", mqtt_cmd);
-
-  uint32_t timeout = 2000;
-  uint8_t *resp = NULL;
-  uint8_t already_connected = 0;
-
-  while (timeout > 0)
+  int16_t ret = MQTT_CHECK_CONNECTED(&g_esp8266_mqtt.base, 0);
+  if (ret == PLATFORM_MQTT_OK)
   {
-    resp = esp8266_uart_rx_get_frame();
-    if (resp != NULL)
-    {
-      if (strstr((const char *)resp, "+MQTTCONN:") != NULL)
-      {
-        char *conn_line = strstr((const char *)resp, "+MQTTCONN:");
-        if (conn_line != NULL)
-        {
-          char *server_start = strstr(conn_line, ",\"");
-          if (server_start != NULL)
-          {
-            server_start += 2;
-            if (*server_start != '"')
-            {
-              menu_service_println(ctx, "MQTT: Already connected!");
-              menu_service_println(ctx, conn_line);
-              already_connected = 1;
-            }
-          }
-        }
-        break;
-      }
-      esp8266_uart_rx_restart();
-    }
-    timeout--;
-    HAL_Delay(1);
-  }
-
-  if (already_connected)
+    menu_service_println(ctx, "MQTT: Already connected!");
     return;
+  }
 
   menu_service_println(ctx, "Connecting to MQTT server...");
   snprintf(msg, sizeof(msg), "\r\nEnter MQTT server host (default: %s): ", host);
@@ -1559,7 +1538,7 @@ static void cmd_mqtt_connect(menu_ctx_t *ctx, int argc, char *argv[])
   if (idx > 0)
     strncpy(host, input_buf, sizeof(host) - 1);
 
-  if (esp8266_mqtt_connect(0, host, port, 1) == ESP8266_EOK)
+  if (MQTT_CONNECT(&g_esp8266_mqtt.base, 0, host, port, 1) == PLATFORM_MQTT_OK)
     menu_service_println(ctx, "MQTT connect OK!");
   else
     menu_service_println(ctx, "MQTT connect FAILED!");
@@ -1575,37 +1554,37 @@ static void cmd_mqtt_subscribe(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/post/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
-
-  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/set", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
-  menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
-
-  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/get/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
-  menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
-
-  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/delete/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
-  menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
-
-  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/get", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
-  menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
 
   snprintf(topic, sizeof(topic), "$sys/%s/%s/ota/inform", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  esp8266_mqtt_subscribe(0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+
+  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/get/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
+  menu_service_println(ctx, msg);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+
+  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/delete/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
+  menu_service_println(ctx, msg);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+
+  snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/get", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
+  menu_service_println(ctx, msg);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+
+  snprintf(topic, sizeof(topic), "$sys/%s/%s/ota/inform", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
+  menu_service_println(ctx, msg);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
 }
 
 static void cmd_mqtt_publish(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  mqtt_property_t prop;
+  platform_mqtt_property_t prop;
   char msg[256];
   char msg_id[32] = "007";
   char type_buf[4];
@@ -1718,11 +1697,11 @@ static void cmd_mqtt_publish(menu_ctx_t *ctx, int argc, char *argv[])
     }
   }
 
-  if (prop.value_type == MQTT_VALUE_TYPE_FLOAT)
+  if (prop.value_type == PLATFORM_MQTT_VALUE_FLOAT)
     prop.value_float = atof(value_buf);
-  else if (prop.value_type == MQTT_VALUE_TYPE_BOOL)
+  else if (prop.value_type == PLATFORM_MQTT_VALUE_BOOL)
     prop.value_int = (strcmp(value_buf, "true") == 0 || strcmp(value_buf, "1") == 0) ? 1 : 0;
-  else if (prop.value_type == MQTT_VALUE_TYPE_STRING)
+  else if (prop.value_type == PLATFORM_MQTT_VALUE_STRING)
     strncpy(prop.id, value_buf, sizeof(prop.id) - 1);
   else
     prop.value_int = atoi(value_buf);
@@ -1730,7 +1709,7 @@ static void cmd_mqtt_publish(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\rPublishing: %s = %s (type=%d, id=%s)", prop.key, value_buf, prop.value_type, msg_id);
   menu_service_println(ctx, msg);
 
-  if (esp8266_mqtt_publish_property(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, &prop, 1, msg_id) == ESP8266_EOK)
+  if (MQTT_PUBLISH_PROPERTY(&g_esp8266_mqtt.base, 0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, &prop, 1, msg_id) == PLATFORM_MQTT_OK)
     menu_service_println(ctx, "Publish OK!");
   else
     menu_service_println(ctx, "Publish FAILED!");
@@ -1775,35 +1754,30 @@ static void cmd_mqtt_listen(menu_ctx_t *ctx, int argc, char *argv[])
         exit_q_count = 0;
     }
 
-    uint8_t *resp = esp8266_uart_rx_get_frame();
-    if (resp != NULL)
+    char recv_topic[PLATFORM_MQTT_MAX_TOPIC_LEN];
+    char recv_payload[PLATFORM_MQTT_MAX_PAYLOAD_LEN];
+    char recv_msg_id[32];
+    platform_mqtt_property_t recv_props[8];
+    uint8_t recv_prop_count = 0;
+
+    int16_t recv_ret = MQTT_CHECK_PROPERTY_SET_RECV(&g_esp8266_mqtt.base, recv_topic, recv_payload, sizeof(recv_payload), recv_msg_id);
+    if (recv_ret == PLATFORM_MQTT_OK)
     {
-      if (strstr((const char *)resp, "+MQTTSUBRECV:") != NULL)
+      snprintf(msg, sizeof(msg), "\rReceived: topic=%s", recv_topic);
+      menu_service_println(ctx, msg);
+      snprintf(msg, sizeof(msg), "Payload: %s", recv_payload);
+      menu_service_println(ctx, msg);
+      snprintf(msg, sizeof(msg), "Message ID: %s", recv_msg_id);
+      menu_service_println(ctx, msg);
+
+      if (strstr(recv_topic, "/thing/property/set") != NULL)
       {
-        memset(recv_topic, 0, sizeof(recv_topic));
-        memset(recv_payload, 0, sizeof(recv_payload));
-        memset(recv_msg_id, 0, sizeof(recv_msg_id));
-
-        if (esp8266_mqtt_check_property_set_recv(recv_topic, recv_payload, sizeof(recv_payload), recv_msg_id) == ESP8266_EOK)
-        {
-          snprintf(msg, sizeof(msg), "\rReceived: topic=%s", recv_topic);
-          menu_service_println(ctx, msg);
-          snprintf(msg, sizeof(msg), "Payload: %s", recv_payload);
-          menu_service_println(ctx, msg);
-          snprintf(msg, sizeof(msg), "Message ID: %s", recv_msg_id);
-          menu_service_println(ctx, msg);
-
-          if (strstr(recv_topic, "/thing/property/set") != NULL)
-          {
-            menu_service_println(ctx, "Auto replying to property set...");
-            if (esp8266_mqtt_publish_set_reply(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, recv_msg_id, 200, "user_succ") == ESP8266_EOK)
-              menu_service_println(ctx, "Reply sent successfully!");
-            else
-              menu_service_println(ctx, "Reply FAILED!");
-          }
-        }
+        menu_service_println(ctx, "Auto replying to property set...");
+        if (MQTT_PUBLISH_SET_REPLY(&g_esp8266_mqtt.base, 0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, recv_msg_id, 200, "user_succ") == PLATFORM_MQTT_OK)
+          menu_service_println(ctx, "Reply sent successfully!");
+        else
+          menu_service_println(ctx, "Reply FAILED!");
       }
-      esp8266_uart_rx_restart();
     }
     HAL_Delay(10);
   }
@@ -1812,7 +1786,7 @@ static void cmd_mqtt_listen(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_mqtt_disconnect(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Disconnecting MQTT...");
-  if (esp8266_mqtt_disconnect(0) == ESP8266_EOK)
+  if (MQTT_DISCONNECT(&g_esp8266_mqtt.base, 0) == PLATFORM_MQTT_OK)
     menu_service_println(ctx, "MQTT disconnected!");
   else
     menu_service_println(ctx, "Disconnect FAILED!");
@@ -1821,7 +1795,7 @@ static void cmd_mqtt_disconnect(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_mqtt_sync_time(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Syncing time from server...");
-  if (ONENET_SyncTime())
+  if (esp8266_ota_sync_time())
   {
     menu_service_println(ctx, "Time sync success!");
     Print_Current_Time();
@@ -1863,13 +1837,13 @@ static void cmd_mqtt_publish_rtc(menu_ctx_t *ctx, int argc, char *argv[])
                rtc_date.year, rtc_date.month, rtc_date.date,
                rtc_time.hours, rtc_time.minutes, rtc_time.seconds);
 
-      mqtt_property_t prop;
+      platform_mqtt_property_t prop;
       memset(&prop, 0, sizeof(prop));
       strncpy(prop.key, "RTC_TIME", sizeof(prop.key) - 1);
       strncpy(prop.id, rtc_time_str, sizeof(prop.id) - 1);
-      prop.value_type = MQTT_VALUE_TYPE_STRING;
+      prop.value_type = PLATFORM_MQTT_VALUE_STRING;
 
-      if (esp8266_mqtt_publish_property(0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, &prop, 1, "007") == ESP8266_EOK)
+      if (MQTT_PUBLISH_PROPERTY(&g_esp8266_mqtt.base, 0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, &prop, 1, "007") == PLATFORM_MQTT_OK)
       {
         publish_count++;
         snprintf(msg, sizeof(msg), "Published %lu times: %s", (unsigned long)publish_count, rtc_time_str);

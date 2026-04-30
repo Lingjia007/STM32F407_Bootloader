@@ -691,11 +691,6 @@
               <FilePath>../Core/Src/usart.c</FilePath>
             </File>
             <File>
-              <FileName>platform_config.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Core/Src/platform_config.c</FilePath>
-            </File>
-            <File>
               <FileName>stm32f4xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Core/Src/stm32f4xx_it.c</FilePath>
@@ -745,6 +740,11 @@
         <Group>
           <GroupName>Platform</GroupName>
           <Files>
+            <File>
+              <FileName>platform_config.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Platform\Src\platform_config.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -800,6 +800,21 @@
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_rtc_stm32_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_wifi_esp8266_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_wifi_esp8266_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_mqtt_esp8266_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_mqtt_esp8266_impl.c</FilePath>
+            </File>
+            <File>
+              <FileName>platform_tick_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_tick_stm32_impl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -829,6 +844,16 @@
               <FileName>hpatch_service.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Service\Src\hpatch_service.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_wifi_transport.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\service_wifi_transport.c</FilePath>
+            </File>
+            <File>
+              <FileName>service_onenet_ota.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\service_onenet_ota.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -3949,39 +3974,9 @@
           <GroupName>ESP8266_OTA</GroupName>
           <Files>
             <File>
-              <FileName>esp8266_driver.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\esp8266_driver.c</FilePath>
-            </File>
-            <File>
               <FileName>esp8266_ota_api.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\ESP8266_OTA\esp8266_ota_api.c</FilePath>
-            </File>
-            <File>
-              <FileName>esp8266_uart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\esp8266_uart.c</FilePath>
-            </File>
-            <File>
-              <FileName>onenet_ota.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\onenet_ota.c</FilePath>
-            </File>
-            <File>
-              <FileName>transport.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\transport.c</FilePath>
-            </File>
-            <File>
-              <FileName>onenet_http_source.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\onenet_http_source.c</FilePath>
-            </File>
-            <File>
-              <FileName>esp8266_mqtt.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\ESP8266_OTA\esp8266_mqtt.c</FilePath>
             </File>
           </Files>
         </Group>

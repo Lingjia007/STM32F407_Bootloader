@@ -10,10 +10,10 @@ stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
@@ -49,7 +49,7 @@ stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\Utils\aes.h \
-  ..\Core\Inc\platform_config.h \
+  ..\Platform\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
   ..\Platform\Inc\platform_led.h \
   ..\Impl\Inc\platform_w25q128_stm32_impl.h \
@@ -60,4 +60,9 @@ stm32f407vgt6_bootloader/aes_decrypt.o: ..\Utils\aes_decrypt.c \
   ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Impl\Inc\platform_lfs_stm32_impl.h \
-  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h
+  ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
+  ..\Impl\Inc\platform_wifi_esp8266_impl.h \
+  ..\Platform\Inc\platform_wifi.h \
+  ..\Impl\Inc\platform_mqtt_esp8266_impl.h \
+  ..\Platform\Inc\platform_mqtt.h ..\Impl\Inc\platform_tick_stm32_impl.h \
+  ..\Platform\Inc\platform_tick.h

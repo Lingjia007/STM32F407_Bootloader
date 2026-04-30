@@ -3,7 +3,7 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\ymodem.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Platform\Inc\platform_transport.h ..\Platform\Inc\platform_uart.h \
-  ..\Core\Inc\platform_config.h \
+  ..\Platform\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
   ..\Platform\Inc\platform_led.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
@@ -13,10 +13,10 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\ymodem.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f4xx.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\stm32f407xx.h \
   ..\Drivers\CMSIS\Include\core_cm4.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
-  d:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_version.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_compiler.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\cmsis_armclang.h \
+  D:\edgedownload\STM32F407VGT6_Bootloader\Drivers\CMSIS\Include\mpu_armv7.h \
   ..\Drivers\CMSIS\Device\ST\STM32F4xx\Include\system_stm32f4xx.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\Legacy\stm32_hal_legacy.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc_ex.h \
@@ -62,4 +62,8 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\ymodem.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
   ..\Impl\Inc\platform_rtc_stm32_impl.h ..\Platform\Inc\platform_rtc.h \
-  ..\Bootloader_Core\bootloader_core.h
+  ..\Impl\Inc\platform_wifi_esp8266_impl.h \
+  ..\Platform\Inc\platform_wifi.h \
+  ..\Impl\Inc\platform_mqtt_esp8266_impl.h \
+  ..\Platform\Inc\platform_mqtt.h ..\Impl\Inc\platform_tick_stm32_impl.h \
+  ..\Platform\Inc\platform_tick.h ..\Bootloader_Core\bootloader_core.h
