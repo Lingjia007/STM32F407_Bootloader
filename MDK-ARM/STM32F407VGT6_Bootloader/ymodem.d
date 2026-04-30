@@ -37,9 +37,11 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\flash_if.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\IAP\common.h ..\Bootloader_Core\bootloader_core.h \
-  ..\Platform\Inc\platform_storage.h \
+  ..\IAP\ymodem.h ..\Service\Inc\ymodem_service.h \
+  ..\Platform\Inc\platform_storage.h ..\Platform\Inc\platform_uart.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
+  ..\Bootloader_Core\bootloader_core.h \
   ..\Impl\Inc\platform_fatfs_stm32_impl.h \
   ..\Middlewares\Third_Party\FatFs\src\ff.h \
   ..\Middlewares\Third_Party\FatFs\src\integer.h \
@@ -53,4 +55,4 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\flash_if.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\IAP\ymodem.h ..\IAP\menu.h
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h

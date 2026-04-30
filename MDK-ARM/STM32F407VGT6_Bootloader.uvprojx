@@ -716,11 +716,6 @@
           <GroupName>IAP</GroupName>
           <Files>
             <File>
-              <FileName>common.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\IAP\common.c</FilePath>
-            </File>
-            <File>
               <FileName>flash_if.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\IAP\flash_if.c</FilePath>
@@ -790,6 +785,11 @@
               <FileType>1</FileType>
               <FilePath>..\Impl\Src\platform_lfs_stm32_impl.c</FilePath>
             </File>
+            <File>
+              <FileName>platform_uart_stm32_impl.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Impl\Src\platform_uart_stm32_impl.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -804,6 +804,16 @@
               <FileName>lfs_spi_flash_adapter.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Service\Src\lfs_spi_flash_adapter.c</FilePath>
+            </File>
+            <File>
+              <FileName>ymodem_service.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\ymodem_service.c</FilePath>
+            </File>
+            <File>
+              <FileName>menu_service.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Service\Src\menu_service.c</FilePath>
             </File>
           </Files>
         </Group>

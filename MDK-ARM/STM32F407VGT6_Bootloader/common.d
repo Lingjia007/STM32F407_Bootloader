@@ -53,4 +53,5 @@ stm32f407vgt6_bootloader/common.o: ..\IAP\common.c ..\IAP\common.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\Core\Inc\usart.h
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h ..\Core\Inc\usart.h \
+  ..\Impl\Inc\platform_uart_stm32_impl.h ..\Platform\Inc\platform_uart.h

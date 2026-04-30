@@ -34,7 +34,8 @@
 #include "bsp_driver_sd.h"
 #include "usb_device.h"
 #include "menu.h"
-#include "common.h"
+#include "menu_service.h"
+#include "platform_uart_stm32_impl.h"
 #include "lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
 /* USER CODE END Includes */
@@ -109,7 +110,9 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
   MX_SDIO_SD_Init_Fix();
-  Common_Init(&bootloader_ctx.config.ymodem);
+  platform_uart_stm32_register(&g_uart4_console, &huart4, "uart4_console");
+  bootloader_ctx.config.ymodem.huart = &huart4;
+  bootloader_ctx.config.ymodem.dest_addr = bootloader_ctx.config.jump.app_jump_addr;
   lfs_spi_flash_init();
   HAL_TIM_Base_Start_IT(&htim1);
 
