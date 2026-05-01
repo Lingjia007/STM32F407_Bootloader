@@ -109,39 +109,6 @@ static void scan_sd_card_files(void)
   f_closedir(&dir);
 }
 
-static void scan_sd_card_files_filter(uint8_t filter_type)
-{
-  DIR dir;
-  FILINFO fno;
-  FRESULT res;
-
-  file_count = 0;
-  res = f_opendir(&dir, "0:/");
-  if (res != FR_OK)
-  {
-    menu_service_println(&g_menu_ctx, "Error: Cannot open SD card directory!");
-    return;
-  }
-
-  while (file_count < MAX_FILES)
-  {
-    res = f_readdir(&dir, &fno);
-    if (res != FR_OK || fno.fname[0] == 0)
-      break;
-    if (!(fno.fattrib & AM_DIR))
-    {
-      uint8_t ext_type = check_file_extension(fno.fname);
-      if (ext_type == filter_type || (filter_type == 0 && ext_type))
-      {
-        strncpy(file_list[file_count], fno.fname, MAX_FILENAME_LEN - 1);
-        file_list[file_count][MAX_FILENAME_LEN - 1] = '\0';
-        file_count++;
-      }
-    }
-  }
-  f_closedir(&dir);
-}
-
 static void scan_lfs_files(lfs_t *lfs)
 {
   lfs_dir_t dir;
@@ -174,111 +141,78 @@ static void scan_lfs_files(lfs_t *lfs)
   lfs_dir_close(lfs, &dir);
 }
 
-static void scan_lfs_files_filter(lfs_t *lfs, uint8_t filter_type)
+static void scan_fs_hdiff_files(platform_fs_base_t *fs, const char *dir_path)
 {
-  lfs_dir_t dir;
-  struct lfs_info info;
-  int res;
+  platform_fs_dir_t dir;
+  char name[MAX_FILENAME_LEN];
+  uint32_t size;
+  uint8_t is_dir;
+  int16_t res;
+
+  hdiff_count = 0;
+  res = FS_DIR_OPEN(fs, &dir, dir_path);
+  if (res != (int16_t)FS_STATUS_OK)
+  {
+    menu_service_println(&g_menu_ctx, "Error: Cannot open directory!");
+    return;
+  }
+
+  while (hdiff_count < MAX_FILES)
+  {
+    res = FS_DIR_READ(fs, &dir, name, &size, &is_dir);
+    if (res != (int16_t)FS_STATUS_OK)
+      break;
+    if (!is_dir)
+    {
+      size_t len = strlen(name);
+      if (len >= 6)
+      {
+        const char *ext = name + len - 6;
+        if (strcmp(ext, ".hdiff") == 0 || strcmp(ext, ".HDIFF") == 0)
+        {
+          strncpy(hdiff_list[hdiff_count], name, MAX_FILENAME_LEN - 1);
+          hdiff_list[hdiff_count][MAX_FILENAME_LEN - 1] = '\0';
+          hdiff_count++;
+        }
+      }
+    }
+  }
+  FS_DIR_CLOSE(fs, &dir);
+}
+
+static void scan_fs_files_filter(platform_fs_base_t *fs, const char *dir_path, uint8_t filter_type)
+{
+  platform_fs_dir_t dir;
+  char name[MAX_FILENAME_LEN];
+  uint32_t size;
+  uint8_t is_dir;
+  int16_t res;
 
   file_count = 0;
-  res = lfs_dir_open(lfs, &dir, "/");
-  if (res != LFS_ERR_OK)
+  res = FS_DIR_OPEN(fs, &dir, dir_path);
+  if (res != (int16_t)FS_STATUS_OK)
   {
-    menu_service_println(&g_menu_ctx, "Error: Cannot open SPI Flash directory!");
+    menu_service_println(&g_menu_ctx, "Error: Cannot open directory!");
     return;
   }
 
   while (file_count < MAX_FILES)
   {
-    res = lfs_dir_read(lfs, &dir, &info);
-    if (res <= 0)
+    res = FS_DIR_READ(fs, &dir, name, &size, &is_dir);
+    if (res != (int16_t)FS_STATUS_OK)
       break;
-    if (info.type == LFS_TYPE_REG)
+    if (!is_dir)
     {
-      uint8_t ext_type = check_file_extension(info.name);
+      uint8_t ext_type = check_file_extension(name);
       if (ext_type == filter_type || (filter_type == 0 && ext_type))
       {
-        strncpy(file_list[file_count], info.name, MAX_FILENAME_LEN - 1);
+        strncpy(file_list[file_count], name, MAX_FILENAME_LEN - 1);
         file_list[file_count][MAX_FILENAME_LEN - 1] = '\0';
         file_count++;
       }
     }
   }
-  lfs_dir_close(lfs, &dir);
-}
-
-static void scan_sd_card_hdiff_files(void)
-{
-  DIR dir;
-  FILINFO fno;
-  FRESULT res;
-
-  hdiff_count = 0;
-  res = f_opendir(&dir, "0:/");
-  if (res != FR_OK)
-  {
-    menu_service_println(&g_menu_ctx, "Error: Cannot open SD card directory!");
-    return;
-  }
-
-  while (hdiff_count < MAX_FILES)
-  {
-    res = f_readdir(&dir, &fno);
-    if (res != FR_OK || fno.fname[0] == 0)
-      break;
-    if (!(fno.fattrib & AM_DIR))
-    {
-      size_t len = strlen(fno.fname);
-      if (len >= 6)
-      {
-        const char *ext = fno.fname + len - 6;
-        if (strcmp(ext, ".hdiff") == 0 || strcmp(ext, ".HDIFF") == 0)
-        {
-          strncpy(hdiff_list[hdiff_count], fno.fname, MAX_FILENAME_LEN - 1);
-          hdiff_list[hdiff_count][MAX_FILENAME_LEN - 1] = '\0';
-          hdiff_count++;
-        }
-      }
-    }
-  }
-  f_closedir(&dir);
-}
-
-static void scan_lfs_hdiff_files(lfs_t *lfs)
-{
-  lfs_dir_t dir;
-  struct lfs_info info;
-  int res;
-
-  hdiff_count = 0;
-  res = lfs_dir_open(lfs, &dir, "/");
-  if (res != LFS_ERR_OK)
-  {
-    menu_service_println(&g_menu_ctx, "Error: Cannot open SPI Flash directory!");
-    return;
-  }
-
-  while (hdiff_count < MAX_FILES)
-  {
-    res = lfs_dir_read(lfs, &dir, &info);
-    if (res <= 0)
-      break;
-    if (info.type == LFS_TYPE_REG)
-    {
-      size_t len = strlen(info.name);
-      if (len >= 6)
-      {
-        const char *ext = info.name + len - 6;
-        if (strcmp(ext, ".hdiff") == 0 || strcmp(ext, ".HDIFF") == 0)
-        {
-          strncpy(hdiff_list[hdiff_count], info.name, MAX_FILENAME_LEN - 1);
-          hdiff_list[hdiff_count][MAX_FILENAME_LEN - 1] = '\0';
-          hdiff_count++;
-        }
-      }
-    }
-  }
-  lfs_dir_close(lfs, &dir);
+  FS_DIR_CLOSE(fs, &dir);
 }
 
 static void cmd_serial_download(menu_ctx_t *ctx, int argc, char *argv[])
@@ -2233,14 +2167,21 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
   lfs_spi_flash_unmount(&lfs);
 }
 
-static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
+typedef struct
+{
+  const char *storage_name;
+  const char *dir_path;
+  const char *path_prefix;
+  platform_fs_base_t *fs;
+} hpatch_storage_ctx_t;
+
+static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *storage)
 {
   uint8_t key = 0;
   uint8_t selected_diff = 0;
   uint8_t selected_old = 0;
   uint8_t i;
   char msg[256];
-  FRESULT res;
   hpatch_err_t patch_result;
   hpatch_config_t config;
   char diff_path[HPATCH_MAX_PATH_LEN];
@@ -2249,23 +2190,13 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   char *dot_pos;
   const char *upgrade_tag = "_HdiffUpgraded";
 
-  menu_service_println(ctx, "Initializing TF card...");
-  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
-  if (res != FR_OK)
-  {
-    menu_service_print(ctx, "Error: SD card mount failed! Error code: ");
-    menu_service_int2str((uint8_t *)msg, res);
-    menu_service_println(ctx, msg);
-    return;
-  }
-
   menu_service_println(ctx, "Scanning for .hdiff files...\r");
-  scan_sd_card_hdiff_files();
+  scan_fs_hdiff_files(storage->fs, storage->dir_path);
 
   if (hdiff_count == 0)
   {
-    menu_service_println(ctx, "No .hdiff files found on SD card!");
-    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    snprintf(msg, sizeof(msg), "No .hdiff files found on %s!", storage->storage_name);
+    menu_service_println(ctx, msg);
     return;
   }
 
@@ -2285,7 +2216,6 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     if (key == 'a' || key == 'A')
     {
       menu_service_println(ctx, "\rAborted by user.");
-      f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
     if (key >= '1' && key <= '9')
@@ -2299,12 +2229,12 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\rSelected: %s", hdiff_list[selected_diff - 1]);
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Scanning for .bin firmware files...\r");
-  scan_sd_card_files_filter(1);
+  scan_fs_files_filter(storage->fs, storage->dir_path, 1);
 
   if (file_count == 0)
   {
-    menu_service_println(ctx, "No .bin files found on SD card!");
-    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    snprintf(msg, sizeof(msg), "No .bin files found on %s!", storage->storage_name);
+    menu_service_println(ctx, msg);
     return;
   }
 
@@ -2324,7 +2254,6 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     if (key == 'a' || key == 'A')
     {
       menu_service_println(ctx, "\rAborted by user.");
-      f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
     if (key >= '1' && key <= '9')
@@ -2338,8 +2267,18 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected_old - 1]);
   menu_service_println(ctx, msg);
 
-  snprintf(diff_path, sizeof(diff_path), "0:/%s", hdiff_list[selected_diff - 1]);
-  snprintf(old_path, sizeof(old_path), "0:/%s", file_list[selected_old - 1]);
+  if (storage->path_prefix[0] != '\0')
+  {
+    snprintf(diff_path, sizeof(diff_path), "%s%s", storage->path_prefix, hdiff_list[selected_diff - 1]);
+    snprintf(old_path, sizeof(old_path), "%s%s", storage->path_prefix, file_list[selected_old - 1]);
+  }
+  else
+  {
+    strncpy(diff_path, hdiff_list[selected_diff - 1], sizeof(diff_path) - 1);
+    diff_path[sizeof(diff_path) - 1] = '\0';
+    strncpy(old_path, file_list[selected_old - 1], sizeof(old_path) - 1);
+    old_path[sizeof(old_path) - 1] = '\0';
+  }
 
   strncpy(out_path, old_path, sizeof(out_path) - 1);
   out_path[sizeof(out_path) - 1] = '\0';
@@ -2359,8 +2298,7 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     strncat(out_path, ".bin", sizeof(out_path) - strlen(out_path) - 1);
   }
 
-  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
-  config.fs = &g_fs_fatfs.base;
+  config.fs = storage->fs;
   config.diff_path = diff_path;
   config.old_path = old_path;
   config.out_path = out_path;
@@ -2378,7 +2316,8 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   if (patch_result == HPATCH_OK)
   {
     menu_service_println(ctx, "HPatch upgrade completed successfully!");
-    menu_service_println(ctx, "Upgraded firmware saved to SD card.");
+    snprintf(msg, sizeof(msg), "Upgraded firmware saved to %s.", storage->storage_name);
+    menu_service_println(ctx, msg);
     snprintf(msg, sizeof(msg), "Output: %s", config.out_path);
     menu_service_println(ctx, msg);
   }
@@ -2387,24 +2326,37 @@ static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     menu_service_print(ctx, "HPatch upgrade failed! Error: ");
     menu_service_println(ctx, hpatch_err_to_string(patch_result));
   }
+}
+
+static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  FRESULT res;
+  char msg[256];
+  hpatch_storage_ctx_t storage = {"SD card", "0:/", "0:/", NULL};
+
+  menu_service_println(ctx, "Initializing TF card...");
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    menu_service_print(ctx, "Error: SD card mount failed! Error code: ");
+    menu_service_int2str((uint8_t *)msg, res);
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+  storage.fs = &g_fs_fatfs.base;
+
+  cmd_hpatch_workflow(ctx, &storage);
 
   f_mount(NULL, (TCHAR const *)SDPath, 0);
 }
 
 static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  uint8_t key = 0;
-  uint8_t selected_diff = 0;
-  uint8_t selected_old = 0;
-  uint8_t i;
-  char msg[256];
   int res;
   lfs_t lfs;
-  hpatch_err_t patch_result;
-  hpatch_config_t config;
-  char out_path[HPATCH_MAX_PATH_LEN];
-  char *dot_pos;
-  const char *upgrade_tag = "_HdiffUpgraded";
+  hpatch_storage_ctx_t storage = {"SPI Flash", "/", "", NULL};
 
   menu_service_println(ctx, "Initializing SPI Flash...");
   res = lfs_spi_flash_init();
@@ -2422,131 +2374,10 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_println(ctx, "Scanning for .hdiff files...\r");
-  scan_lfs_hdiff_files(&lfs);
-
-  if (hdiff_count == 0)
-  {
-    menu_service_println(ctx, "No .hdiff files found on SPI Flash!");
-    lfs_spi_flash_unmount(&lfs);
-    return;
-  }
-
-  menu_service_println(ctx, "Found .hdiff files:");
-  for (i = 0; i < hdiff_count; i++)
-  {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, hdiff_list[i]);
-    menu_service_println(ctx, msg);
-  }
-
-  menu_service_printf(ctx, "\r\nSelect .hdiff file (1-%d) or 'a' to abort: ", hdiff_count);
-  menu_service_flush(ctx);
-
-  while (1)
-  {
-    menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
-    {
-      menu_service_println(ctx, "\rAborted by user.");
-      lfs_spi_flash_unmount(&lfs);
-      return;
-    }
-    if (key >= '1' && key <= '9')
-    {
-      selected_diff = key - '0';
-      if (selected_diff >= 1 && selected_diff <= hdiff_count)
-        break;
-    }
-  }
-
-  snprintf(msg, sizeof(msg), "\rSelected: %s", hdiff_list[selected_diff - 1]);
-  menu_service_println(ctx, msg);
-  menu_service_println(ctx, "Scanning for .bin firmware files...\r");
-  scan_lfs_files_filter(&lfs, 1);
-
-  if (file_count == 0)
-  {
-    menu_service_println(ctx, "No .bin files found on SPI Flash!");
-    lfs_spi_flash_unmount(&lfs);
-    return;
-  }
-
-  menu_service_println(ctx, "Found firmware files:");
-  for (i = 0; i < file_count; i++)
-  {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
-    menu_service_println(ctx, msg);
-  }
-
-  menu_service_printf(ctx, "\r\nSelect old firmware file to update (1-%d) or 'a' to abort: ", file_count);
-  menu_service_flush(ctx);
-
-  while (1)
-  {
-    menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
-    {
-      menu_service_println(ctx, "\rAborted by user.");
-      lfs_spi_flash_unmount(&lfs);
-      return;
-    }
-    if (key >= '1' && key <= '9')
-    {
-      selected_old = key - '0';
-      if (selected_old >= 1 && selected_old <= file_count)
-        break;
-    }
-  }
-
-  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected_old - 1]);
-  menu_service_println(ctx, msg);
-
-  strncpy(out_path, file_list[selected_old - 1], sizeof(out_path) - 1);
-  out_path[sizeof(out_path) - 1] = '\0';
-
-  dot_pos = strrchr(out_path, '.');
-  if (dot_pos != NULL)
-  {
-    size_t base_len = dot_pos - out_path;
-    if (base_len + strlen(upgrade_tag) + 4 < sizeof(out_path))
-      snprintf(dot_pos, sizeof(out_path) - base_len, "%s.bin", upgrade_tag);
-    else
-      strncat(out_path, upgrade_tag, sizeof(out_path) - strlen(out_path) - 1);
-  }
-  else
-  {
-    strncat(out_path, upgrade_tag, sizeof(out_path) - strlen(out_path) - 1);
-    strncat(out_path, ".bin", sizeof(out_path) - strlen(out_path) - 1);
-  }
-
   platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
-  config.fs = &g_fs_lfs.base;
-  config.diff_path = hdiff_list[selected_diff - 1];
-  config.old_path = file_list[selected_old - 1];
-  config.out_path = out_path;
+  storage.fs = &g_fs_lfs.base;
 
-  snprintf(msg, sizeof(msg), "\rDiff file: %s", config.diff_path);
-  menu_service_println(ctx, msg);
-  snprintf(msg, sizeof(msg), "Old firmware: %s", config.old_path);
-  menu_service_println(ctx, msg);
-  snprintf(msg, sizeof(msg), "Output file: %s", config.out_path);
-  menu_service_println(ctx, msg);
-  menu_service_println(ctx, "Starting HPatch differential upgrade...");
-
-  patch_result = hpatch_upgrade(&config);
-
-  if (patch_result == HPATCH_OK)
-  {
-    menu_service_println(ctx, "HPatch upgrade completed successfully!");
-    menu_service_println(ctx, "Upgraded firmware saved to SPI Flash.");
-    snprintf(msg, sizeof(msg), "Output: %s", config.out_path);
-    menu_service_println(ctx, msg);
-  }
-  else
-  {
-    menu_service_print(ctx, "HPatch upgrade failed! Error: ");
-    menu_service_println(ctx, hpatch_err_to_string(patch_result));
-  }
+  cmd_hpatch_workflow(ctx, &storage);
 
   lfs_spi_flash_unmount(&lfs);
 }

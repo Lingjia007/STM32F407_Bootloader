@@ -5,7 +5,6 @@
 #include "ff.h"
 
 #define FATFS_PATH_MAX 128
-#define FATFS_DMA_BUF_SIZE 512
 
 typedef struct
 {
@@ -17,7 +16,6 @@ typedef struct
     uint32_t written_size;
     uint8_t is_open;
     uint8_t is_source;
-    __attribute__((aligned(4))) uint8_t dma_buf[FATFS_DMA_BUF_SIZE];
 } fatfs_stm32_t;
 
 void platform_fatfs_stm32_register(fatfs_stm32_t *transport, const char *name);

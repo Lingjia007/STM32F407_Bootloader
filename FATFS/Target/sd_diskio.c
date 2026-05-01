@@ -1,20 +1,20 @@
 /* USER CODE BEGIN Header */
 /**
-  ******************************************************************************
-  * @file    sd_diskio.c
-  * @brief   SD Disk I/O driver
-  ******************************************************************************
-  * @attention
-  *
-  * Copyright (c) 2025 STMicroelectronics.
-  * All rights reserved.
-  *
-  * This software is licensed under terms that can be found in the LICENSE file
-  * in the root directory of this software component.
-  * If no LICENSE file comes with this software, it is provided AS-IS.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file    sd_diskio.c
+ * @brief   SD Disk I/O driver
+ ******************************************************************************
+ * @attention
+ *
+ * Copyright (c) 2025 STMicroelectronics.
+ * All rights reserved.
+ *
+ * This software is licensed under terms that can be found in the LICENSE file
+ * in the root directory of this software component.
+ * If no LICENSE file comes with this software, it is provided AS-IS.
+ *
+ ******************************************************************************
+ */
 /* USER CODE END Header */
 
 /* Note: code generation based on sd_diskio_dma_template_bspv1.c v2.1.4
@@ -68,7 +68,7 @@
 * transfer data
 */
 /* USER CODE BEGIN enableScratchBuffer */
-/* #define ENABLE_SCRATCH_BUFFER */
+#define ENABLE_SCRATCH_BUFFER
 /* USER CODE END enableScratchBuffer */
 
 /* Private variables ---------------------------------------------------------*/
@@ -111,6 +111,8 @@ const Diskio_drvTypeDef  SD_Driver =
 
 /* USER CODE BEGIN beforeFunctionSection */
 /* can be used to modify / undefine following code or add new code */
+#define CUSTOM_SD_READ
+#define CUSTOM_SD_WRITE
 /* USER CODE END beforeFunctionSection */
 
 /* Private functions ---------------------------------------------------------*/
@@ -176,6 +178,7 @@ DSTATUS SD_status(BYTE lun)
 
 /* USER CODE BEGIN beforeReadSection */
 /* can be used to modify previous code / undefine following code / add new code */
+#ifndef CUSTOM_SD_READ
 /* USER CODE END beforeReadSection */
 /**
   * @brief  Reads Sector(s)
@@ -296,7 +299,9 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 }
 
 /* USER CODE BEGIN beforeWriteSection */
-/* can be used to modify previous code / undefine following code / add new code */
+/* can be used to modify previous code / undefine following code or add new code */
+#endif /* CUSTOM_SD_READ */
+#ifndef CUSTOM_SD_WRITE
 /* USER CODE END beforeWriteSection */
 /**
   * @brief  Writes Sector(s)
@@ -417,7 +422,8 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 #endif /* _USE_WRITE == 1 */
 
 /* USER CODE BEGIN beforeIoctlSection */
-/* can be used to modify previous code / undefine following code / add new code */
+/* can be used to modify previous code / undefine following code or add new code */
+#endif /* CUSTOM_SD_WRITE */
 /* USER CODE END beforeIoctlSection */
 /**
   * @brief  I/O control operation
@@ -471,7 +477,210 @@ DRESULT SD_ioctl(BYTE lun, BYTE cmd, void *buff)
 #endif /* _USE_IOCTL == 1 */
 
 /* USER CODE BEGIN afterIoctlSection */
-/* can be used to modify previous code / undefine following code / add new code */
+/* can be used to modify previous code / undefine following code or add new code */
+
+#if defined(CUSTOM_SD_READ)
+
+DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
+{
+  DRESULT res = RES_ERROR;
+  uint32_t timeout;
+
+  if (SD_CheckStatusWithTimeout(SD_TIMEOUT) < 0)
+  {
+    return res;
+  }
+
+#if defined(ENABLE_SCRATCH_BUFFER)
+  if (!((uint32_t)buff & 0x3))
+  {
+#endif
+    if (BSP_SD_ReadBlocks_DMA((uint32_t *)buff,
+                              (uint32_t)(sector),
+                              count) == MSD_OK)
+    {
+      ReadStatus = 0;
+      timeout = HAL_GetTick();
+      while ((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
+      {
+      }
+      if (ReadStatus == 0)
+      {
+        res = RES_ERROR;
+      }
+      else
+      {
+        ReadStatus = 0;
+        timeout = HAL_GetTick();
+
+        while ((HAL_GetTick() - timeout) < SD_TIMEOUT)
+        {
+          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          {
+            res = RES_OK;
+#if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
+            uint32_t alignedAddr = (uint32_t)buff & ~0x1F;
+            SCB_InvalidateDCache_by_Addr((uint32_t *)alignedAddr, count * BLOCKSIZE + ((uint32_t)buff - alignedAddr));
+#endif
+            break;
+          }
+        }
+      }
+    }
+#if defined(ENABLE_SCRATCH_BUFFER)
+  }
+  else
+  {
+    int i;
+    uint8_t ret;
+
+    for (i = 0; i < count; i++)
+    {
+      ReadStatus = 0;
+      ret = BSP_SD_ReadBlocks_DMA((uint32_t *)scratch, (uint32_t)sector++, 1);
+      if (ret == MSD_OK)
+      {
+        timeout = HAL_GetTick();
+        while ((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
+        {
+        }
+        if (ReadStatus == 0)
+        {
+          res = RES_ERROR;
+          break;
+        }
+        ReadStatus = 0;
+
+        timeout = HAL_GetTick();
+        while ((HAL_GetTick() - timeout) < SD_TIMEOUT)
+        {
+          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          {
+            break;
+          }
+        }
+
+#if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
+        SCB_InvalidateDCache_by_Addr((uint32_t *)scratch, BLOCKSIZE);
+#endif
+        memcpy(buff, scratch, BLOCKSIZE);
+        buff += BLOCKSIZE;
+      }
+      else
+      {
+        break;
+      }
+    }
+
+    if ((i == count) && (ret == MSD_OK))
+      res = RES_OK;
+  }
+#endif
+
+  return res;
+}
+
+#endif /* CUSTOM_SD_READ */
+
+#if _USE_WRITE == 1 && defined(CUSTOM_SD_WRITE)
+
+DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
+{
+  DRESULT res = RES_ERROR;
+  uint32_t timeout;
+
+  WriteStatus = 0;
+
+  if (SD_CheckStatusWithTimeout(SD_TIMEOUT) < 0)
+  {
+    return res;
+  }
+
+#if defined(ENABLE_SCRATCH_BUFFER)
+  if (!((uint32_t)buff & 0x3))
+  {
+#endif
+#if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
+    uint32_t alignedAddr = (uint32_t)buff & ~0x1F;
+    SCB_CleanDCache_by_Addr((uint32_t *)alignedAddr, count * BLOCKSIZE + ((uint32_t)buff - alignedAddr));
+#endif
+    if (BSP_SD_WriteBlocks_DMA((uint32_t *)buff,
+                               (uint32_t)(sector),
+                               count) == MSD_OK)
+    {
+      timeout = HAL_GetTick();
+      while ((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
+      {
+      }
+      if (WriteStatus == 0)
+      {
+        res = RES_ERROR;
+      }
+      else
+      {
+        WriteStatus = 0;
+        timeout = HAL_GetTick();
+
+        while ((HAL_GetTick() - timeout) < SD_TIMEOUT)
+        {
+          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          {
+            res = RES_OK;
+            break;
+          }
+        }
+      }
+    }
+#if defined(ENABLE_SCRATCH_BUFFER)
+  }
+  else
+  {
+    uint8_t ret;
+    int i;
+
+    for (i = 0; i < count; i++)
+    {
+      WriteStatus = 0;
+
+      memcpy((void *)scratch, (void *)buff, BLOCKSIZE);
+      buff += BLOCKSIZE;
+
+      ret = BSP_SD_WriteBlocks_DMA((uint32_t *)scratch, (uint32_t)sector++, 1);
+      if (ret == MSD_OK)
+      {
+        timeout = HAL_GetTick();
+        while ((WriteStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
+        {
+        }
+        if (WriteStatus == 0)
+        {
+          break;
+        }
+        WriteStatus = 0;
+
+        timeout = HAL_GetTick();
+        while ((HAL_GetTick() - timeout) < SD_TIMEOUT)
+        {
+          if (BSP_SD_GetCardState() == SD_TRANSFER_OK)
+          {
+            break;
+          }
+        }
+      }
+      else
+      {
+        break;
+      }
+    }
+    if ((i == count) && (ret == MSD_OK))
+      res = RES_OK;
+  }
+#endif
+
+  return res;
+}
+
+#endif /* _USE_WRITE == 1 && CUSTOM_SD_WRITE */
 /* USER CODE END afterIoctlSection */
 
 /* USER CODE BEGIN callbackSection */
