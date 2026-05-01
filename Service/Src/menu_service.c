@@ -140,6 +140,44 @@ void menu_service_print_separator(menu_ctx_t *ctx, const char *ch, uint8_t len)
     }
 }
 
+void menu_service_print_progress(menu_ctx_t *ctx, const char *label, int pct)
+{
+    if (ctx == NULL)
+        return;
+    if (pct < 0)
+        pct = 0;
+    if (pct > 100)
+        pct = 100;
+
+    char buf[96];
+    int pos = 0;
+
+    if (label != NULL)
+    {
+        while (*label && pos < 30)
+            buf[pos++] = *label++;
+        buf[pos++] = ' ';
+    }
+
+    buf[pos++] = '[';
+    int bar_width = 40;
+    int filled = (pct * bar_width + 50) / 100;
+    for (int i = 0; i < bar_width; i++)
+    {
+        if (i < filled)
+            buf[pos++] = '=';
+        else
+            buf[pos++] = ' ';
+    }
+    buf[pos++] = ']';
+
+    pos += snprintf(&buf[pos], sizeof(buf) - pos, " %3d%%", pct);
+
+    menu_service_print(ctx, "\r");
+    menu_service_print(ctx, buf);
+    menu_service_print(ctx, "\r\n");
+}
+
 int16_t menu_service_getchar(menu_ctx_t *ctx, uint8_t *ch, uint32_t timeout)
 {
     if (ctx == NULL || ch == NULL)

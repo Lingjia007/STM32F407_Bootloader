@@ -1,6 +1,7 @@
 #include "service_onenet_ota.h"
 #include "service_wifi_transport.h"
 #include "platform_config.h"
+#include "esp8266_ota_config.h"
 #include "bootloader_core.h"
 #include "cJSON.h"
 #include "md5.h"
@@ -607,7 +608,7 @@ static int ota_report_version(onenet_ota_ctx_t *ctx)
             printf("OTA version: auth fail\r\n");
             return 0;
         }
-        snprintf(g_ota_body, sizeof(g_ota_body), "{\"s_version\":\"%s\",\"f_version\":\"%s\"}", ONENET_CURRENT_VERSION, ONENET_CURRENT_VERSION);
+        snprintf(g_ota_body, sizeof(g_ota_body), "{\"s_version\":\"%s\",\"f_version\":\"%s\"}", ctx->firmware_version, ctx->firmware_version);
         int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "POST /fuse-ota/%s/%s/version HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: %u\r\n\r\n%s", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, ONENET_FUSE_HOST, g_ota_auth, (unsigned int)strlen(g_ota_body), g_ota_body);
         if (req_len <= 0)
             return 0;
@@ -651,10 +652,10 @@ static int ota_check_upgrade(onenet_ota_ctx_t *ctx, onenet_ota_package_info_t *i
         printf("OTA check: build auth\r\n");
         if (!onenet_ota_build_auth(ctx, ONENET_AUTH_FUSE_VER, ONENET_AUTH_FUSE_RES_RAW, g_ota_auth, sizeof(g_ota_auth)))
             return 0;
-        int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "GET /fuse-ota/%s/%s/check?type=2&version=%s HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nConnection: close\r\n\r\n", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, ONENET_CURRENT_VERSION, ONENET_FUSE_HOST, g_ota_auth);
+        int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "GET /fuse-ota/%s/%s/check?type=2&version=%s HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nConnection: close\r\n\r\n", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, ctx->firmware_version, ONENET_FUSE_HOST, g_ota_auth);
         if (req_len <= 0)
             return 0;
-        printf("OTA check: send req len=%d version=%s\r\n", req_len, ONENET_CURRENT_VERSION);
+        printf("OTA check: send req len=%d version=%s\r\n", req_len, ctx->firmware_version);
         int n = wifi_http_request(ctx->wifi, ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 8000);
         if (n <= 0)
             return 0;
@@ -724,7 +725,7 @@ static int ota_check_task_ready(onenet_ota_ctx_t *ctx, const onenet_ota_package_
     printf("OTA task: check tid=%s\r\n", info->tid);
     if (!onenet_ota_build_auth(ctx, ONENET_AUTH_FUSE_VER, ONENET_AUTH_FUSE_RES_RAW, g_ota_auth, sizeof(g_ota_auth)))
         return 0;
-    int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "GET /fuse-ota/%s/%s/%s/check?type=2&version=%s HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nConnection: close\r\n\r\n", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, info->tid, ONENET_CURRENT_VERSION, ONENET_FUSE_HOST, g_ota_auth);
+    int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "GET /fuse-ota/%s/%s/%s/check?type=2&version=%s HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nConnection: close\r\n\r\n", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, info->tid, ctx->firmware_version, ONENET_FUSE_HOST, g_ota_auth);
     if (req_len <= 0)
         return 0;
     int n = wifi_http_request(ctx->wifi, ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)g_ota_req, (uint32_t)req_len, g_ota_resp, sizeof(g_ota_resp), 4000);
@@ -766,7 +767,7 @@ static int ota_check_task_ready(onenet_ota_ctx_t *ctx, const onenet_ota_package_
 static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_package_info_t *info)
 {
     if (info == NULL || ctx == NULL)
-        return 0;
+        return ONENET_STEP_FAIL_UNKNOWN;
     platform_transport_base_t *target_transport = NULL;
     const char *target_path = NULL;
     bootloader_err_t err = BOOTLOADER_OK;
@@ -790,7 +791,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
             if (res != FR_OK)
             {
                 printf("OTA download: SD card mount failed, res=%d\r\n", res);
-                return 0;
+                return ONENET_STEP_FAIL_NO_SPACE;
             }
             g_fatfs_transport.fs = &fatfs;
             snprintf(bootloader_ctx.config.storage.fatfs_path, sizeof(bootloader_ctx.config.storage.fatfs_path), "0:ota_%s.bin", info->target);
@@ -804,10 +805,10 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         {
             int res = lfs_spi_flash_init();
             if (res != 0)
-                return 0;
+                return ONENET_STEP_FAIL_NO_SPACE;
             res = lfs_spi_flash_mount(&lfs);
             if (res != LFS_ERR_OK)
-                return 0;
+                return ONENET_STEP_FAIL_NO_SPACE;
             g_lfs_transport.lfs = &lfs;
             snprintf(bootloader_ctx.config.storage.lfs_path, sizeof(bootloader_ctx.config.storage.lfs_path), "ota_%s.bin", info->target);
             target_transport = &g_lfs_transport.base;
@@ -817,7 +818,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         break;
     default:
         printf("OTA download: invalid target type %d\r\n", ctx->target_type);
-        return 0;
+        return ONENET_STEP_FAIL_UNKNOWN;
     }
 
     char http_auth[256];
@@ -826,19 +827,20 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
     if (!onenet_ota_build_auth(ctx, ONENET_AUTH_FUSE_VER, ONENET_AUTH_FUSE_RES_RAW, http_auth, sizeof(http_auth)))
     {
         printf("OTA download: auth fail\r\n");
-        return 0;
+        return ONENET_STEP_FAIL_UNKNOWN;
     }
     uint32_t http_offset = 0;
-    int download_ok = 1;
+    int download_ok = ONENET_STEP_DOWNLOAD_OK;
+    int last_reported_pct = 0;
 
     int16_t tgt_ret = target_transport->target_ops->open(target_transport, target_path, info->size);
     if (tgt_ret != TRANSPORT_STATUS_OK)
     {
         printf("OTA download: tgt open failed err=%d\r\n", tgt_ret);
-        download_ok = 0;
+        download_ok = ONENET_STEP_FAIL_NO_SPACE;
     }
 
-    while (download_ok && http_offset < info->size)
+    while (download_ok == ONENET_STEP_DOWNLOAD_OK && http_offset < info->size)
     {
         uint32_t chunk_size = ONENET_DOWNLOAD_CHUNK_SIZE;
         if (http_offset + chunk_size > info->size)
@@ -849,28 +851,28 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         int req_len = snprintf(http_req, sizeof(http_req), "GET /fuse-ota/%s/%s/%s/download HTTP/1.1\r\nHost: %s\r\nRange: %lu-%lu\r\nAuthorization: %s\r\nConnection: close\r\n\r\n", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, info->tid, ONENET_FUSE_HOST, (unsigned long)http_offset, (unsigned long)end, http_auth);
         if (req_len <= 0)
         {
-            download_ok = 0;
+            download_ok = ONENET_STEP_FAIL_UNKNOWN;
             break;
         }
         int n = wifi_http_request(ctx->wifi, ONENET_FUSE_HOST, ONENET_HTTP_PORT, (const uint8_t *)http_req, (uint32_t)req_len, http_resp, sizeof(http_resp), 12000);
         if (n <= 0)
         {
             printf("OTA download: http fail\r\n");
-            download_ok = 0;
+            download_ok = ONENET_STEP_FAIL_TIMEOUT;
             break;
         }
         int status = onenet_ota_http_status_code(http_resp, (uint32_t)n);
         if (!(status == 206 || status == 200))
         {
             printf("OTA download: bad status=%d\r\n", status);
-            download_ok = 0;
+            download_ok = ONENET_STEP_FAIL_TIMEOUT;
             break;
         }
         const uint8_t *body = NULL;
         uint32_t body_len = 0;
         if (!onenet_ota_http_body(http_resp, (uint32_t)n, &body, &body_len))
         {
-            download_ok = 0;
+            download_ok = ONENET_STEP_FAIL_UNKNOWN;
             break;
         }
         if (body_len > 4 && (http_offset + body_len) < info->size)
@@ -879,26 +881,31 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         if (wr != TRANSPORT_STATUS_OK)
         {
             printf("OTA download: write fail\r\n");
-            download_ok = 0;
+            download_ok = ONENET_STEP_FAIL_NO_SPACE;
             break;
         }
         http_offset += body_len;
+        int pct = (int)((http_offset * 100U) / info->size);
+        if (pct > 100)
+            pct = 100;
         if (ctx->progress_cb)
+            ctx->progress_cb(info, pct);
+        if ((pct - last_reported_pct) >= (int)ONENET_PROGRESS_STEP_PCT || pct >= 100)
         {
-            uint32_t progress = (http_offset * 100U) / info->size;
-            ctx->progress_cb(info, (int)progress);
+            ota_report_result(ctx, info, pct);
+            last_reported_pct = pct;
         }
     }
 
     if (target_transport->target_ops->close)
         target_transport->target_ops->close(target_transport);
-    if (!download_ok)
+    if (download_ok != ONENET_STEP_DOWNLOAD_OK)
     {
         if (fs_initialized == 1)
             f_mount(NULL, "0:", 0);
         else if (fs_initialized == 2)
             lfs_spi_flash_unmount(&lfs);
-        return 0;
+        return download_ok;
     }
 
     printf("OTA download: verifying data...\r\n");
@@ -926,7 +933,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         if (res != FR_OK)
         {
             f_mount(NULL, "0:", 0);
-            return 0;
+            return ONENET_STEP_FAIL_UNKNOWN;
         }
         while (verify_offset < info->size)
         {
@@ -938,7 +945,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
             {
                 f_close(&fp);
                 f_mount(NULL, "0:", 0);
-                return 0;
+                return ONENET_STEP_FAIL_UNKNOWN;
             }
             MD5Update(&verify_ctx, verify_buf, to_read);
             verify_offset += to_read;
@@ -953,7 +960,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
         if (res != LFS_ERR_OK)
         {
             lfs_spi_flash_unmount(&lfs);
-            return 0;
+            return ONENET_STEP_FAIL_UNKNOWN;
         }
         while (verify_offset < info->size)
         {
@@ -965,7 +972,7 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
             {
                 lfs_file_close(&lfs, &file);
                 lfs_spi_flash_unmount(&lfs);
-                return 0;
+                return ONENET_STEP_FAIL_UNKNOWN;
             }
             MD5Update(&verify_ctx, verify_buf, to_read);
             verify_offset += to_read;
@@ -983,21 +990,23 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
     if (memcmp(verify_md5, info->md5_bin, 16) != 0)
     {
         printf("OTA md5 mismatch\r\n");
-        return 0;
+        return ONENET_STEP_UPGRADE_MD5_FAIL;
     }
     printf("OTA download: verify ok\r\n");
-    return 1;
+    return ONENET_STEP_DOWNLOAD_OK;
 }
 
-void onenet_ota_ctx_init(onenet_ota_ctx_t *ctx, platform_wifi_base_t *wifi, platform_rtc_base_t *rtc)
+void onenet_ota_ctx_init(onenet_ota_ctx_t *ctx, platform_wifi_base_t *wifi, platform_rtc_base_t *rtc, platform_mqtt_base_t *mqtt)
 {
     if (ctx == NULL)
         return;
     memset(ctx, 0, sizeof(onenet_ota_ctx_t));
     ctx->wifi = wifi;
     ctx->rtc = rtc;
+    ctx->mqtt = mqtt;
     ctx->target_type = ONENET_OTA_TARGET_INTERNAL_FLASH;
     ctx->unix_now_base = ONENET_AUTH_UNIX_NOW_BASE;
+    strncpy(ctx->firmware_version, ONENET_CURRENT_VERSION, sizeof(ctx->firmware_version) - 1);
 }
 
 void onenet_ota_set_target(onenet_ota_ctx_t *ctx, onenet_ota_target_t target)
@@ -1005,6 +1014,14 @@ void onenet_ota_set_target(onenet_ota_ctx_t *ctx, onenet_ota_target_t target)
     if (ctx == NULL)
         return;
     ctx->target_type = (uint8_t)target;
+}
+
+void onenet_ota_set_firmware_version(onenet_ota_ctx_t *ctx, const char *version)
+{
+    if (ctx == NULL || version == NULL)
+        return;
+    strncpy(ctx->firmware_version, version, sizeof(ctx->firmware_version) - 1);
+    ctx->firmware_version[sizeof(ctx->firmware_version) - 1] = '\0';
 }
 
 void onenet_ota_set_progress_callback(onenet_ota_ctx_t *ctx, onenet_ota_progress_cb_t cb)
@@ -1033,7 +1050,7 @@ int onenet_ota_sync_time(onenet_ota_ctx_t *ctx)
         printf("Time sync: auth build failed\r\n");
         return 0;
     }
-    snprintf(g_ota_body, sizeof(g_ota_body), "{\"s_version\":\"%s\",\"f_version\":\"%s\"}", ONENET_CURRENT_VERSION, ONENET_CURRENT_VERSION);
+    snprintf(g_ota_body, sizeof(g_ota_body), "{\"s_version\":\"%s\",\"f_version\":\"%s\"}", ctx->firmware_version, ctx->firmware_version);
     int req_len = snprintf(g_ota_req, sizeof(g_ota_req), "POST /fuse-ota/%s/%s/version HTTP/1.1\r\nHost: %s\r\nAuthorization: %s\r\nContent-Type: application/json\r\nConnection: close\r\nContent-Length: %u\r\n\r\n%s", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, ONENET_FUSE_HOST, g_ota_auth, (unsigned int)strlen(g_ota_body), g_ota_body);
     if (req_len <= 0)
         return 0;
@@ -1127,12 +1144,45 @@ void onenet_ota_process_upgrade(onenet_ota_ctx_t *ctx)
     printf("  target: %s\r\n", info.target);
     printf("  size: %lu\r\n", (unsigned long)info.size);
     printf("  md5: %s\r\n", info.md5_hex);
-    if (!ota_download_and_verify(ctx, &info))
+    int dl_result = ota_download_and_verify(ctx, &info);
+    if (dl_result != ONENET_STEP_DOWNLOAD_OK)
     {
-        ota_report_result(ctx, &info, 206);
-        printf("OTA failed\r\n");
+        ota_report_result(ctx, &info, dl_result);
+        printf("OTA failed (step=%d)\r\n", dl_result);
         return;
     }
-    ota_report_result(ctx, &info, 206);
+    ota_report_result(ctx, &info, ONENET_STEP_UPGRADE_SUCCESS);
+    if (ctx->mqtt && MQTT_CHECK_CONNECTED(ctx->mqtt, 0) != PLATFORM_MQTT_OK)
+    {
+        printf("OTA MQTT: not connected, configuring...\r\n");
+        platform_mqtt_user_config_t mqtt_cfg;
+        memset(&mqtt_cfg, 0, sizeof(mqtt_cfg));
+        strncpy(mqtt_cfg.client_id, ONENET_DEVICE_NAME, sizeof(mqtt_cfg.client_id) - 1);
+        strncpy(mqtt_cfg.username, ONENET_PRODUCT_ID, sizeof(mqtt_cfg.username) - 1);
+        strncpy(mqtt_cfg.password, ONENET_MQTT_TOKEN, sizeof(mqtt_cfg.password) - 1);
+        if (MQTT_USERCFG(ctx->mqtt, 0, &mqtt_cfg) == PLATFORM_MQTT_OK &&
+            MQTT_CONNECT(ctx->mqtt, 0, ONENET_MQTT_HOST, ONENET_MQTT_PORT, 1) == PLATFORM_MQTT_OK)
+        {
+            char sub_topic[PLATFORM_MQTT_MAX_TOPIC_LEN];
+            snprintf(sub_topic, sizeof(sub_topic), "$sys/%s/%s/thing/property/set", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
+            MQTT_SUBSCRIBE(ctx->mqtt, 0, sub_topic, 0);
+            printf("OTA MQTT: connected\r\n");
+        }
+        else
+        {
+            printf("OTA MQTT: connect failed\r\n");
+        }
+    }
+    onenet_ota_set_firmware_version(ctx, info.target);
+    if (ctx->mqtt && MQTT_CHECK_CONNECTED(ctx->mqtt, 0) == PLATFORM_MQTT_OK)
+    {
+        platform_mqtt_property_t prop;
+        memset(&prop, 0, sizeof(prop));
+        strncpy(prop.key, "FIRMWARE_VERSION", sizeof(prop.key) - 1);
+        strncpy(prop.id, info.target, sizeof(prop.id) - 1);
+        prop.value_type = PLATFORM_MQTT_VALUE_STRING;
+        MQTT_PUBLISH_PROPERTY(ctx->mqtt, 0, ONENET_PRODUCT_ID, ONENET_DEVICE_NAME, &prop, 1, NULL);
+        printf("OTA MQTT: FIRMWARE_VERSION set to %s\r\n", info.target);
+    }
     printf("OTA download success\r\n");
 }

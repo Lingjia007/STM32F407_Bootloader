@@ -3,6 +3,7 @@
 
 #include "platform_wifi.h"
 #include "platform_rtc.h"
+#include "platform_mqtt.h"
 #include "platform_transport.h"
 #include <stdint.h>
 
@@ -23,6 +24,21 @@
 #define ONENET_DOWNLOAD_CHUNK_SIZE 4096U
 #define ONENET_PROGRESS_STEP_PCT 10U
 
+#define ONENET_STEP_DOWNLOAD_OK 101
+#define ONENET_STEP_FAIL_NO_SPACE 102
+#define ONENET_STEP_FAIL_MEM_OVERFLOW 103
+#define ONENET_STEP_FAIL_TIMEOUT 104
+#define ONENET_STEP_FAIL_LOW_BATTERY 105
+#define ONENET_STEP_FAIL_BAD_SIGNAL 106
+#define ONENET_STEP_FAIL_UNKNOWN 107
+#define ONENET_STEP_UPGRADE_SUCCESS 201
+#define ONENET_STEP_UPGRADE_LOW_BATTERY 202
+#define ONENET_STEP_UPGRADE_MEM_OVERFLOW 203
+#define ONENET_STEP_UPGRADE_VERSION_MISMATCH 204
+#define ONENET_STEP_UPGRADE_MD5_FAIL 205
+#define ONENET_STEP_UPGRADE_UNKNOWN 206
+#define ONENET_STEP_MAX_RETRY 207
+
 typedef struct
 {
     char tid[48];
@@ -38,9 +54,11 @@ typedef struct
 {
     platform_wifi_base_t *wifi;
     platform_rtc_base_t *rtc;
+    platform_mqtt_base_t *mqtt;
     onenet_ota_progress_cb_t progress_cb;
     uint8_t target_type;
     uint32_t unix_now_base;
+    char firmware_version[32];
 } onenet_ota_ctx_t;
 
 typedef enum
@@ -50,9 +68,10 @@ typedef enum
     ONENET_OTA_TARGET_SPI_FLASH_LFS = 2,
 } onenet_ota_target_t;
 
-void onenet_ota_ctx_init(onenet_ota_ctx_t *ctx, platform_wifi_base_t *wifi, platform_rtc_base_t *rtc);
+void onenet_ota_ctx_init(onenet_ota_ctx_t *ctx, platform_wifi_base_t *wifi, platform_rtc_base_t *rtc, platform_mqtt_base_t *mqtt);
 void onenet_ota_set_target(onenet_ota_ctx_t *ctx, onenet_ota_target_t target);
 void onenet_ota_set_progress_callback(onenet_ota_ctx_t *ctx, onenet_ota_progress_cb_t cb);
+void onenet_ota_set_firmware_version(onenet_ota_ctx_t *ctx, const char *version);
 int onenet_ota_sync_time(onenet_ota_ctx_t *ctx);
 void onenet_ota_process_upgrade(onenet_ota_ctx_t *ctx);
 void onenet_ota_set_task_id(const char *tid);

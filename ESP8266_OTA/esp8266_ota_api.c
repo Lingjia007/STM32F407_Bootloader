@@ -5,7 +5,7 @@ static onenet_ota_ctx_t g_ota_ctx;
 
 void esp8266_ota_init(void)
 {
-    onenet_ota_ctx_init(&g_ota_ctx, &g_esp8266_wifi.base, &g_rtc.base);
+    onenet_ota_ctx_init(&g_ota_ctx, &g_esp8266_wifi.base, &g_rtc.base, &g_esp8266_mqtt.base);
 }
 
 void esp8266_ota_set_target_internal_flash(void)
@@ -32,4 +32,14 @@ int esp8266_ota_download(void)
 int esp8266_ota_sync_time(void)
 {
     return onenet_ota_sync_time(&g_ota_ctx);
+}
+
+void esp8266_ota_set_progress_callback(onenet_ota_progress_cb_t cb)
+{
+    onenet_ota_set_progress_callback(&g_ota_ctx, cb);
+}
+
+void esp8266_ota_set_firmware_version(const char *version)
+{
+    onenet_ota_set_firmware_version(&g_ota_ctx, version);
 }

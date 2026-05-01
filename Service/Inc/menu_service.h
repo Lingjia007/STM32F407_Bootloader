@@ -117,6 +117,7 @@ void menu_service_printn(menu_ctx_t *ctx, const char *str, int n);
 void menu_service_printf(menu_ctx_t *ctx, const char *fmt, ...);
 void menu_service_print_banner(menu_ctx_t *ctx, const char *title);
 void menu_service_print_separator(menu_ctx_t *ctx, const char *ch, uint8_t len);
+void menu_service_print_progress(menu_ctx_t *ctx, const char *label, int pct);
 
 int16_t menu_service_getchar(menu_ctx_t *ctx, uint8_t *ch, uint32_t timeout);
 int16_t menu_service_getline(menu_ctx_t *ctx, char *buf, uint16_t max_len, uint32_t timeout);

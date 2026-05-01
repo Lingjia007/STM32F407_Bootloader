@@ -1333,10 +1333,17 @@ static void cmd_ota_target_spi(menu_ctx_t *ctx, int argc, char *argv[])
   esp8266_ota_set_target_spi_flash();
 }
 
+static void ota_menu_progress_cb(const onenet_ota_package_info_t *info, int progress)
+{
+  menu_service_print_progress(&g_menu_ctx, "OTA Downloading...", progress);
+}
+
 static void cmd_onenet_ota_download(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Starting OneNET OTA download...");
+  esp8266_ota_set_progress_callback(ota_menu_progress_cb);
   esp8266_ota_download();
+  esp8266_ota_set_progress_callback(NULL);
 }
 
 static void cmd_show_time(menu_ctx_t *ctx, int argc, char *argv[])
@@ -1554,32 +1561,27 @@ static void cmd_mqtt_subscribe(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/post/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 1);
 
   snprintf(topic, sizeof(topic), "$sys/%s/%s/ota/inform", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 1);
 
   snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/get/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 1);
 
   snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/desired/delete/reply", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 1);
 
   snprintf(topic, sizeof(topic), "$sys/%s/%s/thing/property/get", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
   snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
   menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
-
-  snprintf(topic, sizeof(topic), "$sys/%s/%s/ota/inform", ONENET_PRODUCT_ID, ONENET_DEVICE_NAME);
-  snprintf(msg, sizeof(msg), "Subscribing: %s", topic);
-  menu_service_println(ctx, msg);
-  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 0);
+  MQTT_SUBSCRIBE(&g_esp8266_mqtt.base, 0, topic, 1);
 }
 
 static void cmd_mqtt_publish(menu_ctx_t *ctx, int argc, char *argv[])

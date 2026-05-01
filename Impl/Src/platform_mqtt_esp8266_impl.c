@@ -178,11 +178,15 @@ static int16_t esp8266_mqtt_check_connected(void *ctx, uint8_t link_id)
         uint8_t *resp = wifi_esp8266_rx_get_frame(self->wifi);
         if (resp != NULL)
         {
-            char search_str[16];
-            snprintf(search_str, sizeof(search_str), "+MQTTCONN:%d,1", link_id);
-            if (strstr((const char *)resp, search_str) != NULL)
+            char prefix[16];
+            snprintf(prefix, sizeof(prefix), "+MQTTCONN:%d,", link_id);
+            char *p = strstr((const char *)resp, prefix);
+            if (p != NULL)
             {
-                return PLATFORM_MQTT_OK;
+                p += strlen(prefix);
+                int state = atoi(p);
+                if (state >= 4)
+                    return PLATFORM_MQTT_OK;
             }
         }
     }
