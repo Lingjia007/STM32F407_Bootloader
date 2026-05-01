@@ -84,7 +84,7 @@
 "stm32f407vgt6_bootloader\usbd_msc_data.o"
 "stm32f407vgt6_bootloader\usbd_msc_scsi.o"
 "stm32f407vgt6_bootloader\aes.o"
-"stm32f407vgt6_bootloader\aes_decrypt.o"
+"stm32f407vgt6_bootloader\service_aes_decrypt.o"
 "stm32f407vgt6_bootloader\bsdiff.o"
 "stm32f407vgt6_bootloader\bspatch.o"
 "stm32f407vgt6_bootloader\hkdf.o"

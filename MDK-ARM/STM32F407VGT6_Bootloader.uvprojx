@@ -3929,9 +3929,9 @@
               <FilePath>..\Utils\aes.c</FilePath>
             </File>
             <File>
-              <FileName>aes_decrypt.c</FileName>
+              <FileName>service_aes_decrypt.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Utils\aes_decrypt.c</FilePath>
+              <FilePath>..\Service\Src\service_aes_decrypt.c</FilePath>
             </File>
             <File>
               <FileName>bsdiff.c</FileName>

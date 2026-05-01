@@ -21,7 +21,7 @@
 #include "stdlib.h"
 #include "string.h"
 #include "ctype.h"
-#include "aes_decrypt.h"
+#include "service_aes_decrypt.h"
 #include "service_hpatch.h"
 #include "usart.h"
 #include "esp8266_ota_api.h"
@@ -1973,7 +1973,8 @@ static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting decryption...");
 
-  decrypt_result = aes_decrypt_file_fatfs(&SDFatFS, src_path, dst_path, &decrypt_config);
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+  decrypt_result = aes_decrypt_file(&g_fs_fatfs.base, src_path, dst_path, &decrypt_config);
 
   if (decrypt_result > 0)
   {
@@ -2090,7 +2091,8 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 
   menu_service_println(ctx, "Starting decryption and download...");
 
-  decrypt_result = aes_decrypt_to_flash_fatfs(&SDFatFS, src_path, APPLICATION_ADDRESS, &decrypt_config);
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+  decrypt_result = aes_decrypt_to_flash(&g_fs_fatfs.base, src_path, &g_internal_flash.transport_base, &decrypt_config);
 
   if (decrypt_result > 0)
   {
@@ -2211,7 +2213,8 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting decryption and download...");
 
-  decrypt_result = aes_decrypt_to_flash_lfs(&lfs, file_list[selected], APPLICATION_ADDRESS, &decrypt_config);
+  platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
+  decrypt_result = aes_decrypt_to_flash(&g_fs_lfs.base, file_list[selected], &g_internal_flash.transport_base, &decrypt_config);
 
   if (decrypt_result > 0)
   {
