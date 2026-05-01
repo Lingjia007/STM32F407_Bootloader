@@ -21,7 +21,7 @@
  */
 
 #include "ymodem.h"
-#include "ymodem_service.h"
+#include "service_ymodem.h"
 #include "platform_config.h"
 #include "bootloader_core.h"
 #include "main.h"

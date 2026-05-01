@@ -1,5 +1,5 @@
-#ifndef YMODEM_SERVICE_H
-#define YMODEM_SERVICE_H
+#ifndef SERVICE_YMODEM_H
+#define SERVICE_YMODEM_H
 
 #include <stdint.h>
 #include <stddef.h>

@@ -1,4 +1,4 @@
-#include "menu_service.h"
+#include "service_menu.h"
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -110,12 +110,13 @@ void menu_service_print_banner(menu_ctx_t *ctx, const char *title)
         return;
     }
 
+    size_t width = 70;
     menu_service_print(ctx, "\r\n");
-    menu_service_print_separator(ctx, "=", 60);
+    menu_service_print_separator(ctx, "=", width);
     menu_service_print(ctx, "\r\n");
 
     size_t len = strlen(title);
-    size_t padding = (60 - len) / 2;
+    size_t padding = (width - len) / 2;
 
     for (size_t i = 0; i < padding; i++)
     {
@@ -123,7 +124,7 @@ void menu_service_print_banner(menu_ctx_t *ctx, const char *title)
     }
     menu_service_println(ctx, title);
 
-    menu_service_print_separator(ctx, "=", 60);
+    menu_service_print_separator(ctx, "=", width);
     menu_service_print(ctx, "\r\n\r\n");
 }
 
@@ -544,17 +545,22 @@ void menu_service_show_menu(menu_ctx_t *ctx)
     menu_service_print_separator(ctx, "=", total_width);
     menu_service_print(ctx, "\r\n");
 
+    const char *title = NULL;
     if (ctx->nav.depth == 0)
-    {
-        menu_service_printf(ctx, "  %s Menu\r\n", ctx->prompt);
-    }
+        title = ctx->prompt;
     else
     {
         const menu_item_t *parent = ctx->nav.stack[ctx->nav.depth - 1];
         if (parent != NULL)
-        {
-            menu_service_printf(ctx, "  %s\r\n", parent->name);
-        }
+            title = parent->name;
+    }
+
+    if (title != NULL)
+    {
+        size_t padding = (total_width - strlen(title)) / 2;
+        for (size_t i = 0; i < padding; i++)
+            menu_service_print(ctx, " ");
+        menu_service_println(ctx, title);
     }
 
     menu_service_print_separator(ctx, "=", total_width);

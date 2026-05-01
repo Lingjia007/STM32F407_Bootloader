@@ -1,5 +1,5 @@
-#ifndef MENU_SERVICE_H
-#define MENU_SERVICE_H
+#ifndef SERVICE_MENU_H
+#define SERVICE_MENU_H
 
 #include "platform_uart.h"
 #include <stdint.h>

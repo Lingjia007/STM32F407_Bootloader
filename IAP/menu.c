@@ -7,14 +7,14 @@
  */
 
 #include "main.h"
-#include "menu_service.h"
+#include "service_menu.h"
 #include "platform_config.h"
 #include "platform_filesystem_fatfs_impl.h"
 #include "platform_filesystem_lfs_impl.h"
 #include "menu.h"
 #include "ymodem.h"
 #include "fatfs.h"
-#include "lfs_spi_flash_adapter.h"
+#include "service_lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
 #include "lfs.h"
 #include "stdio.h"
@@ -22,7 +22,7 @@
 #include "string.h"
 #include "ctype.h"
 #include "aes_decrypt.h"
-#include "hpatch_service.h"
+#include "service_hpatch.h"
 #include "usart.h"
 #include "esp8266_ota_api.h"
 #include "esp8266_ota_config.h"
@@ -2621,16 +2621,7 @@ void Main_Menu(void)
 {
   menu_service_init(&g_menu_ctx, (platform_uart_base_t *)&g_uart4_console.base);
   menu_service_set_root(&g_menu_ctx, main_menu, sizeof(main_menu) / sizeof(main_menu[0]) - 1);
-  menu_service_set_prompt(&g_menu_ctx, "STM32F4xx IAP");
-
-  menu_service_println(&g_menu_ctx, "\r\n======================================================================");
-  menu_service_println(&g_menu_ctx, "=              (C) COPYRIGHT 2016 STMicroelectronics                 =");
-  menu_service_println(&g_menu_ctx, "=                                                                    =");
-  menu_service_println(&g_menu_ctx, "=          STM32F4xx In-Application Programming Application          =");
-  menu_service_println(&g_menu_ctx, "=                                                                    =");
-  menu_service_println(&g_menu_ctx, "=                       By MCD Application Team                      =");
-  menu_service_println(&g_menu_ctx, "======================================================================");
-  menu_service_println(&g_menu_ctx, "");
+  menu_service_set_prompt(&g_menu_ctx, "STM32F4xx IAP Menu");
 
   menu_service_run(&g_menu_ctx);
 }

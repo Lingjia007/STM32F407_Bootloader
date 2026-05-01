@@ -826,24 +826,24 @@
               <FilePath>..\Service\Src\service_notify.c</FilePath>
             </File>
             <File>
-              <FileName>lfs_spi_flash_adapter.c</FileName>
+              <FileName>service_lfs_spi_flash_adapter.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Service\Src\lfs_spi_flash_adapter.c</FilePath>
+              <FilePath>..\Service\Src\service_lfs_spi_flash_adapter.c</FilePath>
             </File>
             <File>
-              <FileName>ymodem_service.c</FileName>
+              <FileName>service_ymodem.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Service\Src\ymodem_service.c</FilePath>
+              <FilePath>..\Service\Src\service_ymodem.c</FilePath>
             </File>
             <File>
-              <FileName>menu_service.c</FileName>
+              <FileName>service_menu.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Service\Src\menu_service.c</FilePath>
+              <FilePath>..\Service\Src\service_menu.c</FilePath>
             </File>
             <File>
-              <FileName>hpatch_service.c</FileName>
+              <FileName>service_hpatch.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Service\Src\hpatch_service.c</FilePath>
+              <FilePath>..\Service\Src\service_hpatch.c</FilePath>
             </File>
             <File>
               <FileName>service_wifi_transport.c</FileName>

@@ -37,7 +37,7 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Service\Inc\menu_service.h ..\Platform\Inc\platform_uart.h \
+  ..\Service\Inc\service_menu.h ..\Platform\Inc\platform_uart.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h \
   ..\Platform\Inc\platform_config.h \
   ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
@@ -73,11 +73,11 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Middlewares\Third_Party\FatFs\src\diskio.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
   ..\Impl\Inc\platform_filesystem_lfs_impl.h ..\IAP\menu.h \
-  ..\IAP\ymodem.h ..\Service\Inc\ymodem_service.h \
+  ..\IAP\ymodem.h ..\Service\Inc\service_ymodem.h \
   ..\Bootloader_Core\Bootloader_core.h \
-  ..\Service\Inc\lfs_spi_flash_adapter.h \
+  ..\Service\Inc\service_lfs_spi_flash_adapter.h \
   C:\Keil_v5\ARM\ARMCLANG\include\ctype.h ..\Utils\aes_decrypt.h \
-  ..\Service\Inc\hpatch_service.h ..\Core\Inc\usart.h \
+  ..\Service\Inc\service_hpatch.h ..\Core\Inc\usart.h \
   ..\ESP8266_OTA\esp8266_ota_api.h ..\Service\Inc\service_onenet_ota.h \
   ..\ESP8266_OTA\esp8266_ota_config.h \
   ..\Service\Inc\service_wifi_transport.h

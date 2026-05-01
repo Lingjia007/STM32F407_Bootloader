@@ -24,7 +24,7 @@
 #ifndef __YMODEM_H_
 #define __YMODEM_H_
 
-#include "ymodem_service.h"
+#include "service_ymodem.h"
 
 typedef enum
 {

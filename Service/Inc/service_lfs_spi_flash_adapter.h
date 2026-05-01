@@ -1,5 +1,5 @@
-#ifndef LFS_SPI_FLASH_ADAPTER_H
-#define LFS_SPI_FLASH_ADAPTER_H
+#ifndef SERVICE_LFS_SPI_FLASH_ADAPTER_H
+#define SERVICE_LFS_SPI_FLASH_ADAPTER_H
 
 #include "lfs.h"
 #include "platform_config.h"

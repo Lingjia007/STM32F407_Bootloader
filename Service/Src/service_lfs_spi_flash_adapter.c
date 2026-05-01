@@ -1,4 +1,4 @@
-#include "lfs_spi_flash_adapter.h"
+#include "service_lfs_spi_flash_adapter.h"
 #include <string.h>
 #include <stdio.h>
 

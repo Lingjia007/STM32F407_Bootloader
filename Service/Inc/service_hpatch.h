@@ -1,5 +1,5 @@
-#ifndef HPATCH_SERVICE_H
-#define HPATCH_SERVICE_H
+#ifndef SERVICE_HPATCH_H
+#define SERVICE_HPATCH_H
 
 #include "platform_filesystem.h"
 #include <stdint.h>

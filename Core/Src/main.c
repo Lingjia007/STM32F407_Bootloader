@@ -34,9 +34,9 @@
 #include "bsp_driver_sd.h"
 #include "usb_device.h"
 #include "menu.h"
-#include "menu_service.h"
+#include "service_menu.h"
 #include "platform_config.h"
-#include "lfs_spi_flash_adapter.h"
+#include "service_lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
 /* USER CODE END Includes */
 

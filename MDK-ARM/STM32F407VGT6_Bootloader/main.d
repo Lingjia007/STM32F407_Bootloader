@@ -74,5 +74,6 @@ stm32f407vgt6_bootloader/main.o: ..\Core\Src\main.c ..\Core\Inc\main.h \
   ..\USB_DEVICE\App\usb_device.h \
   ..\Middlewares\ST\STM32_USB_Device_Library\Core\Inc\usbd_def.h \
   ..\USB_DEVICE\Target\usbd_conf.h ..\IAP\menu.h ..\IAP\ymodem.h \
-  ..\Service\Inc\ymodem_service.h ..\Bootloader_Core\Bootloader_core.h \
-  ..\Service\Inc\menu_service.h ..\Service\Inc\lfs_spi_flash_adapter.h
+  ..\Service\Inc\service_ymodem.h ..\Bootloader_Core\Bootloader_core.h \
+  ..\Service\Inc\service_menu.h \
+  ..\Service\Inc\service_lfs_spi_flash_adapter.h

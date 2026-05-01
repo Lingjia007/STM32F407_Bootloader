@@ -7,7 +7,7 @@
 #include "md5.h"
 #include "fatfs.h"
 #include "lfs.h"
-#include "lfs_spi_flash_adapter.h"
+#include "service_lfs_spi_flash_adapter.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

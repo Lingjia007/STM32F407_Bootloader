@@ -1,0 +1,10 @@
+stm32f407vgt6_bootloader/service_hpatch.o: \
+  ..\Service\Src\service_hpatch.c ..\Service\Inc\service_hpatch.h \
+  ..\Platform\Inc\platform_filesystem.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdbool.h ..\Utils\hpatch_lite.h \
+  ..\Utils\hpatch_lite_types.h C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
+  ..\Utils\tuz_dec.h ..\Utils\tuz_types.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\string.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h

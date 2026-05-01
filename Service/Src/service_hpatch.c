@@ -1,4 +1,4 @@
-#include "hpatch_service.h"
+#include "service_hpatch.h"
 #include "hpatch_lite.h"
 #include "tuz_dec.h"
 #include <string.h>
