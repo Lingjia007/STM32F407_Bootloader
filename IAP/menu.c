@@ -28,6 +28,8 @@
 #include "esp8266_ota_config.h"
 #include "service_wifi_transport.h"
 #include "service_onenet_ota.h"
+#include "service_ed25519_verify.h"
+#include "edsign.h"
 
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
@@ -2382,6 +2384,209 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
   lfs_spi_flash_unmount(&lfs);
 }
 
+typedef struct
+{
+  const char *storage_name;
+  const char *dir_path;
+  const char *path_prefix;
+  platform_fs_base_t *fs;
+} ed25519_storage_ctx_t;
+
+static void cmd_ed25519_verify_workflow(menu_ctx_t *ctx, const ed25519_storage_ctx_t *storage)
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  int verify_result;
+  char data_path[128];
+  char sig_path[128];
+  ed25519_verify_config_t verify_config = {
+      .public_key = {0x59, 0x89, 0x1c, 0x71, 0x9e, 0xd1, 0xa1, 0x95, 0x7b, 0x6f, 0x1e, 0x77, 0x6e, 0x1f, 0xf0, 0xf6, 0xff, 0xf3, 0xc3, 0x60, 0x62, 0xe7, 0xcc, 0x22, 0x8c, 0xa1, 0x76, 0x88, 0x0e, 0xe7, 0x2b, 0xde}};
+
+  menu_service_println(ctx, "Scanning for .bin files...\r");
+  scan_fs_files_filter(storage->fs, storage->dir_path, 1);
+
+  if (file_count == 0)
+  {
+    snprintf(msg, sizeof(msg), "No .bin files found on %s!", storage->storage_name);
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  menu_service_println(ctx, "Found firmware files:");
+  for (i = 0; i < file_count; i++)
+  {
+    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    menu_service_println(ctx, msg);
+  }
+
+  menu_service_printf(ctx, "\r\nSelect firmware file to verify (1-%d) or 'a' to abort: ", file_count);
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == 'a' || key == 'A')
+    {
+      menu_service_println(ctx, "\rAborted by user.");
+      return;
+    }
+    if (key >= '1' && key <= '9')
+    {
+      selected = key - '0';
+      if (selected >= 1 && selected <= file_count)
+        break;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected - 1]);
+  menu_service_println(ctx, msg);
+
+  if (storage->path_prefix[0] != '\0')
+  {
+    snprintf(data_path, sizeof(data_path), "%s%s", storage->path_prefix, file_list[selected - 1]);
+  }
+  else
+  {
+    strncpy(data_path, file_list[selected - 1], sizeof(data_path) - 1);
+    data_path[sizeof(data_path) - 1] = '\0';
+  }
+
+  strncpy(sig_path, data_path, sizeof(sig_path) - 1);
+  sig_path[sizeof(sig_path) - 1] = '\0';
+
+  char *dot_pos = strrchr(sig_path, '.');
+  if (dot_pos != NULL)
+    snprintf(dot_pos, sizeof(sig_path) - (dot_pos - sig_path), ".sig");
+  else
+    strncat(sig_path, ".sig", sizeof(sig_path) - strlen(sig_path) - 1);
+
+  snprintf(msg, sizeof(msg), "Data file: %s", data_path);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "Signature file: %s", sig_path);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "Starting Ed25519 signature verification...");
+
+  verify_result = ed25519_verify_file(storage->fs, data_path, sig_path, &verify_config);
+
+  if (verify_result == ED25519_VERIFY_OK)
+  {
+    menu_service_println(ctx, "Ed25519 signature verification PASSED!");
+    menu_service_println(ctx, "Firmware integrity confirmed.");
+  }
+  else
+  {
+    menu_service_print(ctx, "Ed25519 signature verification FAILED! ");
+    menu_service_println(ctx, ed25519_verify_err_to_string(verify_result));
+  }
+}
+
+static void cmd_ed25519_verify_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  FRESULT res;
+  char msg[256];
+  ed25519_storage_ctx_t storage = {"SD card", "0:/", "0:/", NULL};
+
+  menu_service_println(ctx, "Initializing TF card...");
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    menu_service_print(ctx, "Error: SD card mount failed! Error code: ");
+    menu_service_int2str((uint8_t *)msg, res);
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+  storage.fs = &g_fs_fatfs.base;
+
+  cmd_ed25519_verify_workflow(ctx, &storage);
+
+  f_mount(NULL, (TCHAR const *)SDPath, 0);
+}
+
+static void cmd_ed25519_verify_spi(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  int res;
+  lfs_t lfs;
+  ed25519_storage_ctx_t storage = {"SPI Flash", "/", "", NULL};
+
+  menu_service_println(ctx, "Initializing SPI Flash...");
+  res = lfs_spi_flash_init();
+  if (res != 0)
+  {
+    menu_service_println(ctx, "Error: SPI Flash initialization failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "Mounting LittleFS...");
+  res = lfs_spi_flash_mount(&lfs);
+  if (res != LFS_ERR_OK)
+  {
+    menu_service_println(ctx, "Error: LittleFS mount failed!");
+    return;
+  }
+
+  platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
+  storage.fs = &g_fs_lfs.base;
+
+  cmd_ed25519_verify_workflow(ctx, &storage);
+
+  lfs_spi_flash_unmount(&lfs);
+}
+
+static void cmd_ed25519_verify_buffer_test(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint8_t test_message[] = "Hello, Ed25519!";
+  uint8_t test_public_key[EDSIGN_PUBLIC_KEY_SIZE] = {0};
+  uint8_t test_secret_key[EDSIGN_SECRET_KEY_SIZE] = {0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
+                                                     0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f, 0x10,
+                                                     0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
+                                                     0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f, 0x20};
+  uint8_t test_signature[EDSIGN_SIGNATURE_SIZE];
+  int verify_result;
+  char msg[128];
+
+  menu_service_println(ctx, "Running Ed25519 buffer verify test...");
+
+  edsign_sec_to_pub(test_public_key, test_secret_key);
+  edsign_sign(test_signature, test_public_key, test_secret_key,
+              test_message, sizeof(test_message) - 1);
+
+  menu_service_println(ctx, "Test message: \"Hello, Ed25519!\"");
+  snprintf(msg, sizeof(msg), "Public key: %02X%02X%02X%02X...",
+           test_public_key[0], test_public_key[1],
+           test_public_key[2], test_public_key[3]);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "Signature: %02X%02X%02X%02X...%02X%02X%02X%02X",
+           test_signature[0], test_signature[1],
+           test_signature[2], test_signature[3],
+           test_signature[60], test_signature[61],
+           test_signature[62], test_signature[63]);
+  menu_service_println(ctx, msg);
+
+  verify_result = ed25519_verify_buffer(test_message, sizeof(test_message) - 1,
+                                        test_signature, test_public_key);
+
+  if (verify_result == ED25519_VERIFY_OK)
+    menu_service_println(ctx, "Buffer verify test PASSED!");
+  else
+  {
+    menu_service_print(ctx, "Buffer verify test FAILED! ");
+    menu_service_println(ctx, ed25519_verify_err_to_string(verify_result));
+  }
+
+  test_signature[0] ^= 0xFF;
+  verify_result = ed25519_verify_buffer(test_message, sizeof(test_message) - 1,
+                                        test_signature, test_public_key);
+
+  if (verify_result == ED25519_VERIFY_ERR_FAILED)
+    menu_service_println(ctx, "Tampered signature test PASSED (correctly rejected)!");
+  else
+    menu_service_println(ctx, "Tampered signature test FAILED (should have been rejected)!");
+}
+
 MENU_TABLE(mqtt_menu) = {
     MENU_ITEM_CMD("1", "Check MQTT Connection Status", "Query current MQTT connection", cmd_mqtt_check_status),
     MENU_ITEM_CMD("2", "Configure MQTT User", "Set client ID, username, password", cmd_mqtt_configure),
@@ -2438,6 +2643,13 @@ MENU_TABLE(hpatch_menu) = {
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
 
+MENU_TABLE(ed25519_menu) = {
+    MENU_ITEM_CMD("1", "Verify firmware on SD card", "Verify .bin signature from SD card", cmd_ed25519_verify_sdcard),
+    MENU_ITEM_CMD("2", "Verify firmware on SPI Flash", "Verify .bin signature from SPI Flash", cmd_ed25519_verify_spi),
+    MENU_ITEM_CMD("3", "Buffer verify test", "Self-test Ed25519 sign and verify", cmd_ed25519_verify_buffer_test),
+    MENU_ITEM_BACK(),
+    MENU_TABLE_END};
+
 MENU_TABLE(main_menu) = {
     MENU_ITEM_SUBMENU("1", "Download image to internal Flash", "Firmware download options", download_menu, sizeof(download_menu) / sizeof(download_menu[0]) - 1),
     MENU_ITEM_CMD("2", "Upload image from internal Flash", "Send firmware via Ymodem", cmd_serial_upload),
@@ -2449,6 +2661,7 @@ MENU_TABLE(main_menu) = {
     MENU_ITEM_SUBMENU("8", "HPatch differential upgrade", "Differential firmware update", hpatch_menu, sizeof(hpatch_menu) / sizeof(hpatch_menu[0]) - 1),
     MENU_ITEM_CMD("9", "UART4 <-> USART1 Passthrough", "Transparent UART bridge", cmd_uart_passthrough),
     MENU_ITEM_SUBMENU("A", "ESP8266 WiFi & OTA Test", "WiFi and OTA testing", esp8266_menu, sizeof(esp8266_menu) / sizeof(esp8266_menu[0]) - 1),
+    MENU_ITEM_SUBMENU("B", "Ed25519 Signature Verify", "Firmware signature verification", ed25519_menu, sizeof(ed25519_menu) / sizeof(ed25519_menu[0]) - 1),
     MENU_TABLE_END};
 
 void Main_Menu(void)

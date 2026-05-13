@@ -3,7 +3,7 @@ Set JLink Project File to "d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\JLin
 
 JLink info:
 ------------
-DLL: V8.52 , compiled Jul 16 2025 12:00:22
+DLL: V7.98a, compiled Jul 19 2024 14:57:58
 Firmware: J-Link OB-STM32F072-128KB-CortexM compiled Oct 30 2023 12:11:14
 Hardware: V1.00
 Feature(s) : GDB, FlashDL, FlashBP, JFlash 
@@ -11,13 +11,13 @@ Feature(s) : GDB, FlashDL, FlashBP, JFlash
 * JLink Info: InitTarget() start
 * JLink Info: SWD selected. Executing JTAG -> SWD switching sequence.
 * JLink Info: DAP initialized successfully.
-* JLink Info: InitTarget() end - Took 23.0ms
+* JLink Info: InitTarget() end - Took 26.8ms
 * JLink Info: Found SW-DP with ID 0x2BA01477
 * JLink Info: DPIDR: 0x2BA01477
 * JLink Info: CoreSight SoC-400 or earlier
 * JLink Info: Scanning AP map to find all available APs
 * JLink Info: AP[1]: Stopped AP scan as end of AP map has been reached
-* JLink Info: AP[0]: AHB-AP (IDR: 0x24770011, ADDR: 0x00000000)
+* JLink Info: AP[0]: AHB-AP (IDR: 0x24770011)
 * JLink Info: Iterating through AP map to find AHB-AP to use
 * JLink Info: AP[0]: Core found
 * JLink Info: AP[0]: AHB-AP ROM base: 0xE00FF000
@@ -34,7 +34,6 @@ Feature(s) : GDB, FlashDL, FlashBP, JFlash
 * JLink Info: [0][4]: E0040000 CID B105900D PID 000BB9A1 TPIU
 * JLink Info: [0][5]: E0041000 CID B105900D PID 000BB925 ETM
 ROMTableAddr = 0xE00FF000
-* JLink Info: Reset type: NORMAL (https://wiki.segger.com/J-Link_Reset_Strategies)
 * JLink Info: Reset: Halt core after reset via DEMCR.VC_CORERESET.
 * JLink Info: Reset: Reset device via AIRCR.SYSRESETREQ.
 
@@ -50,11 +49,10 @@ JTAG speed: 2000 kHz
 
 * JLink Info: Memory map 'after startup completion point' is active
 Erase Done.Programming Done.Verify OK.* JLink Info: Memory map 'before startup completion point' is active
-* JLink Info: Reset type: NORMAL (https://wiki.segger.com/J-Link_Reset_Strategies)
 * JLink Info: Reset: Halt core after reset via DEMCR.VC_CORERESET.
 * JLink Info: Reset: Reset device via AIRCR.SYSRESETREQ.
 * JLink Info: Memory map 'after startup completion point' is active
 Application running ...
 * JLink Info: OnDisconnectTarget() start
-* JLink Info: OnDisconnectTarget() end - Took 1.95ms
-Flash Load finished at 22:23:01
+* JLink Info: OnDisconnectTarget() end - Took 1.99ms
+Flash Load finished at 20:22:04

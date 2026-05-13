@@ -81,4 +81,5 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Core\Inc\usart.h ..\ESP8266_OTA\esp8266_ota_api.h \
   ..\Service\Inc\service_onenet_ota.h \
   ..\ESP8266_OTA\esp8266_ota_config.h \
-  ..\Service\Inc\service_wifi_transport.h
+  ..\Service\Inc\service_wifi_transport.h \
+  ..\Service\Inc\service_ed25519_verify.h ..\Utils\edsign.h
