@@ -165,7 +165,7 @@ static void scan_lfs_files(lfs_t *lfs)
 static void scan_fs_hdiff_files(platform_fs_base_t *fs, const char *dir_path)
 {
   platform_fs_dir_t dir;
-  static char name[MAX_FILENAME_LEN];
+  char name[MAX_FILENAME_LEN];
   uint32_t size;
   uint8_t is_dir;
   int16_t res;
@@ -205,7 +205,7 @@ static void scan_fs_hdiff_files(platform_fs_base_t *fs, const char *dir_path)
 static void scan_fs_files_filter(platform_fs_base_t *fs, const char *dir_path, uint8_t filter_type)
 {
   platform_fs_dir_t dir;
-  static char name[MAX_FILENAME_LEN];
+  char name[MAX_FILENAME_LEN];
   uint32_t size;
   uint8_t is_dir;
   int16_t res;
@@ -2370,7 +2370,7 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
 static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 {
   FRESULT res;
-  static char msg[256];
+  char msg[256];
   hpatch_storage_ctx_t storage = {"SD card", "0:/", "0:/", NULL};
 
   menu_service_println(ctx, "Initializing TF card...");
