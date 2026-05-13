@@ -150,7 +150,7 @@ int main(void)
   {
     printf("TF card detected and ready\r\n\r\n");
 
-    MX_USB_DEVICE_Init();
+    // MX_USB_DEVICE_Init();
   }
   if (uart_wait_command(&cmd, 1500) && (cmd == 'M' || cmd == 'm'))
   {

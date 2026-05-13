@@ -21,15 +21,27 @@
 #include "stdlib.h"
 #include "string.h"
 #include "ctype.h"
+
+#if MENU_ENABLE_AES_DECRYPT
 #include "service_aes_decrypt.h"
+#endif
+
+#if MENU_ENABLE_HPATCH
 #include "service_hpatch.h"
+#endif
+
+#if MENU_ENABLE_ESP8266_WIFI
 #include "usart.h"
 #include "esp8266_ota_api.h"
 #include "esp8266_ota_config.h"
 #include "service_wifi_transport.h"
 #include "service_onenet_ota.h"
+#endif
+
+#if MENU_ENABLE_ED25519_VERIFY
 #include "service_ed25519_verify.h"
 #include "edsign.h"
+#endif
 
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
@@ -41,14 +53,18 @@ static menu_ctx_t g_menu_ctx;
 static fs_fatfs_t g_fs_fatfs;
 static fs_lfs_t g_fs_lfs;
 
+#if MENU_ENABLE_FLASH_PROTECTION
 uint32_t FlashProtection = 0;
+#endif
 uint8_t aFileName[FILE_NAME_LENGTH];
 
 static char file_list[MAX_FILES][MAX_FILENAME_LEN];
 static uint8_t file_count = 0;
 
+#if MENU_ENABLE_HPATCH
 static char hdiff_list[MAX_FILES][MAX_FILENAME_LEN];
 static uint8_t hdiff_count = 0;
+#endif
 
 static uint8_t check_file_extension(const char *filename)
 {
@@ -145,10 +161,11 @@ static void scan_lfs_files(lfs_t *lfs)
   lfs_dir_close(lfs, &dir);
 }
 
+#if MENU_ENABLE_HPATCH
 static void scan_fs_hdiff_files(platform_fs_base_t *fs, const char *dir_path)
 {
   platform_fs_dir_t dir;
-  char name[MAX_FILENAME_LEN];
+  static char name[MAX_FILENAME_LEN];
   uint32_t size;
   uint8_t is_dir;
   int16_t res;
@@ -183,11 +200,12 @@ static void scan_fs_hdiff_files(platform_fs_base_t *fs, const char *dir_path)
   }
   FS_DIR_CLOSE(fs, &dir);
 }
+#endif
 
 static void scan_fs_files_filter(platform_fs_base_t *fs, const char *dir_path, uint8_t filter_type)
 {
   platform_fs_dir_t dir;
-  char name[MAX_FILENAME_LEN];
+  static char name[MAX_FILENAME_LEN];
   uint32_t size;
   uint8_t is_dir;
   int16_t res;
@@ -219,6 +237,7 @@ static void scan_fs_files_filter(platform_fs_base_t *fs, const char *dir_path, u
   FS_DIR_CLOSE(fs, &dir);
 }
 
+#if MENU_ENABLE_DOWNLOAD
 static void cmd_serial_download(menu_ctx_t *ctx, int argc, char *argv[])
 {
   uint8_t number[11] = {0};
@@ -429,7 +448,9 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
 
   lfs_spi_flash_unmount(&lfs);
 }
+#endif
 
+#if MENU_ENABLE_UPLOAD
 static void cmd_serial_upload(menu_ctx_t *ctx, int argc, char *argv[])
 {
   uint8_t status = 0;
@@ -449,13 +470,17 @@ static void cmd_serial_upload(menu_ctx_t *ctx, int argc, char *argv[])
     }
   }
 }
+#endif
 
+#if MENU_ENABLE_EXECUTE_APP
 static void cmd_execute_app(menu_ctx_t *ctx, int argc, char *argv[])
 {
   menu_service_println(ctx, "Start program execution......\n");
   bootloader_ctx.config.jump.jump_func(bootloader_ctx.config.jump.app_jump_addr);
 }
+#endif
 
+#if MENU_ENABLE_FLASH_PROTECTION
 static void cmd_flash_protection(menu_ctx_t *ctx, int argc, char *argv[])
 {
   FlashProtection = INTERNAL_FLASH_GET_PROTECTION_STATUS(&g_internal_flash.flash_base);
@@ -491,7 +516,9 @@ static void cmd_flash_protection(menu_ctx_t *ctx, int argc, char *argv[])
     }
   }
 }
+#endif
 
+#if MENU_ENABLE_UART_PASSTHROUGH
 static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
 {
   uint8_t rx_data;
@@ -569,7 +596,9 @@ static void cmd_uart_passthrough(menu_ctx_t *ctx, int argc, char *argv[])
     }
   }
 }
+#endif
 
+#if MENU_ENABLE_SPI_FLASH_STORE
 static void ShowStoredImages(lfs_t *lfs)
 {
   lfs_dir_t dir;
@@ -1059,7 +1088,9 @@ static void cmd_delete_fs(menu_ctx_t *ctx, int argc, char *argv[])
   DeleteEntireFS(&lfs);
   lfs_spi_flash_unmount(&lfs);
 }
+#endif
 
+#if MENU_ENABLE_ESP8266_WIFI
 static void Print_Current_Time(void)
 {
   platform_rtc_time_t rtc_time;
@@ -1794,7 +1825,9 @@ static void cmd_mqtt_publish_rtc(menu_ctx_t *ctx, int argc, char *argv[])
     HAL_Delay(1000);
   }
 }
+#endif
 
+#if MENU_ENABLE_AES_DECRYPT
 static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 {
   uint8_t key = 0;
@@ -2170,7 +2203,9 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
 
   lfs_spi_flash_unmount(&lfs);
 }
+#endif
 
+#if MENU_ENABLE_HPATCH
 typedef struct
 {
   const char *storage_name;
@@ -2185,12 +2220,12 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
   uint8_t selected_diff = 0;
   uint8_t selected_old = 0;
   uint8_t i;
-  char msg[256];
+  static char msg[256];
   hpatch_err_t patch_result;
   hpatch_config_t config;
-  char diff_path[HPATCH_MAX_PATH_LEN];
-  char old_path[HPATCH_MAX_PATH_LEN];
-  char out_path[HPATCH_MAX_PATH_LEN];
+  static char diff_path[HPATCH_MAX_PATH_LEN];
+  static char old_path[HPATCH_MAX_PATH_LEN];
+  static char out_path[HPATCH_MAX_PATH_LEN];
   char *dot_pos;
   const char *upgrade_tag = "_HdiffUpgraded";
 
@@ -2335,7 +2370,7 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
 static void cmd_hpatch_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 {
   FRESULT res;
-  char msg[256];
+  static char msg[256];
   hpatch_storage_ctx_t storage = {"SD card", "0:/", "0:/", NULL};
 
   menu_service_println(ctx, "Initializing TF card...");
@@ -2385,7 +2420,9 @@ static void cmd_hpatch_spi(menu_ctx_t *ctx, int argc, char *argv[])
 
   lfs_spi_flash_unmount(&lfs);
 }
+#endif
 
+#if MENU_ENABLE_ED25519_VERIFY
 typedef struct
 {
   const char *storage_name;
@@ -2399,10 +2436,10 @@ static void cmd_ed25519_verify_workflow(menu_ctx_t *ctx, const ed25519_storage_c
   uint8_t key = 0;
   uint8_t selected = 0;
   uint8_t i;
-  char msg[256];
+  static char msg[256];
   int verify_result;
-  char data_path[128];
-  char sig_path[128];
+  static char data_path[128];
+  static char sig_path[128];
   ed25519_verify_config_t verify_config = {
       .public_key = {0x59, 0x89, 0x1c, 0x71, 0x9e, 0xd1, 0xa1, 0x95, 0x7b, 0x6f, 0x1e, 0x77, 0x6e, 0x1f, 0xf0, 0xf6, 0xff, 0xf3, 0xc3, 0x60, 0x62, 0xe7, 0xcc, 0x22, 0x8c, 0xa1, 0x76, 0x88, 0x0e, 0xe7, 0x2b, 0xde}};
 
@@ -2588,7 +2625,9 @@ static void cmd_ed25519_verify_buffer_test(menu_ctx_t *ctx, int argc, char *argv
   else
     menu_service_println(ctx, "Tampered signature test FAILED (should have been rejected)!");
 }
+#endif
 
+#if MENU_ENABLE_ESP8266_WIFI
 MENU_TABLE(mqtt_menu) = {
     MENU_ITEM_CMD("1", "Check MQTT Connection Status", "Query current MQTT connection", cmd_mqtt_check_status),
     MENU_ITEM_CMD("2", "Configure MQTT User", "Set client ID, username, password", cmd_mqtt_configure),
@@ -2616,7 +2655,9 @@ MENU_TABLE(esp8266_menu) = {
     MENU_ITEM_SUBMENU("B", "MQTT Test Menu", "MQTT protocol testing", mqtt_menu, sizeof(mqtt_menu) / sizeof(mqtt_menu[0]) - 1),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
+#if MENU_ENABLE_SPI_FLASH_STORE
 MENU_TABLE(store_menu) = {
     MENU_ITEM_CMD("1", "Store image from TF card", "Copy from SD to SPI Flash", cmd_store_from_tf),
     MENU_ITEM_CMD("2", "Store image from Flash", "Copy from internal Flash to SPI Flash", cmd_store_from_flash),
@@ -2625,45 +2666,74 @@ MENU_TABLE(store_menu) = {
     MENU_ITEM_CMD("5", "Delete entire file system", "Format SPI Flash", cmd_delete_fs),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
+#if MENU_ENABLE_DOWNLOAD
 MENU_TABLE(download_menu) = {
     MENU_ITEM_CMD("1", "Download via Serial (Ymodem)", "Receive firmware via Ymodem", cmd_serial_download),
     MENU_ITEM_CMD("2", "Download from SD card (FATFS)", "Read firmware from SD card", cmd_sdcard_download),
     MENU_ITEM_CMD("3", "Download from SPI Flash (LittleFS)", "Read firmware from SPI Flash", cmd_spi_flash_download),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
+#if MENU_ENABLE_AES_DECRYPT
 MENU_TABLE(decrypt_menu) = {
     MENU_ITEM_CMD("1", "Decrypt from SD card and download to Flash", "Decrypt .bin.aes and write to Flash", cmd_decrypt_download_sdcard),
     MENU_ITEM_CMD("2", "Decrypt from SPI Flash and download to Flash", "Decrypt .bin.aes and write to Flash", cmd_decrypt_download_spi),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
+#if MENU_ENABLE_HPATCH
 MENU_TABLE(hpatch_menu) = {
     MENU_ITEM_CMD("1", "HPatch upgrade from SD card", "Apply .hdiff patch from SD card", cmd_hpatch_sdcard),
     MENU_ITEM_CMD("2", "HPatch upgrade from SPI Flash", "Apply .hdiff patch from SPI Flash", cmd_hpatch_spi),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
+#if MENU_ENABLE_ED25519_VERIFY
 MENU_TABLE(ed25519_menu) = {
     MENU_ITEM_CMD("1", "Verify firmware on SD card", "Verify .bin signature from SD card", cmd_ed25519_verify_sdcard),
     MENU_ITEM_CMD("2", "Verify firmware on SPI Flash", "Verify .bin signature from SPI Flash", cmd_ed25519_verify_spi),
     MENU_ITEM_CMD("3", "Buffer verify test", "Self-test Ed25519 sign and verify", cmd_ed25519_verify_buffer_test),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
+#endif
 
 MENU_TABLE(main_menu) = {
+#if MENU_ENABLE_DOWNLOAD
     MENU_ITEM_SUBMENU("1", "Download image to internal Flash", "Firmware download options", download_menu, sizeof(download_menu) / sizeof(download_menu[0]) - 1),
+#endif
+#if MENU_ENABLE_UPLOAD
     MENU_ITEM_CMD("2", "Upload image from internal Flash", "Send firmware via Ymodem", cmd_serial_upload),
+#endif
+#if MENU_ENABLE_SPI_FLASH_STORE
     MENU_ITEM_SUBMENU("3", "Store image to SPI-Flash LFS", "SPI Flash storage management", store_menu, sizeof(store_menu) / sizeof(store_menu[0]) - 1),
+#endif
+#if MENU_ENABLE_EXECUTE_APP
     MENU_ITEM_CMD("4", "Execute the loaded application", "Jump to application firmware", cmd_execute_app),
+#endif
+#if MENU_ENABLE_FLASH_PROTECTION
     MENU_ITEM_CMD("5", "Toggle Flash write protection", "Enable/disable write protection", cmd_flash_protection),
+#endif
+#if MENU_ENABLE_AES_DECRYPT
     MENU_ITEM_SUBMENU("6", "Decrypt and download encrypted firmware", "AES decryption options", decrypt_menu, sizeof(decrypt_menu) / sizeof(decrypt_menu[0]) - 1),
     MENU_ITEM_CMD("7", "Decrypt .bin.aes file on SD card", "Decrypt and save to SD card", cmd_decrypt_sdcard),
+#endif
+#if MENU_ENABLE_HPATCH
     MENU_ITEM_SUBMENU("8", "HPatch differential upgrade", "Differential firmware update", hpatch_menu, sizeof(hpatch_menu) / sizeof(hpatch_menu[0]) - 1),
+#endif
+#if MENU_ENABLE_UART_PASSTHROUGH
     MENU_ITEM_CMD("9", "UART4 <-> USART1 Passthrough", "Transparent UART bridge", cmd_uart_passthrough),
+#endif
+#if MENU_ENABLE_ESP8266_WIFI
     MENU_ITEM_SUBMENU("A", "ESP8266 WiFi & OTA Test", "WiFi and OTA testing", esp8266_menu, sizeof(esp8266_menu) / sizeof(esp8266_menu[0]) - 1),
+#endif
+#if MENU_ENABLE_ED25519_VERIFY
     MENU_ITEM_SUBMENU("B", "Ed25519 Signature Verify", "Firmware signature verification", ed25519_menu, sizeof(ed25519_menu) / sizeof(ed25519_menu[0]) - 1),
+#endif
     MENU_TABLE_END};
 
 void Main_Menu(void)

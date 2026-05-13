@@ -24,6 +24,47 @@
 #include "Bootloader_core.h"
 #include "platform_config.h"
 
+/* Menu Feature Configuration Macros ------------------------------------------*/
+#ifndef MENU_ENABLE_DOWNLOAD
+#define MENU_ENABLE_DOWNLOAD 1
+#endif
+
+#ifndef MENU_ENABLE_UPLOAD
+#define MENU_ENABLE_UPLOAD 0
+#endif
+
+#ifndef MENU_ENABLE_SPI_FLASH_STORE
+#define MENU_ENABLE_SPI_FLASH_STORE 1
+#endif
+
+#ifndef MENU_ENABLE_EXECUTE_APP
+#define MENU_ENABLE_EXECUTE_APP 1
+#endif
+
+#ifndef MENU_ENABLE_FLASH_PROTECTION
+#define MENU_ENABLE_FLASH_PROTECTION 0
+#endif
+
+#ifndef MENU_ENABLE_AES_DECRYPT
+#define MENU_ENABLE_AES_DECRYPT 1
+#endif
+
+#ifndef MENU_ENABLE_HPATCH
+#define MENU_ENABLE_HPATCH 1
+#endif
+
+#ifndef MENU_ENABLE_UART_PASSTHROUGH
+#define MENU_ENABLE_UART_PASSTHROUGH 0
+#endif
+
+#ifndef MENU_ENABLE_ESP8266_WIFI
+#define MENU_ENABLE_ESP8266_WIFI 0
+#endif
+
+#ifndef MENU_ENABLE_ED25519_VERIFY
+#define MENU_ENABLE_ED25519_VERIFY 1
+#endif
+
 /* Imported variables --------------------------------------------------------*/
 extern uint8_t aFileName[FILE_NAME_LENGTH];
 
