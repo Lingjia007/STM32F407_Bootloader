@@ -40,6 +40,8 @@ int ed25519_verify_file(platform_fs_base_t *fs, const char *file_path,
     bytes_read = FS_READ(fs, &sig_file, signature, EDSIGN_SIGNATURE_SIZE);
     FS_CLOSE(fs, &sig_file);
 
+    if (bytes_read < 0)
+        return ED25519_VERIFY_ERR_READ_SIG;
     if (bytes_read != EDSIGN_SIGNATURE_SIZE)
         return ED25519_VERIFY_ERR_SIG_SIZE;
 

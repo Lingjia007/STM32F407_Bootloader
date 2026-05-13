@@ -61,6 +61,8 @@ static uint8_t check_file_extension(const char *filename)
   ext = filename + len - 4;
   if (strcmp(ext, ".bin") == 0 || strcmp(ext, ".BIN") == 0)
     return 1;
+  if (strcmp(ext, ".sig") == 0 || strcmp(ext, ".SIG") == 0)
+    return 3;
 
   if (len >= 6)
   {
@@ -734,12 +736,12 @@ static void StoreFromTFCard(void)
     return;
   }
 
-  menu_service_println(&g_menu_ctx, "Scanning TF card for bin, aes and hdiff files...\r");
+  menu_service_println(&g_menu_ctx, "Scanning TF card for bin, aes, hdiff and sig files...\r");
   scan_sd_card_files();
 
   if (file_count == 0)
   {
-    menu_service_println(&g_menu_ctx, "No bin, aes or hdiff files found on TF card!");
+    menu_service_println(&g_menu_ctx, "No bin, aes, hdiff or sig files found on TF card!");
     lfs_spi_flash_unmount(&lfs);
     f_mount(NULL, (TCHAR const *)SDPath, 0);
     return;
@@ -831,7 +833,7 @@ static void StoreFromInternalFlash(void)
     return;
   }
 
-  menu_service_print(&g_menu_ctx, "\r\nEnter filename (with .bin or .bin.aes extension): ");
+  menu_service_print(&g_menu_ctx, "\r\nEnter filename (with .bin, .bin.aes, .hdiff or .sig extension): ");
   idx = 0;
   menu_service_flush(&g_menu_ctx);
 
@@ -868,7 +870,7 @@ static void StoreFromInternalFlash(void)
 
   if (!check_file_extension(filename))
   {
-    menu_service_println(&g_menu_ctx, "\rError: Invalid file extension! Must be .bin or .bin.aes");
+    menu_service_println(&g_menu_ctx, "\rError: Invalid file extension! Must be .bin, .bin.aes, .hdiff or .sig");
     lfs_spi_flash_unmount(&lfs);
     return;
   }

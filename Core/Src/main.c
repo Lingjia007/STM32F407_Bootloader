@@ -152,7 +152,7 @@ int main(void)
 
     MX_USB_DEVICE_Init();
   }
-  if (uart_wait_command(&cmd, 1500) && cmd == 'M')
+  if (uart_wait_command(&cmd, 1500) && (cmd == 'M' || cmd == 'm'))
   {
     printf("\r\nEnter Bootloader Menu...\r\n");
     Main_Menu();
