@@ -40,8 +40,12 @@
 
 #if MENU_ENABLE_ED25519_VERIFY
 #include "service_ed25519_verify.h"
-#include "edsign.h"
 #endif
+
+#if MENU_ENABLE_RNG_DEVKEY
+#include "rng.h"
+#endif
+#include "edsign.h"
 
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
@@ -2702,6 +2706,276 @@ MENU_TABLE(ed25519_menu) = {
     MENU_TABLE_END};
 #endif
 
+#if MENU_ENABLE_RNG_DEVKEY
+static void cmd_rng_generate_devkey(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint32_t random_values[4];
+  uint8_t devkey[16];
+  HAL_StatusTypeDef status;
+  int i;
+
+  menu_service_println(ctx, "Generating 128-bit device key from RNG...");
+
+  for (i = 0; i < 4; i++)
+  {
+    status = HAL_RNG_GenerateRandomNumber(&hrng, &random_values[i]);
+    if (status != HAL_OK)
+    {
+      menu_service_print(ctx, "Error: RNG generation failed at step ");
+      char err_msg[32];
+      snprintf(err_msg, sizeof(err_msg), "%d, error code: %d", i + 1, status);
+      menu_service_println(ctx, err_msg);
+      return;
+    }
+  }
+
+  for (i = 0; i < 4; i++)
+  {
+    devkey[i * 4 + 0] = (random_values[i] >> 24) & 0xFF;
+    devkey[i * 4 + 1] = (random_values[i] >> 16) & 0xFF;
+    devkey[i * 4 + 2] = (random_values[i] >> 8) & 0xFF;
+    devkey[i * 4 + 3] = (random_values[i] >> 0) & 0xFF;
+  }
+
+  menu_service_println(ctx, "Device Key (128-bit):");
+  static char hex_str[64];
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&hex_str[i * 2], 3, "%02X", devkey[i]);
+  }
+  hex_str[32] = '\0';
+  menu_service_println(ctx, hex_str);
+
+  menu_service_println(ctx, "Formatted:");
+  static char formatted_str[64];
+  int pos = 0;
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&formatted_str[pos], 4, "%02X ", devkey[i]);
+    pos += 3;
+    if ((i + 1) % 4 == 0 && i < 15)
+    {
+      formatted_str[pos++] = ' ';
+    }
+  }
+  formatted_str[pos] = '\0';
+  menu_service_println(ctx, formatted_str);
+
+  menu_service_println(ctx, "Raw values (hex):");
+  for (i = 0; i < 4; i++)
+  {
+    char line[32];
+    snprintf(line, sizeof(line), "  R%d: 0x%08lX", i + 1, (unsigned long)random_values[i]);
+    menu_service_println(ctx, line);
+  }
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "=== Chip Unique Device ID (96-bit) ===");
+  uint32_t uid_words[3];
+  uid_words[0] = *(volatile uint32_t *)(UID_BASE);
+  uid_words[1] = *(volatile uint32_t *)(UID_BASE + 4);
+  uid_words[2] = *(volatile uint32_t *)(UID_BASE + 8);
+
+  static char uid_uuid_str[40];
+  snprintf(uid_uuid_str, sizeof(uid_uuid_str), "%08lX-%08lX-%08lX",
+           (unsigned long)uid_words[2], (unsigned long)uid_words[1], (unsigned long)uid_words[0]);
+  menu_service_print(ctx, "Device UID: ");
+  menu_service_println(ctx, uid_uuid_str);
+
+  static char uid_hex_str[32];
+  uint8_t *uid_bytes = (uint8_t *)uid_words;
+  for (i = 0; i < 12; i++)
+  {
+    snprintf(&uid_hex_str[i * 2], 3, "%02X", uid_bytes[i]);
+  }
+  uid_hex_str[24] = '\0';
+  menu_service_print(ctx, "UID (bytes): ");
+  menu_service_println(ctx, uid_hex_str);
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "=== OTP Memory (528 bytes) ===");
+
+  menu_service_println(ctx, "--- Device Key (16 bytes) ---");
+  uint32_t devkey_words[4];
+  uint8_t *devkey_bytes = (uint8_t *)devkey_words;
+  for (i = 0; i < 4; i++)
+  {
+    devkey_words[i] = *(volatile uint32_t *)(FLASH_OTP_BASE + i * 4);
+  }
+
+  static char devkey_hex[40];
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&devkey_hex[i * 2], 3, "%02X", devkey_bytes[i]);
+  }
+  devkey_hex[32] = '\0';
+  menu_service_print(ctx, "DevKey: ");
+  menu_service_println(ctx, devkey_hex);
+
+  static char devkey_formatted[64];
+  int dk_pos = 0;
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&devkey_formatted[dk_pos], 4, "%02X ", devkey_bytes[i]);
+    dk_pos += 3;
+    if ((i + 1) % 4 == 0 && i < 15)
+    {
+      devkey_formatted[dk_pos++] = ' ';
+    }
+  }
+  devkey_formatted[dk_pos] = '\0';
+  menu_service_println(ctx, devkey_formatted);
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "--- User Data (512 bytes) ---");
+  volatile uint8_t *otp_user = (volatile uint8_t *)(FLASH_OTP_BASE + 16);
+  static char otp_line[64];
+  int row, col;
+  for (row = 0; row < 32; row++)
+  {
+    int line_pos = 0;
+    snprintf(otp_line, sizeof(otp_line), "%03X: ", 16 + row * 16);
+    line_pos = 5;
+    for (col = 0; col < 16; col++)
+    {
+      snprintf(&otp_line[line_pos], 4, "%02X ", otp_user[row * 16 + col]);
+      line_pos += 3;
+    }
+    otp_line[line_pos] = '\0';
+    menu_service_println(ctx, otp_line);
+  }
+}
+
+static void cmd_write_otp_devkey(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint32_t random_values[4];
+  uint8_t devkey[16];
+  HAL_StatusTypeDef status;
+  int i;
+
+  menu_service_println(ctx, "Checking OTP status...");
+  uint8_t otp_empty = 1;
+  for (i = 0; i < 4; i++)
+  {
+    if (*(volatile uint32_t *)(FLASH_OTP_BASE + i * 4) != 0xFFFFFFFF)
+    {
+      otp_empty = 0;
+      break;
+    }
+  }
+
+  if (!otp_empty)
+  {
+    menu_service_println(ctx, "Error: OTP already programmed!");
+    menu_service_println(ctx, "OTP can only be written once.");
+    uint32_t existing_words[4];
+    uint8_t *existing_bytes = (uint8_t *)existing_words;
+    for (i = 0; i < 4; i++)
+    {
+      existing_words[i] = *(volatile uint32_t *)(FLASH_OTP_BASE + i * 4);
+    }
+    static char existing_hex[40];
+    for (i = 0; i < 16; i++)
+    {
+      snprintf(&existing_hex[i * 2], 3, "%02X", existing_bytes[i]);
+    }
+    existing_hex[32] = '\0';
+    menu_service_print(ctx, "Current OTP: ");
+    menu_service_println(ctx, existing_hex);
+    return;
+  }
+
+  menu_service_println(ctx, "Generating 128-bit device key...");
+  for (i = 0; i < 4; i++)
+  {
+    status = HAL_RNG_GenerateRandomNumber(&hrng, &random_values[i]);
+    if (status != HAL_OK)
+    {
+      menu_service_println(ctx, "Error: RNG generation failed!");
+      return;
+    }
+  }
+
+  for (i = 0; i < 4; i++)
+  {
+    devkey[i * 4 + 0] = (random_values[i] >> 24) & 0xFF;
+    devkey[i * 4 + 1] = (random_values[i] >> 16) & 0xFF;
+    devkey[i * 4 + 2] = (random_values[i] >> 8) & 0xFF;
+    devkey[i * 4 + 3] = (random_values[i] >> 0) & 0xFF;
+  }
+
+  static char key_hex[40];
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&key_hex[i * 2], 3, "%02X", devkey[i]);
+  }
+  key_hex[32] = '\0';
+  menu_service_print(ctx, "Device Key: ");
+  menu_service_println(ctx, key_hex);
+
+  menu_service_println(ctx, "Writing to OTP...");
+  HAL_FLASH_Unlock();
+
+  status = HAL_OK;
+  for (i = 0; i < 4; i++)
+  {
+    uint32_t address = FLASH_OTP_BASE + (i * 4);
+    if (HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, address, random_values[i]) != HAL_OK)
+    {
+      status = HAL_ERROR;
+      break;
+    }
+  }
+
+  HAL_FLASH_Lock();
+
+  if (status != HAL_OK)
+  {
+    menu_service_println(ctx, "Error: OTP write failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "OTP write successful!");
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "Verifying...");
+
+  uint32_t otp_words[4];
+  for (i = 0; i < 4; i++)
+  {
+    otp_words[i] = *(volatile uint32_t *)(FLASH_OTP_BASE + i * 4);
+  }
+
+  static char verify_hex[40];
+  uint8_t *otp_bytes = (uint8_t *)otp_words;
+  for (i = 0; i < 16; i++)
+  {
+    snprintf(&verify_hex[i * 2], 3, "%02X", otp_bytes[i]);
+  }
+  verify_hex[32] = '\0';
+  menu_service_print(ctx, "OTP: ");
+  menu_service_println(ctx, verify_hex);
+
+  int verify_ok = 1;
+  for (i = 0; i < 4; i++)
+  {
+    if (otp_words[i] != random_values[i])
+    {
+      verify_ok = 0;
+      break;
+    }
+  }
+
+  if (verify_ok)
+  {
+    menu_service_println(ctx, "Verification: PASSED");
+  }
+  else
+  {
+    menu_service_println(ctx, "Verification: FAILED!");
+  }
+}
+#endif
+
 MENU_TABLE(main_menu) = {
 #if MENU_ENABLE_DOWNLOAD
     MENU_ITEM_SUBMENU("1", "Download image to internal Flash", "Firmware download options", download_menu, sizeof(download_menu) / sizeof(download_menu[0]) - 1),
@@ -2733,6 +3007,10 @@ MENU_TABLE(main_menu) = {
 #endif
 #if MENU_ENABLE_ED25519_VERIFY
     MENU_ITEM_SUBMENU("B", "Ed25519 Signature Verify", "Firmware signature verification", ed25519_menu, sizeof(ed25519_menu) / sizeof(ed25519_menu[0]) - 1),
+#endif
+#if MENU_ENABLE_RNG_DEVKEY
+    MENU_ITEM_CMD("C", "Generate Device Key (RNG)", "Generate 128-bit random device key", cmd_rng_generate_devkey),
+    MENU_ITEM_CMD("D", "Write DevKey to OTP", "Generate and write 128-bit key to OTP", cmd_write_otp_devkey),
 #endif
     MENU_TABLE_END};
 

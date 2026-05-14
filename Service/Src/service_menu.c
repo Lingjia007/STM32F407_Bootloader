@@ -650,15 +650,15 @@ void menu_service_show_help(menu_ctx_t *ctx)
 
     menu_service_println(ctx, "\r\n=== Help ===");
     menu_service_println(ctx, "Available commands:");
-    menu_service_println(ctx, "  <key>  - Select menu item (case insensitive)");
-    menu_service_println(ctx, "  H      - Show this help");
+    menu_service_println(ctx, "  <key>  - Select menu item (lowercase only)");
+    menu_service_println(ctx, "  h      - Show this help");
     menu_service_println(ctx, "  ?      - Show this help");
-    menu_service_println(ctx, "  Q      - Exit menu system");
+    menu_service_println(ctx, "  q      - Exit menu system");
     menu_service_println(ctx, "  clear  - Clear screen (in line mode)");
     menu_service_println(ctx, "");
     menu_service_println(ctx, "Settings:");
-    menu_service_printf(ctx, "  D      - Toggle description (current: %s)\r\n", ctx->show_description ? "ON" : "OFF");
-    menu_service_printf(ctx, "  S      - Toggle single key mode (current: %s)\r\n", ctx->single_key_mode ? "ON" : "OFF");
+    menu_service_printf(ctx, "  d      - Toggle description (current: %s)\r\n", ctx->show_description ? "ON" : "OFF");
+    menu_service_printf(ctx, "  s      - Toggle single key mode (current: %s)\r\n", ctx->single_key_mode ? "ON" : "OFF");
     menu_service_println(ctx, "");
 }
 
@@ -963,27 +963,27 @@ void menu_service_run(menu_ctx_t *ctx)
                 menu_service_println(ctx, echo_buf);
             }
 
-            if (key == 'q' || key == 'Q')
+            if (key == 'q')
             {
                 menu_service_println(ctx, "Exiting menu...");
                 ctx->running = false;
                 continue;
             }
 
-            if (key == 'h' || key == 'H' || key == '?')
+            if (key == 'h' || key == '?')
             {
                 menu_service_show_help(ctx);
                 continue;
             }
 
-            if (key == 'd' || key == 'D')
+            if (key == 'd')
             {
                 ctx->show_description = !ctx->show_description;
                 menu_service_printf(ctx, "Description: %s\r\n", ctx->show_description ? "ON" : "OFF");
                 continue;
             }
 
-            if (key == 's' || key == 'S')
+            if (key == 's')
             {
                 ctx->single_key_mode = !ctx->single_key_mode;
                 menu_service_printf(ctx, "Single key mode: %s\r\n", ctx->single_key_mode ? "ON" : "OFF");
@@ -1021,7 +1021,7 @@ void menu_service_run(menu_ctx_t *ctx)
 
             char *cmd = ctx->argv[0];
 
-            if (strcmp(cmd, "q") == 0 || strcmp(cmd, "Q") == 0 ||
+            if (strcmp(cmd, "q") == 0 ||
                 strcmp(cmd, "quit") == 0 || strcmp(cmd, "exit") == 0)
             {
                 menu_service_println(ctx, "Exiting menu...");
@@ -1029,7 +1029,7 @@ void menu_service_run(menu_ctx_t *ctx)
                 continue;
             }
 
-            if (strcmp(cmd, "h") == 0 || strcmp(cmd, "H") == 0 ||
+            if (strcmp(cmd, "h") == 0 ||
                 strcmp(cmd, "?") == 0 || strcmp(cmd, "help") == 0)
             {
                 menu_service_show_help(ctx);
@@ -1042,14 +1042,14 @@ void menu_service_run(menu_ctx_t *ctx)
                 continue;
             }
 
-            if (strcmp(cmd, "d") == 0 || strcmp(cmd, "D") == 0 || strcmp(cmd, "desc") == 0)
+            if (strcmp(cmd, "d") == 0 || strcmp(cmd, "desc") == 0)
             {
                 ctx->show_description = !ctx->show_description;
                 menu_service_printf(ctx, "Description: %s\r\n", ctx->show_description ? "ON" : "OFF");
                 continue;
             }
 
-            if (strcmp(cmd, "s") == 0 || strcmp(cmd, "S") == 0 || strcmp(cmd, "single") == 0)
+            if (strcmp(cmd, "s") == 0 || strcmp(cmd, "single") == 0)
             {
                 ctx->single_key_mode = !ctx->single_key_mode;
                 menu_service_printf(ctx, "Single key mode: %s\r\n", ctx->single_key_mode ? "ON" : "OFF");

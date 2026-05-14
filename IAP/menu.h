@@ -65,6 +65,10 @@
 #define MENU_ENABLE_ED25519_VERIFY 1
 #endif
 
+#ifndef MENU_ENABLE_RNG_DEVKEY
+#define MENU_ENABLE_RNG_DEVKEY 1
+#endif
+
 /* Imported variables --------------------------------------------------------*/
 extern uint8_t aFileName[FILE_NAME_LENGTH];
 

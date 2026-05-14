@@ -26,6 +26,7 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_flash_ramfunc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pwr_ex.h \
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rng.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rtc_ex.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_sd.h \
@@ -78,4 +79,5 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Service\Inc\service_lfs_spi_flash_adapter.h \
   C:\Keil_v5\ARM\ARMCLANG\include\ctype.h \
   ..\Service\Inc\service_aes_decrypt.h ..\Service\Inc\service_hpatch.h \
-  ..\Service\Inc\service_ed25519_verify.h ..\Utils\edsign.h
+  ..\Service\Inc\service_ed25519_verify.h ..\Core\Inc\rng.h \
+  ..\Utils\edsign.h

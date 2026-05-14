@@ -1,7 +1,5 @@
-stm32f407vgt6_bootloader/ff.o: ..\Middlewares\Third_Party\FatFs\src\ff.c \
-  ..\Middlewares\Third_Party\FatFs\src\ff.h \
-  ..\Middlewares\Third_Party\FatFs\src\integer.h \
-  ..\FATFS\Target\ffconf.h ..\Core\Inc\main.h \
+stm32f407vgt6_bootloader/stm32f4xx_hal_rng.o: \
+  ..\Drivers\STM32F4xx_HAL_Driver\Src\stm32f4xx_hal_rng.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -40,8 +38,4 @@ stm32f407vgt6_bootloader/ff.o: ..\Middlewares\Third_Party\FatFs\src\ff.c \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_uart.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
-  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\FATFS\Target\bsp_driver_sd.h ..\FATFS\Target\fatfs_platform.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdlib.h \
-  ..\Middlewares\Third_Party\FatFs\src\diskio.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdarg.h
+  ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h
