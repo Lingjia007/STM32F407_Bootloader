@@ -75,6 +75,39 @@ static char hdiff_list[MAX_FILES][MAX_FILENAME_LEN];
 static uint8_t hdiff_count = 0;
 #endif
 
+static char index_to_sel_char(uint8_t index)
+{
+  if (index < 10)
+    return '0' + index;
+  if (index < 36)
+    return 'A' + (index - 10);
+  return '?';
+}
+
+static uint8_t sel_char_to_index(char ch)
+{
+  if (ch >= '0' && ch <= '9')
+    return (uint8_t)(ch - '0');
+  if (ch >= 'A' && ch <= 'Z')
+    return (uint8_t)(10 + (ch - 'A'));
+  if (ch >= 'a' && ch <= 'z')
+    return (uint8_t)(10 + (ch - 'a'));
+  return 0xFF;
+}
+
+static void build_sel_range_str(uint8_t count, char *buf, uint8_t buf_len)
+{
+  if (count == 0)
+  {
+    buf[0] = '\0';
+    return;
+  }
+  if (count <= 10)
+    snprintf(buf, buf_len, "%c-%c", '0', index_to_sel_char(count - 1));
+  else
+    snprintf(buf, buf_len, "0-9,%c-%c", 'A', index_to_sel_char(count - 1));
+}
+
 static uint8_t check_file_extension(const char *filename)
 {
   const char *ext = NULL;
@@ -296,6 +329,7 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[128];
+  char range_str[16];
   FRESULT res;
   bootloader_err_t err;
 
@@ -323,36 +357,34 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, "Found bin and aes files:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(ctx, msg);
   }
 
-  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected - 1]);
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting firmware update...");
 
   g_fatfs_transport.fs = &SDFatFS;
-  strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
+  strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
@@ -379,6 +411,7 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[128];
+  char range_str[16];
   int res;
   bootloader_err_t err;
   lfs_t lfs;
@@ -415,36 +448,34 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, "Found bin and aes files:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(ctx, msg);
   }
 
-  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       lfs_spi_flash_unmount(&lfs);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected - 1]);
+  snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Starting firmware update...");
 
   g_lfs_transport.lfs = &lfs;
-  strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
+  strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
   bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
@@ -641,7 +672,7 @@ static void ShowStoredImages(lfs_t *lfs)
     if (info.type == LFS_TYPE_REG)
     {
       count++;
-      snprintf(msg, sizeof(msg), "  [%d] %s  Size: %u bytes", count, info.name, (unsigned int)info.size);
+      snprintf(msg, sizeof(msg), "  [%c] %s  Size: %u bytes", index_to_sel_char(count - 1), info.name, (unsigned int)info.size);
       menu_service_println(&g_menu_ctx, msg);
     }
   }
@@ -658,6 +689,7 @@ static void DeleteStoredImage(lfs_t *lfs)
   uint8_t selected = 0;
   uint8_t i;
   char msg[128];
+  char range_str[16];
   int res;
 
   scan_lfs_files(lfs);
@@ -670,33 +702,31 @@ static void DeleteStoredImage(lfs_t *lfs)
   menu_service_println(&g_menu_ctx, "Select image to delete:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(&g_menu_ctx, msg);
   }
 
-  menu_service_printf(&g_menu_ctx, "\r\nEnter selection (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(&g_menu_ctx, "\r\nEnter selection (%s) or 'q' to abort: ", range_str);
   menu_service_flush(&g_menu_ctx);
 
   while (1)
   {
     menu_service_getchar(&g_menu_ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(&g_menu_ctx, "\rAborted by user.");
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\rDeleting: %s", file_list[selected - 1]);
+  snprintf(msg, sizeof(msg), "\rDeleting: %s", file_list[selected]);
   menu_service_println(&g_menu_ctx, msg);
 
-  res = lfs_remove(lfs, file_list[selected - 1]);
+  res = lfs_remove(lfs, file_list[selected]);
   if (res == LFS_ERR_OK)
     menu_service_println(&g_menu_ctx, "Image deleted successfully!");
   else
@@ -748,6 +778,7 @@ static void StoreFromTFCard(void)
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   int res;
   bootloader_err_t err;
   lfs_t lfs;
@@ -795,40 +826,38 @@ static void StoreFromTFCard(void)
   menu_service_println(&g_menu_ctx, "Found files:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(&g_menu_ctx, msg);
   }
 
-  menu_service_printf(&g_menu_ctx, "\r\nSelect file to store (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(&g_menu_ctx, "\r\nSelect file to store (%s) or 'q' to abort: ", range_str);
   menu_service_flush(&g_menu_ctx);
 
   while (1)
   {
     menu_service_getchar(&g_menu_ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(&g_menu_ctx, "\rAborted by user.");
       lfs_spi_flash_unmount(&lfs);
       f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected - 1]);
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
   menu_service_println(&g_menu_ctx, msg);
   menu_service_println(&g_menu_ctx, "Storing image to SPI Flash...");
 
   g_fatfs_transport.fs = &SDFatFS;
   g_lfs_transport.lfs = &lfs;
-  strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
+  strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
-  strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected - 1], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
+  strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
 
   err = bootloader_download(&g_fatfs_transport.base, &g_lfs_transport.base, bootloader_ctx.config.storage.lfs_path);
@@ -1611,6 +1640,7 @@ static void cmd_fw_pkg_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   FRESULT res;
   char src_path[128];
   char dst_path[128];
@@ -1641,7 +1671,7 @@ static void cmd_fw_pkg_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   {
     if (fw_pkg_is_iap_file(file_list[i]))
     {
-      snprintf(msg, sizeof(msg), "  [%d] %s", iap_count + 1, file_list[i]);
+      snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(iap_count), file_list[i]);
       menu_service_println(ctx, msg);
       iap_count++;
     }
@@ -1654,24 +1684,22 @@ static void cmd_fw_pkg_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", iap_count);
+  build_sel_range_str(iap_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= iap_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < iap_count)
+      break;
   }
 
   uint8_t iap_idx = 0;
@@ -1679,12 +1707,12 @@ static void cmd_fw_pkg_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   {
     if (fw_pkg_is_iap_file(file_list[i]))
     {
-      iap_idx++;
       if (iap_idx == selected)
       {
         selected = i;
         break;
       }
+      iap_idx++;
     }
   }
 
@@ -1749,6 +1777,7 @@ static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   char src_path[128];
   char dst_path[128];
   char *dot_pos;
@@ -1783,7 +1812,7 @@ static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
   {
     if (fw_pkg_is_iap_file(file_list[i]))
     {
-      snprintf(msg, sizeof(msg), "  [%d] %s", iap_count + 1, file_list[i]);
+      snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(iap_count), file_list[i]);
       menu_service_println(ctx, msg);
       iap_count++;
     }
@@ -1795,23 +1824,21 @@ static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", iap_count);
+  build_sel_range_str(iap_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= iap_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < iap_count)
+      break;
   }
 
   uint8_t iap_idx = 0;
@@ -1819,12 +1846,12 @@ static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
   {
     if (fw_pkg_is_iap_file(file_list[i]))
     {
-      iap_idx++;
       if (iap_idx == selected)
       {
         selected = i;
         break;
       }
+      iap_idx++;
     }
   }
 
@@ -2627,6 +2654,7 @@ static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   FRESULT res;
   int decrypt_result;
   char src_path[128];
@@ -2662,7 +2690,7 @@ static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        snprintf(msg, sizeof(msg), "  [%d] %s", aes_file_count + 1, file_list[i]);
+        snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(aes_file_count), file_list[i]);
         menu_service_println(ctx, msg);
         aes_file_count++;
       }
@@ -2676,24 +2704,22 @@ static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_printf(ctx, "\r\nSelect file to decrypt (1-%d) or 'a' to abort: ", aes_file_count);
+  build_sel_range_str(aes_file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file to decrypt (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= aes_file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < aes_file_count)
+      break;
   }
 
   uint8_t aes_idx = 0;
@@ -2705,12 +2731,12 @@ static void cmd_decrypt_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        aes_idx++;
         if (aes_idx == selected)
         {
           selected = i;
           break;
         }
+        aes_idx++;
       }
     }
   }
@@ -2763,6 +2789,7 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   FRESULT res;
   int decrypt_result;
   char src_path[128];
@@ -2796,7 +2823,7 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        snprintf(msg, sizeof(msg), "  [%d] %s", aes_file_count + 1, file_list[i]);
+        snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(aes_file_count), file_list[i]);
         menu_service_println(ctx, msg);
         aes_file_count++;
       }
@@ -2810,24 +2837,22 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_printf(ctx, "\r\nSelect file to decrypt and download (1-%d) or 'a' to abort: ", aes_file_count);
+  build_sel_range_str(aes_file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file to decrypt and download (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       f_mount(NULL, (TCHAR const *)SDPath, 0);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= aes_file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < aes_file_count)
+      break;
   }
 
   uint8_t aes_idx = 0;
@@ -2839,12 +2864,12 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        aes_idx++;
         if (aes_idx == selected)
         {
           selected = i;
           break;
         }
+        aes_idx++;
       }
     }
   }
@@ -2881,6 +2906,7 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t selected = 0;
   uint8_t i;
   char msg[256];
+  char range_str[16];
   int res;
   int decrypt_result;
   lfs_t lfs;
@@ -2920,7 +2946,7 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        snprintf(msg, sizeof(msg), "  [%d] %s", lfs_aes_file_count + 1, file_list[i]);
+        snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(lfs_aes_file_count), file_list[i]);
         menu_service_println(ctx, msg);
         lfs_aes_file_count++;
       }
@@ -2934,24 +2960,22 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
     return;
   }
 
-  menu_service_printf(ctx, "\r\nSelect file to decrypt and download (1-%d) or 'a' to abort: ", lfs_aes_file_count);
+  build_sel_range_str(lfs_aes_file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file to decrypt and download (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       lfs_spi_flash_unmount(&lfs);
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= lfs_aes_file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < lfs_aes_file_count)
+      break;
   }
 
   uint8_t lfs_aes_idx = 0;
@@ -2963,12 +2987,12 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
       const char *ext = file_list[i] + len - 8;
       if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       {
-        lfs_aes_idx++;
         if (lfs_aes_idx == selected)
         {
           selected = i;
           break;
         }
+        lfs_aes_idx++;
       }
     }
   }
@@ -3014,6 +3038,7 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
   uint8_t selected_old = 0;
   uint8_t i;
   static char msg[256];
+  char range_str[16];
   hpatch_err_t patch_result;
   hpatch_config_t config;
   static char diff_path[HPATCH_MAX_PATH_LEN];
@@ -3035,30 +3060,28 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
   menu_service_println(ctx, "Found .hdiff files:");
   for (i = 0; i < hdiff_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, hdiff_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), hdiff_list[i]);
     menu_service_println(ctx, msg);
   }
 
-  menu_service_printf(ctx, "\r\nSelect .hdiff file (1-%d) or 'a' to abort: ", hdiff_count);
+  build_sel_range_str(hdiff_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect .hdiff file (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected_diff = key - '0';
-      if (selected_diff >= 1 && selected_diff <= hdiff_count)
-        break;
-    }
+    selected_diff = sel_char_to_index((char)key);
+    if (selected_diff < hdiff_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\rSelected: %s", hdiff_list[selected_diff - 1]);
+  snprintf(msg, sizeof(msg), "\rSelected: %s", hdiff_list[selected_diff]);
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "Scanning for .bin firmware files...\r");
   scan_fs_files_filter(storage->fs, storage->dir_path, 1);
@@ -3073,42 +3096,40 @@ static void cmd_hpatch_workflow(menu_ctx_t *ctx, const hpatch_storage_ctx_t *sto
   menu_service_println(ctx, "Found firmware files:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(ctx, msg);
   }
 
-  menu_service_printf(ctx, "\r\nSelect old firmware file to update (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect old firmware file to update (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected_old = key - '0';
-      if (selected_old >= 1 && selected_old <= file_count)
-        break;
-    }
+    selected_old = sel_char_to_index((char)key);
+    if (selected_old < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected_old - 1]);
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected_old]);
   menu_service_println(ctx, msg);
 
   if (storage->path_prefix[0] != '\0')
   {
-    snprintf(diff_path, sizeof(diff_path), "%s%s", storage->path_prefix, hdiff_list[selected_diff - 1]);
-    snprintf(old_path, sizeof(old_path), "%s%s", storage->path_prefix, file_list[selected_old - 1]);
+    snprintf(diff_path, sizeof(diff_path), "%s%s", storage->path_prefix, hdiff_list[selected_diff]);
+    snprintf(old_path, sizeof(old_path), "%s%s", storage->path_prefix, file_list[selected_old]);
   }
   else
   {
-    strncpy(diff_path, hdiff_list[selected_diff - 1], sizeof(diff_path) - 1);
+    strncpy(diff_path, hdiff_list[selected_diff], sizeof(diff_path) - 1);
     diff_path[sizeof(diff_path) - 1] = '\0';
-    strncpy(old_path, file_list[selected_old - 1], sizeof(old_path) - 1);
+    strncpy(old_path, file_list[selected_old], sizeof(old_path) - 1);
     old_path[sizeof(old_path) - 1] = '\0';
   }
 
@@ -3230,6 +3251,7 @@ static void cmd_ed25519_verify_workflow(menu_ctx_t *ctx, const ed25519_storage_c
   uint8_t selected = 0;
   uint8_t i;
   static char msg[256];
+  char range_str[16];
   int verify_result;
   static char data_path[128];
   static char sig_path[128];
@@ -3249,39 +3271,37 @@ static void cmd_ed25519_verify_workflow(menu_ctx_t *ctx, const ed25519_storage_c
   menu_service_println(ctx, "Found firmware files:");
   for (i = 0; i < file_count; i++)
   {
-    snprintf(msg, sizeof(msg), "  [%d] %s", i + 1, file_list[i]);
+    snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(i), file_list[i]);
     menu_service_println(ctx, msg);
   }
 
-  menu_service_printf(ctx, "\r\nSelect firmware file to verify (1-%d) or 'a' to abort: ", file_count);
+  build_sel_range_str(file_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect firmware file to verify (%s) or 'q' to abort: ", range_str);
   menu_service_flush(ctx);
 
   while (1)
   {
     menu_service_getchar(ctx, &key, RX_TIMEOUT);
-    if (key == 'a' || key == 'A')
+    if (key == 'q' || key == 'Q')
     {
       menu_service_println(ctx, "\rAborted by user.");
       return;
     }
-    if (key >= '1' && key <= '9')
-    {
-      selected = key - '0';
-      if (selected >= 1 && selected <= file_count)
-        break;
-    }
+    selected = sel_char_to_index((char)key);
+    if (selected < file_count)
+      break;
   }
 
-  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected - 1]);
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
 
   if (storage->path_prefix[0] != '\0')
   {
-    snprintf(data_path, sizeof(data_path), "%s%s", storage->path_prefix, file_list[selected - 1]);
+    snprintf(data_path, sizeof(data_path), "%s%s", storage->path_prefix, file_list[selected]);
   }
   else
   {
-    strncpy(data_path, file_list[selected - 1], sizeof(data_path) - 1);
+    strncpy(data_path, file_list[selected], sizeof(data_path) - 1);
     data_path[sizeof(data_path) - 1] = '\0';
   }
 
