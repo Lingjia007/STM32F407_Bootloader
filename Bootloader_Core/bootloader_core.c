@@ -190,3 +190,67 @@ bootloader_err_t bootloader_download(const platform_transport_base_t *src_transp
     printf("bootloader_download: success\r\n");
     return BOOTLOADER_OK;
 }
+
+static bootloader_err_t fw_pkg_err_to_bootloader(fw_pkg_err_t err)
+{
+    switch (err)
+    {
+    case FW_PKG_OK:
+        return BOOTLOADER_OK;
+    case FW_PKG_ERR_MAGIC:
+        return BOOTLOADER_ERR_PKG_MAGIC;
+    case FW_PKG_ERR_HMAC:
+        return BOOTLOADER_ERR_PKG_HMAC;
+    case FW_PKG_ERR_SIGNATURE:
+        return BOOTLOADER_ERR_PKG_SIG;
+    case FW_PKG_ERR_DECRYPT:
+        return BOOTLOADER_ERR_PKG_DECRYPT;
+    case FW_PKG_ERR_ROLLBACK:
+        return BOOTLOADER_ERR_PKG_ROLLBACK;
+    case FW_PKG_ERR_HW_COMPAT:
+        return BOOTLOADER_ERR_PKG_HW_COMPAT;
+    case FW_PKG_ERR_PARAM:
+        return BOOTLOADER_ERR_PARAM;
+    case FW_PKG_ERR_READ:
+        return BOOTLOADER_ERR_READ;
+    case FW_PKG_ERR_WRITE:
+        return BOOTLOADER_ERR_WRITE;
+    case FW_PKG_ERR_ERASE:
+        return BOOTLOADER_ERR_ERASE;
+    case FW_PKG_ERR_SIZE:
+        return BOOTLOADER_ERR_SIZE;
+    default:
+        return BOOTLOADER_ERR_ABORT;
+    }
+}
+
+bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src_transport,
+                                            const platform_transport_base_t *tgt_transport,
+                                            const char *path,
+                                            const fw_pkg_verify_config_t *config)
+{
+    if (src_transport == NULL || tgt_transport == NULL || config == NULL)
+    {
+        printf("bootloader_secure_download: param null\r\n");
+        return BOOTLOADER_ERR_PARAM;
+    }
+
+    printf("bootloader_secure_download: starting secure firmware update...\r\n");
+    printf("  DevKey: %u bytes, UID: %u bytes, PubKey: %u bytes\r\n",
+           (unsigned)config->devkey_len,
+           (unsigned)config->uid_len,
+           (unsigned)config->ed25519_pubkey_len);
+
+    fw_pkg_err_t ret = fw_pkg_process(src_transport, tgt_transport, path, config);
+
+    if (ret != FW_PKG_OK)
+    {
+        printf("bootloader_secure_download: FAILED - %s (err=%d)\r\n",
+               fw_pkg_err_str(ret), ret);
+        bootloader_ctx.last_error = fw_pkg_err_to_bootloader(ret);
+        return bootloader_ctx.last_error;
+    }
+
+    printf("bootloader_secure_download: SUCCESS\r\n");
+    return BOOTLOADER_OK;
+}

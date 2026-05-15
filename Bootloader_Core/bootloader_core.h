@@ -6,6 +6,7 @@
 #include "platform_internal_flash_stm32_impl.h"
 #include "platform_fatfs_stm32_impl.h"
 #include "platform_lfs_stm32_impl.h"
+#include "firmware_package.h"
 #include <stdint.h>
 
 #define APPLICATION_ADDRESS (uint32_t)0x08020000
@@ -34,6 +35,12 @@ typedef enum
     BOOTLOADER_ERR_ERASE = -8,
     BOOTLOADER_ERR_VERIFY = -9,
     BOOTLOADER_ERR_ABORT = -10,
+    BOOTLOADER_ERR_PKG_MAGIC = -11,
+    BOOTLOADER_ERR_PKG_HMAC = -12,
+    BOOTLOADER_ERR_PKG_SIG = -13,
+    BOOTLOADER_ERR_PKG_DECRYPT = -14,
+    BOOTLOADER_ERR_PKG_ROLLBACK = -15,
+    BOOTLOADER_ERR_PKG_HW_COMPAT = -16,
 } bootloader_err_t;
 
 typedef enum
@@ -83,12 +90,18 @@ typedef struct
     bootloader_config_t config;
     bootloader_src_t src_type;
     bootloader_target_t target_type;
+    fw_pkg_verify_config_t pkg_verify;
     bootloader_err_t last_error;
 } bootloader_ctx_t;
 
 bootloader_err_t bootloader_download(const platform_transport_base_t *src_transport,
                                      const platform_transport_base_t *tgt_transport,
                                      const char *path);
+
+bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src_transport,
+                                            const platform_transport_base_t *tgt_transport,
+                                            const char *path,
+                                            const fw_pkg_verify_config_t *config);
 
 extern bootloader_ctx_t bootloader_ctx;
 

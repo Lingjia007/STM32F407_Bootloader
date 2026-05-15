@@ -56,4 +56,5 @@ stm32f407vgt6_bootloader/bootloader_core.o: \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h \
   C:\Keil_v5\ARM\ARMCLANG\include\inttypes.h \
   C:\Keil_v5\ARM\ARMCLANG\include\assert.h \
-  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h \
+  ..\Bootloader_Core\firmware_package.h ..\Utils\aes.h ..\Utils\sha512.h

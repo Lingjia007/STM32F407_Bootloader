@@ -69,6 +69,10 @@
 #define MENU_ENABLE_RNG_DEVKEY 1
 #endif
 
+#ifndef MENU_ENABLE_FIRMWARE_PACKAGE
+#define MENU_ENABLE_FIRMWARE_PACKAGE 1
+#endif
+
 /* Imported variables --------------------------------------------------------*/
 extern uint8_t aFileName[FILE_NAME_LENGTH];
 

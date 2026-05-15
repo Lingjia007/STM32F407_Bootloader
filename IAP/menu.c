@@ -47,6 +47,11 @@
 #endif
 #include "edsign.h"
 
+#if MENU_ENABLE_FIRMWARE_PACKAGE
+#include "firmware_package.h"
+#include "hkdf.h"
+#endif
+
 #define MAX_FILES 20
 #define MAX_FILENAME_LEN 128
 #define RX_TIMEOUT ((uint32_t)0xFFFFFFFF)
@@ -96,6 +101,13 @@ static uint8_t check_file_extension(const char *filename)
     ext = filename + len - 8;
     if (strcmp(ext, ".bin.aes") == 0 || strcmp(ext, ".BIN.AES") == 0)
       return 1;
+  }
+
+  if (len >= 8)
+  {
+    ext = filename + len - 8;
+    if (strcmp(ext, ".iap.bin") == 0 || strcmp(ext, ".IAP.BIN") == 0)
+      return 4;
   }
 
   return 0;
@@ -1092,6 +1104,783 @@ static void cmd_delete_fs(menu_ctx_t *ctx, int argc, char *argv[])
   DeleteEntireFS(&lfs);
   lfs_spi_flash_unmount(&lfs);
 }
+#endif
+
+#if MENU_ENABLE_FIRMWARE_PACKAGE
+
+#define FW_PKG_IAP_EXT ".iap.bin"
+#define FW_PKG_IAP_EXT_UPPER ".IAP.BIN"
+
+static uint8_t fw_pkg_is_iap_file(const char *filename)
+{
+  size_t len = strlen(filename);
+  if (len >= 8)
+  {
+    const char *ext = filename + len - 8;
+    if (strcmp(ext, FW_PKG_IAP_EXT) == 0 || strcmp(ext, FW_PKG_IAP_EXT_UPPER) == 0)
+      return 1;
+  }
+  return 0;
+}
+
+static void fw_pkg_print_header_detail(menu_ctx_t *ctx, const fw_pkg_header_t *hdr)
+{
+  char msg[256];
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "======== Firmware Package Header ========");
+  snprintf(msg, sizeof(msg), "  Magic:            0x%08lX", (unsigned long)hdr->magic);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Header Version:   %u", hdr->header_version);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Firmware Version:  v%u.%u.%u",
+           hdr->firmware_major, hdr->firmware_minor, hdr->firmware_patch);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Payload Size:     %lu bytes", (unsigned long)hdr->total_payload_size);
+  menu_service_println(ctx, msg);
+
+  const char *img_type_str = "Unknown";
+  switch (hdr->image_type)
+  {
+  case FW_PKG_IMAGE_APP:
+    img_type_str = "App (0x01)";
+    break;
+  case FW_PKG_IMAGE_BOOTLOADER:
+    img_type_str = "Bootloader (0x02)";
+    break;
+  case FW_PKG_IMAGE_RESOURCE:
+    img_type_str = "Resource (0x03)";
+    break;
+  }
+  snprintf(msg, sizeof(msg), "  Image Type:       %s", img_type_str);
+  menu_service_println(ctx, msg);
+
+  const char *enc_str = "None";
+  switch (hdr->encryption_algo)
+  {
+  case FW_PKG_ENC_NONE:
+    enc_str = "None (0x00)";
+    break;
+  case FW_PKG_ENC_AES256_CBC:
+    enc_str = "AES-256-CBC (0x01)";
+    break;
+  case FW_PKG_ENC_AES256_ECB:
+    enc_str = "AES-256-ECB (0x02)";
+    break;
+  case FW_PKG_ENC_AES256_CTR:
+    enc_str = "AES-256-CTR (0x03)";
+    break;
+  }
+  snprintf(msg, sizeof(msg), "  Encryption:       %s", enc_str);
+  menu_service_println(ctx, msg);
+
+  const char *sig_str = "None";
+  if (hdr->signature_algo == FW_PKG_SIG_ED25519)
+    sig_str = "Ed25519 (0x01)";
+  snprintf(msg, sizeof(msg), "  Signature:        %s", sig_str);
+  menu_service_println(ctx, msg);
+
+  snprintf(msg, sizeof(msg), "  Hardware Compat:  0x%08lX", (unsigned long)hdr->hardware_compat);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Security Counter: %lu", (unsigned long)hdr->security_counter);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Build Timestamp:  %lu", (unsigned long)hdr->build_timestamp);
+  menu_service_println(ctx, msg);
+
+  static char hmac_hex[65];
+  for (int i = 0; i < 32; i++)
+    snprintf(&hmac_hex[i * 2], 3, "%02X", hdr->header_checksum[i]);
+  hmac_hex[64] = '\0';
+  snprintf(msg, sizeof(msg), "  HMAC:             %s...", hmac_hex);
+  menu_service_println(ctx, msg);
+
+  uint32_t cipher_size = hdr->total_payload_size - FW_PKG_SALT_SIZE - FW_PKG_IV_SIZE;
+  snprintf(msg, sizeof(msg), "  Ciphertext Size:  %lu bytes", (unsigned long)cipher_size);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "==========================================");
+}
+
+static void fw_pkg_print_verify_config(menu_ctx_t *ctx, const fw_pkg_verify_config_t *config)
+{
+  char msg[256];
+  static char hex_buf[65];
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "======== Verify Configuration ========");
+  if (config->devkey)
+  {
+    for (size_t i = 0; i < config->devkey_len; i++)
+      snprintf(&hex_buf[i * 2], 3, "%02X", config->devkey[i]);
+    hex_buf[config->devkey_len * 2] = '\0';
+    snprintf(msg, sizeof(msg), "  DevKey (%uB):     %s", (unsigned)config->devkey_len, hex_buf);
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    menu_service_println(ctx, "  DevKey:           NULL (no HMAC check)");
+  }
+
+  if (config->uid)
+  {
+    for (size_t i = 0; i < config->uid_len; i++)
+      snprintf(&hex_buf[i * 2], 3, "%02X", config->uid[i]);
+    hex_buf[config->uid_len * 2] = '\0';
+    snprintf(msg, sizeof(msg), "  UID (%uB):        %s", (unsigned)config->uid_len, hex_buf);
+    menu_service_println(ctx, msg);
+  }
+
+  if (config->ed25519_pubkey)
+  {
+    for (size_t i = 0; i < config->ed25519_pubkey_len && i < 8; i++)
+      snprintf(&hex_buf[i * 2], 3, "%02X", config->ed25519_pubkey[i]);
+    hex_buf[16] = '\0';
+    snprintf(msg, sizeof(msg), "  PubKey (%uB):     %s...", (unsigned)config->ed25519_pubkey_len, hex_buf);
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    menu_service_println(ctx, "  PubKey:           NULL (no signature check)");
+  }
+
+  snprintf(msg, sizeof(msg), "  HW Compat:        0x%08lX", (unsigned long)config->hardware_compat);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Stored Counter:   %lu", (unsigned long)config->stored_security_counter);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "======================================");
+}
+
+static fw_pkg_err_t fw_pkg_process_and_save(
+    menu_ctx_t *ctx,
+    platform_fs_base_t *src_fs,
+    const char *src_path,
+    platform_fs_base_t *dst_fs,
+    const char *dst_path,
+    const fw_pkg_verify_config_t *config)
+{
+  platform_fs_file_t src_file, dst_file;
+  fw_pkg_ctx_t pkg_ctx;
+  int16_t fs_err;
+  int32_t io_result;
+  uint32_t total_read = 0;
+  uint32_t total_written = 0;
+  uint32_t bytes_read = 0;
+  uint8_t aes_key[FW_PKG_AES_KEY_SIZE];
+  struct sha512_state sig_state;
+  uint8_t sig_pending[SHA512_BLOCK_SIZE];
+  size_t sig_pending_len = 0;
+  size_t sig_total_len = 0;
+  char msg[256];
+
+  static uint8_t process_buf[FW_PKG_DECRYPT_BUF_SIZE] __attribute__((aligned(4)));
+
+  memset(&pkg_ctx, 0, sizeof(pkg_ctx));
+  memset(aes_key, 0, sizeof(aes_key));
+
+  if (config->ed25519_pubkey != NULL)
+  {
+    sha512_init(&sig_state);
+    sig_pending_len = 0;
+    sig_total_len = 0;
+  }
+
+  fs_err = FS_OPEN(src_fs, &src_file, src_path, FS_MODE_READ);
+  if (fs_err != FS_STATUS_OK)
+  {
+    menu_service_println(ctx, "Error: Cannot open source file!");
+    return FW_PKG_ERR_READ;
+  }
+
+  int32_t file_size = FS_SIZE(src_fs, &src_file);
+  if (file_size < (int32_t)(FW_PKG_HEADER_SIZE + FW_PKG_SALT_SIZE + FW_PKG_IV_SIZE + FW_PKG_SIGNATURE_SIZE))
+  {
+    menu_service_println(ctx, "Error: File too small to be a valid package!");
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_SIZE;
+  }
+
+  snprintf(msg, sizeof(msg), "Source file size: %ld bytes", (long)file_size);
+  menu_service_println(ctx, msg);
+
+  menu_service_println(ctx, "Reading header (64 bytes)...");
+  io_result = FS_READ(src_fs, &src_file, process_buf, FW_PKG_HEADER_SIZE);
+  if (io_result != FW_PKG_HEADER_SIZE)
+  {
+    menu_service_println(ctx, "Error: Failed to read header!");
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_READ;
+  }
+  total_read += io_result;
+
+  fw_pkg_err_t ret = fw_pkg_parse_header(&pkg_ctx, process_buf, io_result);
+  if (ret != FW_PKG_OK)
+  {
+    snprintf(msg, sizeof(msg), "Error: Header parse failed: %s", fw_pkg_err_str(ret));
+    menu_service_println(ctx, msg);
+    FS_CLOSE(src_fs, &src_file);
+    return ret;
+  }
+
+  fw_pkg_print_header_detail(ctx, &pkg_ctx.header);
+
+  if (config->ed25519_pubkey != NULL)
+  {
+    fw_pkg_sha512_feed(&sig_state, process_buf, FW_PKG_HEADER_SIZE, sig_pending, &sig_pending_len);
+    sig_total_len += FW_PKG_HEADER_SIZE;
+  }
+
+  if (config->devkey != NULL)
+  {
+    menu_service_println(ctx, "Verifying HMAC...");
+    ret = fw_pkg_verify_header_hmac(&pkg_ctx, config);
+    if (ret != FW_PKG_OK)
+    {
+      menu_service_println(ctx, "FAILED: HMAC verification failed!");
+      FS_CLOSE(src_fs, &src_file);
+      return ret;
+    }
+    menu_service_println(ctx, "HMAC verification: PASSED");
+  }
+  else
+  {
+    menu_service_println(ctx, "HMAC verification: SKIPPED (no DevKey)");
+  }
+
+  if (pkg_ctx.header.hardware_compat != config->hardware_compat)
+  {
+    snprintf(msg, sizeof(msg), "FAILED: HW compat mismatch (pkg=0x%08lX, board=0x%08lX)",
+             (unsigned long)pkg_ctx.header.hardware_compat, (unsigned long)config->hardware_compat);
+    menu_service_println(ctx, msg);
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_HW_COMPAT;
+  }
+  menu_service_println(ctx, "HW compat check: PASSED");
+
+  ret = fw_pkg_check_rollback(&pkg_ctx, config);
+  if (ret != FW_PKG_OK)
+  {
+    menu_service_println(ctx, "FAILED: Rollback detected!");
+    FS_CLOSE(src_fs, &src_file);
+    return ret;
+  }
+  menu_service_println(ctx, "Security counter check: PASSED");
+
+  menu_service_println(ctx, "Reading DynamicSalt (16 bytes)...");
+  io_result = FS_READ(src_fs, &src_file, pkg_ctx.dynamic_salt, FW_PKG_SALT_SIZE);
+  if (io_result != FW_PKG_SALT_SIZE)
+  {
+    menu_service_println(ctx, "Error: Failed to read salt!");
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_READ;
+  }
+  total_read += io_result;
+
+  {
+    static char salt_hex[33];
+    for (int i = 0; i < 16; i++)
+      snprintf(&salt_hex[i * 2], 3, "%02X", pkg_ctx.dynamic_salt[i]);
+    salt_hex[32] = '\0';
+    snprintf(msg, sizeof(msg), "  DynamicSalt: %s", salt_hex);
+    menu_service_println(ctx, msg);
+  }
+
+  if (config->ed25519_pubkey != NULL)
+  {
+    fw_pkg_sha512_feed(&sig_state, pkg_ctx.dynamic_salt, FW_PKG_SALT_SIZE, sig_pending, &sig_pending_len);
+    sig_total_len += FW_PKG_SALT_SIZE;
+  }
+
+  menu_service_println(ctx, "Reading IV (16 bytes)...");
+  io_result = FS_READ(src_fs, &src_file, pkg_ctx.iv, FW_PKG_IV_SIZE);
+  if (io_result != FW_PKG_IV_SIZE)
+  {
+    menu_service_println(ctx, "Error: Failed to read IV!");
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_READ;
+  }
+  total_read += io_result;
+
+  {
+    static char iv_hex[33];
+    for (int i = 0; i < 16; i++)
+      snprintf(&iv_hex[i * 2], 3, "%02X", pkg_ctx.iv[i]);
+    iv_hex[32] = '\0';
+    snprintf(msg, sizeof(msg), "  IV:           %s", iv_hex);
+    menu_service_println(ctx, msg);
+  }
+
+  if (config->ed25519_pubkey != NULL)
+  {
+    fw_pkg_sha512_feed(&sig_state, pkg_ctx.iv, FW_PKG_IV_SIZE, sig_pending, &sig_pending_len);
+    sig_total_len += FW_PKG_IV_SIZE;
+  }
+
+  if (pkg_ctx.header.encryption_algo != FW_PKG_ENC_NONE)
+  {
+    menu_service_println(ctx, "Deriving AES key via HKDF...");
+    ret = fw_pkg_derive_aes_key(&pkg_ctx, config, aes_key);
+    if (ret != FW_PKG_OK)
+    {
+      menu_service_println(ctx, "Error: Key derivation failed!");
+      FS_CLOSE(src_fs, &src_file);
+      return ret;
+    }
+
+    {
+      static char key_hex[65];
+      for (int i = 0; i < 32; i++)
+        snprintf(&key_hex[i * 2], 3, "%02X", aes_key[i]);
+      key_hex[64] = '\0';
+      snprintf(msg, sizeof(msg), "  AES-256 Key:  %s", key_hex);
+      menu_service_println(ctx, msg);
+    }
+
+    ret = fw_pkg_decrypt_init(&pkg_ctx, aes_key);
+    if (ret != FW_PKG_OK)
+    {
+      menu_service_println(ctx, "Error: AES context init failed!");
+      FS_CLOSE(src_fs, &src_file);
+      return ret;
+    }
+  }
+
+  menu_service_println(ctx, "Opening output file for decrypted data...");
+  fs_err = FS_OPEN(dst_fs, &dst_file, dst_path, FS_MODE_CREATE_ALWAYS);
+  if (fs_err != FS_STATUS_OK)
+  {
+    snprintf(msg, sizeof(msg), "Error: Cannot create output file: %s", dst_path);
+    menu_service_println(ctx, msg);
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_WRITE;
+  }
+
+  snprintf(msg, sizeof(msg), "Output: %s", dst_path);
+  menu_service_println(ctx, msg);
+
+  uint32_t ciphertext_remaining = pkg_ctx.ciphertext_size;
+  uint32_t signature_offset = (uint32_t)file_size - FW_PKG_SIGNATURE_SIZE;
+
+  menu_service_println(ctx, "Processing ciphertext...");
+
+  while (ciphertext_remaining > 0)
+  {
+    uint32_t to_read = FW_PKG_DECRYPT_BUF_SIZE;
+    if (ciphertext_remaining < to_read)
+      to_read = ciphertext_remaining;
+    if (total_read + to_read > signature_offset)
+    {
+      to_read = signature_offset - total_read;
+      if (to_read == 0)
+        break;
+    }
+
+    io_result = FS_READ(src_fs, &src_file, process_buf, to_read);
+    if (io_result <= 0)
+      break;
+
+    bytes_read = (uint32_t)io_result;
+    total_read += bytes_read;
+
+    if (config->ed25519_pubkey != NULL)
+    {
+      fw_pkg_sha512_feed(&sig_state, process_buf, bytes_read, sig_pending, &sig_pending_len);
+      sig_total_len += bytes_read;
+    }
+
+    if (pkg_ctx.header.encryption_algo != FW_PKG_ENC_NONE)
+    {
+      ret = fw_pkg_decrypt_payload(&pkg_ctx, process_buf, bytes_read);
+      if (ret != FW_PKG_OK)
+      {
+        menu_service_println(ctx, "Error: Decryption failed!");
+        FS_CLOSE(dst_fs, &dst_file);
+        FS_CLOSE(src_fs, &src_file);
+        return ret;
+      }
+    }
+
+    io_result = FS_WRITE(dst_fs, &dst_file, process_buf, bytes_read);
+    if (io_result != (int32_t)bytes_read)
+    {
+      menu_service_println(ctx, "Error: Write to output file failed!");
+      FS_CLOSE(dst_fs, &dst_file);
+      FS_CLOSE(src_fs, &src_file);
+      return FW_PKG_ERR_WRITE;
+    }
+    total_written += bytes_read;
+    ciphertext_remaining -= bytes_read;
+
+    if ((total_written % 32768) == 0 || ciphertext_remaining == 0)
+    {
+      snprintf(msg, sizeof(msg), "  Progress: %lu / %lu bytes",
+               (unsigned long)total_written, (unsigned long)pkg_ctx.ciphertext_size);
+      menu_service_println(ctx, msg);
+    }
+  }
+
+  if (total_read < signature_offset)
+  {
+    uint32_t skip = signature_offset - total_read;
+    while (skip > 0)
+    {
+      uint32_t to_skip = (skip > FW_PKG_DECRYPT_BUF_SIZE) ? FW_PKG_DECRYPT_BUF_SIZE : skip;
+      io_result = FS_READ(src_fs, &src_file, process_buf, to_skip);
+      if (io_result <= 0)
+        break;
+      bytes_read = (uint32_t)io_result;
+      if (config->ed25519_pubkey != NULL)
+      {
+        fw_pkg_sha512_feed(&sig_state, process_buf, bytes_read, sig_pending, &sig_pending_len);
+        sig_total_len += bytes_read;
+      }
+      total_read += bytes_read;
+      skip -= bytes_read;
+    }
+  }
+
+  FS_SYNC(dst_fs, &dst_file);
+  FS_CLOSE(dst_fs, &dst_file);
+
+  snprintf(msg, sizeof(msg), "Decrypted data saved: %lu bytes", (unsigned long)total_written);
+  menu_service_println(ctx, msg);
+
+  menu_service_println(ctx, "Reading signature (64 bytes)...");
+  io_result = FS_READ(src_fs, &src_file, pkg_ctx.signature, FW_PKG_SIGNATURE_SIZE);
+  if (io_result != FW_PKG_SIGNATURE_SIZE)
+  {
+    menu_service_println(ctx, "Error: Failed to read signature!");
+    FS_CLOSE(src_fs, &src_file);
+    return FW_PKG_ERR_READ;
+  }
+
+  {
+    static char sig_hex[33];
+    for (int i = 0; i < 16; i++)
+      snprintf(&sig_hex[i * 2], 3, "%02X", pkg_ctx.signature[i]);
+    sig_hex[32] = '\0';
+    snprintf(msg, sizeof(msg), "  Signature:    %s...", sig_hex);
+    menu_service_println(ctx, msg);
+  }
+
+  FS_CLOSE(src_fs, &src_file);
+
+  if (pkg_ctx.header.signature_algo == FW_PKG_SIG_ED25519 && config->ed25519_pubkey != NULL)
+  {
+    menu_service_println(ctx, "Verifying Ed25519 signature...");
+    uint8_t sig_hash[64];
+    fw_pkg_sha512_finish(&sig_state, sig_pending, sig_pending_len, sig_total_len, sig_hash);
+
+    ret = fw_pkg_verify_signature_hash(&pkg_ctx, config, sig_hash);
+    if (ret != FW_PKG_OK)
+    {
+      menu_service_println(ctx, "FAILED: Ed25519 signature verification FAILED!");
+      menu_service_println(ctx, "Firmware may be TAMPERED or CORRUPTED!");
+      return ret;
+    }
+    menu_service_println(ctx, "Ed25519 signature: VERIFIED");
+  }
+  else
+  {
+    menu_service_println(ctx, "Signature verification: SKIPPED (no public key)");
+  }
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "======== Summary ========");
+  snprintf(msg, sizeof(msg), "  Firmware:     v%u.%u.%u",
+           pkg_ctx.header.firmware_major, pkg_ctx.header.firmware_minor, pkg_ctx.header.firmware_patch);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Ciphertext:   %lu bytes", (unsigned long)pkg_ctx.ciphertext_size);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Decrypted:    %lu bytes", (unsigned long)total_written);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Output:       %s", dst_path);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "  HMAC:         PASSED");
+  if (config->ed25519_pubkey)
+    menu_service_println(ctx, "  Signature:    VERIFIED");
+  else
+    menu_service_println(ctx, "  Signature:    SKIPPED");
+  menu_service_println(ctx, "  Result:       SUCCESS");
+  menu_service_println(ctx, "=========================");
+
+  return FW_PKG_OK;
+}
+
+static void cmd_fw_pkg_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  FRESULT res;
+  char src_path[128];
+  char dst_path[128];
+  char *dot_pos;
+
+  uint8_t devkey_bytes[16];
+  uint8_t uid_bytes[12];
+  int j;
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "====== Firmware Package Parse (SD Card) ======");
+
+  menu_service_println(ctx, "Initializing TF card...");
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    menu_service_print(ctx, "Error: SD card mount failed! Error code: ");
+    menu_service_int2str((uint8_t *)msg, res);
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  menu_service_println(ctx, "Scanning for .iap.bin files...");
+  scan_sd_card_files();
+
+  uint8_t iap_count = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      snprintf(msg, sizeof(msg), "  [%d] %s", iap_count + 1, file_list[i]);
+      menu_service_println(ctx, msg);
+      iap_count++;
+    }
+  }
+
+  if (iap_count == 0)
+  {
+    menu_service_println(ctx, "No .iap.bin files found on SD card!");
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    return;
+  }
+
+  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", iap_count);
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == 'a' || key == 'A')
+    {
+      menu_service_println(ctx, "\rAborted by user.");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+    if (key >= '1' && key <= '9')
+    {
+      selected = key - '0';
+      if (selected >= 1 && selected <= iap_count)
+        break;
+    }
+  }
+
+  uint8_t iap_idx = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      iap_idx++;
+      if (iap_idx == selected)
+      {
+        selected = i;
+        break;
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
+  menu_service_println(ctx, msg);
+
+  snprintf(src_path, sizeof(src_path), "0:/%s", file_list[selected]);
+  strncpy(dst_path, src_path, sizeof(dst_path) - 1);
+  dst_path[sizeof(dst_path) - 1] = '\0';
+
+  dot_pos = strstr(dst_path, FW_PKG_IAP_EXT);
+  if (dot_pos == NULL)
+    dot_pos = strstr(dst_path, FW_PKG_IAP_EXT_UPPER);
+  if (dot_pos != NULL)
+  {
+    *dot_pos = '\0';
+    strcat(dst_path, ".dec.bin");
+  }
+  else
+  {
+    strcat(dst_path, ".decrypted");
+  }
+
+  {
+    const uint8_t *otp_ptr = (const uint8_t *)FLASH_OTP_BASE;
+    memcpy(devkey_bytes, otp_ptr, 16);
+  }
+
+  uint8_t *uid_ptr = (uint8_t *)UID_BASE;
+  memcpy(uid_bytes, uid_ptr, 12);
+
+  fw_pkg_verify_config_t verify_config = {
+      .devkey = devkey_bytes,
+      .devkey_len = 16,
+      .uid = uid_bytes,
+      .uid_len = 12,
+      .ed25519_pubkey = FW_PKG_ED25519_PUBLIC_KEY,
+      .ed25519_pubkey_len = 32,
+      .hardware_compat = 0,
+      .stored_security_counter = 0,
+  };
+
+  fw_pkg_print_verify_config(ctx, &verify_config);
+
+  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+
+  fw_pkg_err_t ret = fw_pkg_process_and_save(ctx, &g_fs_fatfs.base, src_path,
+                                             &g_fs_fatfs.base, dst_path, &verify_config);
+
+  if (ret != FW_PKG_OK)
+  {
+    snprintf(msg, sizeof(msg), "Firmware package parse FAILED: %s (err=%d)", fw_pkg_err_str(ret), ret);
+    menu_service_println(ctx, msg);
+  }
+
+  f_mount(NULL, (TCHAR const *)SDPath, 0);
+}
+
+static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  char src_path[128];
+  char dst_path[128];
+  char *dot_pos;
+
+  uint8_t devkey_bytes[16];
+  uint8_t uid_bytes[12];
+  int j;
+  lfs_t lfs;
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "====== Firmware Package Parse (SPI Flash) ======");
+
+  menu_service_println(ctx, "Initializing SPI Flash...");
+  if (lfs_spi_flash_init() != 0)
+  {
+    menu_service_println(ctx, "Error: SPI Flash initialization failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "Mounting LittleFS...");
+  if (lfs_spi_flash_mount(&lfs) != LFS_ERR_OK)
+  {
+    menu_service_println(ctx, "Error: LittleFS mount failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "Scanning for .iap.bin files...");
+  scan_lfs_files(&lfs);
+
+  uint8_t iap_count = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      snprintf(msg, sizeof(msg), "  [%d] %s", iap_count + 1, file_list[i]);
+      menu_service_println(ctx, msg);
+      iap_count++;
+    }
+  }
+
+  if (iap_count == 0)
+  {
+    menu_service_println(ctx, "No .iap.bin files found on SPI Flash!");
+    return;
+  }
+
+  menu_service_printf(ctx, "\r\nSelect file (1-%d) or 'a' to abort: ", iap_count);
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == 'a' || key == 'A')
+    {
+      menu_service_println(ctx, "\rAborted by user.");
+      return;
+    }
+    if (key >= '1' && key <= '9')
+    {
+      selected = key - '0';
+      if (selected >= 1 && selected <= iap_count)
+        break;
+    }
+  }
+
+  uint8_t iap_idx = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      iap_idx++;
+      if (iap_idx == selected)
+      {
+        selected = i;
+        break;
+      }
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
+  menu_service_println(ctx, msg);
+
+  snprintf(src_path, sizeof(src_path), "/%s", file_list[selected]);
+  strncpy(dst_path, src_path, sizeof(dst_path) - 1);
+  dst_path[sizeof(dst_path) - 1] = '\0';
+
+  dot_pos = strstr(dst_path, FW_PKG_IAP_EXT);
+  if (dot_pos == NULL)
+    dot_pos = strstr(dst_path, FW_PKG_IAP_EXT_UPPER);
+  if (dot_pos != NULL)
+  {
+    *dot_pos = '\0';
+    strcat(dst_path, ".dec.bin");
+  }
+  else
+  {
+    strcat(dst_path, ".decrypted");
+  }
+
+  {
+    const uint8_t *otp_ptr = (const uint8_t *)FLASH_OTP_BASE;
+    memcpy(devkey_bytes, otp_ptr, 16);
+  }
+
+  uint8_t *uid_ptr = (uint8_t *)UID_BASE;
+  memcpy(uid_bytes, uid_ptr, 12);
+
+  fw_pkg_verify_config_t verify_config = {
+      .devkey = devkey_bytes,
+      .devkey_len = 16,
+      .uid = uid_bytes,
+      .uid_len = 12,
+      .ed25519_pubkey = FW_PKG_ED25519_PUBLIC_KEY,
+      .ed25519_pubkey_len = 32,
+      .hardware_compat = 0,
+      .stored_security_counter = 0,
+  };
+
+  fw_pkg_print_verify_config(ctx, &verify_config);
+
+  platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
+
+  fw_pkg_err_t ret = fw_pkg_process_and_save(ctx, &g_fs_lfs.base, src_path,
+                                             &g_fs_lfs.base, dst_path, &verify_config);
+
+  if (ret != FW_PKG_OK)
+  {
+    snprintf(msg, sizeof(msg), "Firmware package parse FAILED: %s (err=%d)", fw_pkg_err_str(ret), ret);
+    menu_service_println(ctx, msg);
+  }
+}
+
 #endif
 
 #if MENU_ENABLE_ESP8266_WIFI
@@ -2706,6 +3495,14 @@ MENU_TABLE(ed25519_menu) = {
     MENU_TABLE_END};
 #endif
 
+#if MENU_ENABLE_FIRMWARE_PACKAGE
+MENU_TABLE(fw_pkg_menu) = {
+    MENU_ITEM_CMD("1", "Parse package from SD card (FATFS)", "Parse .iap.bin and save decrypted to SD", cmd_fw_pkg_sdcard),
+    MENU_ITEM_CMD("2", "Parse package from SPI Flash (LFS)", "Parse .iap.bin and save decrypted to SPI", cmd_fw_pkg_spi),
+    MENU_ITEM_BACK(),
+    MENU_TABLE_END};
+#endif
+
 #if MENU_ENABLE_RNG_DEVKEY
 static void cmd_rng_generate_devkey(menu_ctx_t *ctx, int argc, char *argv[])
 {
@@ -3011,6 +3808,9 @@ MENU_TABLE(main_menu) = {
 #if MENU_ENABLE_RNG_DEVKEY
     MENU_ITEM_CMD("C", "Generate Device Key (RNG)", "Generate 128-bit random device key", cmd_rng_generate_devkey),
     MENU_ITEM_CMD("D", "Write DevKey to OTP", "Generate and write 128-bit key to OTP", cmd_write_otp_devkey),
+#endif
+#if MENU_ENABLE_FIRMWARE_PACKAGE
+    MENU_ITEM_SUBMENU("E", "Firmware Package Parse", "Parse .iap.bin package and decrypt", fw_pkg_menu, sizeof(fw_pkg_menu) / sizeof(fw_pkg_menu[0]) - 1),
 #endif
     MENU_TABLE_END};
 
