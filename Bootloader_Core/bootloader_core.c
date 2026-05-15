@@ -199,6 +199,8 @@ static bootloader_err_t fw_pkg_err_to_bootloader(fw_pkg_err_t err)
         return BOOTLOADER_OK;
     case FW_PKG_ERR_MAGIC:
         return BOOTLOADER_ERR_PKG_MAGIC;
+    case FW_PKG_ERR_HEADER_VERSION:
+        return BOOTLOADER_ERR_PKG_HEADER_VER;
     case FW_PKG_ERR_HMAC:
         return BOOTLOADER_ERR_PKG_HMAC;
     case FW_PKG_ERR_SIGNATURE:
@@ -209,6 +211,8 @@ static bootloader_err_t fw_pkg_err_to_bootloader(fw_pkg_err_t err)
         return BOOTLOADER_ERR_PKG_ROLLBACK;
     case FW_PKG_ERR_HW_COMPAT:
         return BOOTLOADER_ERR_PKG_HW_COMPAT;
+    case FW_PKG_ERR_UNSUPPORTED:
+        return BOOTLOADER_ERR_PKG_UNSUPPORTED;
     case FW_PKG_ERR_PARAM:
         return BOOTLOADER_ERR_PARAM;
     case FW_PKG_ERR_READ:

@@ -1189,7 +1189,7 @@ static void fw_pkg_print_header_detail(menu_ctx_t *ctx, const fw_pkg_header_t *h
 
   static char hmac_hex[65];
   for (int i = 0; i < 32; i++)
-    snprintf(&hmac_hex[i * 2], 3, "%02X", hdr->header_checksum[i]);
+    snprintf(&hmac_hex[i * 2], sizeof(hmac_hex) - i * 2, "%02X", hdr->header_checksum[i]);
   hmac_hex[64] = '\0';
   snprintf(msg, sizeof(msg), "  HMAC:             %s...", hmac_hex);
   menu_service_println(ctx, msg);
@@ -1210,7 +1210,7 @@ static void fw_pkg_print_verify_config(menu_ctx_t *ctx, const fw_pkg_verify_conf
   if (config->devkey)
   {
     for (size_t i = 0; i < config->devkey_len; i++)
-      snprintf(&hex_buf[i * 2], 3, "%02X", config->devkey[i]);
+      snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", config->devkey[i]);
     hex_buf[config->devkey_len * 2] = '\0';
     snprintf(msg, sizeof(msg), "  DevKey (%uB):     %s", (unsigned)config->devkey_len, hex_buf);
     menu_service_println(ctx, msg);
@@ -1223,7 +1223,7 @@ static void fw_pkg_print_verify_config(menu_ctx_t *ctx, const fw_pkg_verify_conf
   if (config->uid)
   {
     for (size_t i = 0; i < config->uid_len; i++)
-      snprintf(&hex_buf[i * 2], 3, "%02X", config->uid[i]);
+      snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", config->uid[i]);
     hex_buf[config->uid_len * 2] = '\0';
     snprintf(msg, sizeof(msg), "  UID (%uB):        %s", (unsigned)config->uid_len, hex_buf);
     menu_service_println(ctx, msg);
@@ -1232,7 +1232,7 @@ static void fw_pkg_print_verify_config(menu_ctx_t *ctx, const fw_pkg_verify_conf
   if (config->ed25519_pubkey)
   {
     for (size_t i = 0; i < config->ed25519_pubkey_len && i < 8; i++)
-      snprintf(&hex_buf[i * 2], 3, "%02X", config->ed25519_pubkey[i]);
+      snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", config->ed25519_pubkey[i]);
     hex_buf[16] = '\0';
     snprintf(msg, sizeof(msg), "  PubKey (%uB):     %s...", (unsigned)config->ed25519_pubkey_len, hex_buf);
     menu_service_println(ctx, msg);
@@ -1377,7 +1377,7 @@ static fw_pkg_err_t fw_pkg_process_and_save(
   {
     static char salt_hex[33];
     for (int i = 0; i < 16; i++)
-      snprintf(&salt_hex[i * 2], 3, "%02X", pkg_ctx.dynamic_salt[i]);
+      snprintf(&salt_hex[i * 2], sizeof(salt_hex) - i * 2, "%02X", pkg_ctx.dynamic_salt[i]);
     salt_hex[32] = '\0';
     snprintf(msg, sizeof(msg), "  DynamicSalt: %s", salt_hex);
     menu_service_println(ctx, msg);
@@ -1402,7 +1402,7 @@ static fw_pkg_err_t fw_pkg_process_and_save(
   {
     static char iv_hex[33];
     for (int i = 0; i < 16; i++)
-      snprintf(&iv_hex[i * 2], 3, "%02X", pkg_ctx.iv[i]);
+      snprintf(&iv_hex[i * 2], sizeof(iv_hex) - i * 2, "%02X", pkg_ctx.iv[i]);
     iv_hex[32] = '\0';
     snprintf(msg, sizeof(msg), "  IV:           %s", iv_hex);
     menu_service_println(ctx, msg);
@@ -1428,7 +1428,7 @@ static fw_pkg_err_t fw_pkg_process_and_save(
     {
       static char key_hex[65];
       for (int i = 0; i < 32; i++)
-        snprintf(&key_hex[i * 2], 3, "%02X", aes_key[i]);
+        snprintf(&key_hex[i * 2], sizeof(key_hex) - i * 2, "%02X", aes_key[i]);
       key_hex[64] = '\0';
       snprintf(msg, sizeof(msg), "  AES-256 Key:  %s", key_hex);
       menu_service_println(ctx, msg);
@@ -1555,7 +1555,7 @@ static fw_pkg_err_t fw_pkg_process_and_save(
   {
     static char sig_hex[33];
     for (int i = 0; i < 16; i++)
-      snprintf(&sig_hex[i * 2], 3, "%02X", pkg_ctx.signature[i]);
+      snprintf(&sig_hex[i * 2], sizeof(sig_hex) - i * 2, "%02X", pkg_ctx.signature[i]);
     sig_hex[32] = '\0';
     snprintf(msg, sizeof(msg), "  Signature:    %s...", sig_hex);
     menu_service_println(ctx, msg);
