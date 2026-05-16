@@ -15,7 +15,13 @@
 #define UPDATE_FLAG_MAGIC 0x5A5A5A5A
 
 #if defined(__CC_ARM)
-extern uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+extern volatile uint32_t update_flag;
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+extern volatile uint32_t update_flag;
+#elif defined(__GNUC__)
+extern volatile uint32_t update_flag;
+#elif defined(__ICCARM__)
+extern volatile uint32_t update_flag;
 #else
 extern volatile uint32_t update_flag;
 #endif

@@ -13,9 +13,15 @@ bootloader_ctx_t bootloader_ctx = {
 };
 
 #if defined(__CC_ARM)
-uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+volatile uint32_t update_flag __attribute__((section("NoInit"), zero_init, used));
+#elif defined(__ARMCC_VERSION) && (__ARMCC_VERSION >= 6010050)
+volatile uint32_t update_flag __attribute__((section(".bss.NoInit"), used));
+#elif defined(__GNUC__)
+volatile uint32_t update_flag __attribute__((section(".bss.NoInit"), used));
+#elif defined(__ICCARM__)
+__no_init volatile uint32_t update_flag @ ".bss.NoInit";
 #else
-volatile uint32_t update_flag __attribute__((used, section("NoInit")));
+volatile uint32_t update_flag;
 #endif
 
 void jump_to_app(uint32_t app_address)
