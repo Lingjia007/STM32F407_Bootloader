@@ -13,6 +13,7 @@
 #define BOOTLOADER_PATH_MAX 128
 
 #define UPDATE_FLAG_MAGIC 0x5A5A5A5A
+#define JUMP_FLAG_MAGIC 0xA5A5A5A5
 
 #if defined(__CC_ARM)
 extern volatile uint32_t update_flag;
@@ -114,5 +115,6 @@ bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src
 extern bootloader_ctx_t bootloader_ctx;
 
 void jump_to_app(uint32_t app_address);
+void execute_app_jump(void);
 
 #endif

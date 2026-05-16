@@ -26,43 +26,38 @@ volatile uint32_t update_flag;
 
 void jump_to_app(uint32_t app_address)
 {
-    pFunction jump_fn;
     uint32_t app_stack_ptr = (*(__IO uint32_t *)app_address);
-    uint32_t app_reset_handler = (*(__IO uint32_t *)(app_address + 4));
 
     if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
     {
         return;
     }
 
-    __disable_irq();
+    update_flag = JUMP_FLAG_MAGIC;
+    __DSB();
+    __ISB();
+    NVIC_SystemReset();
+}
 
-    SysTick->CTRL = 0;
-    SysTick->LOAD = 0;
-    SysTick->VAL = 0;
+void execute_app_jump(void)
+{
+    pFunction jump_fn;
+    uint32_t app_stack_ptr = (*(__IO uint32_t *)APPLICATION_ADDRESS);
+    uint32_t app_reset_handler = (*(__IO uint32_t *)(APPLICATION_ADDRESS + 4));
 
-    for (int i = 0; i < 8; i++)
+    if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
     {
-        NVIC->ICER[i] = 0xFFFFFFFF;
-        NVIC->ICPR[i] = 0xFFFFFFFF;
+        return;
     }
 
-    HAL_RCC_DeInit();
-    HAL_DeInit();
-
-    SCB->VTOR = app_address;
+    SCB->VTOR = APPLICATION_ADDRESS;
     __DSB();
     __ISB();
 
     __set_MSP(app_stack_ptr);
 
-    __enable_irq();
-
     jump_fn = (pFunction)app_reset_handler;
     jump_fn();
-
-    while (1)
-        ;
 }
 
 #define BOOTLOADER_BUFFER_SIZE 4096
