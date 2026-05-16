@@ -104,6 +104,7 @@
 "stm32f407vgt6_bootloader\fprime.o"
 "stm32f407vgt6_bootloader\morph25519.o"
 "stm32f407vgt6_bootloader\sha512.o"
+"stm32f407vgt6_bootloader\sha256.o"
 "stm32f407vgt6_bootloader\esp8266_ota_api.o"
 --strict --scatter ".\STM32F407VGT6_Bootloader\STM32F407VGT6_Bootloader.sct"
 --summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols

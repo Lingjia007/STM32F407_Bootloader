@@ -4130,6 +4130,11 @@
               <FileType>1</FileType>
               <FilePath>..\Utils\sha512.c</FilePath>
             </File>
+            <File>
+              <FileName>sha256.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Utils\sha256.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
