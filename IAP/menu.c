@@ -640,7 +640,7 @@ static void cmd_execute_app(menu_ctx_t *ctx, int argc, char *argv[])
   snprintf(msg, sizeof(msg), "Start program execution from Slot %s......\n", ab_slot_name(active));
   menu_service_println(ctx, msg);
   bootloader_ctx.ab_active_slot = active;
-  execute_app_jump_to_slot(active);
+  bootloader_request_jump(active);
 }
 #endif
 
@@ -3777,7 +3777,7 @@ static void cmd_ab_jump_slot(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
 
   bootloader_ctx.ab_active_slot = target;
-  execute_app_jump_to_slot(target);
+  bootloader_request_jump(target);
 }
 
 MENU_TABLE(ab_menu) = {

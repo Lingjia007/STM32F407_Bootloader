@@ -117,9 +117,7 @@ bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src
 
 extern bootloader_ctx_t bootloader_ctx;
 
-void jump_to_app(uint32_t app_address);
-void execute_app_jump(void);
-void execute_app_jump_direct(void);
-void execute_app_jump_to_slot(ab_slot_t slot);
+void bootloader_request_jump(ab_slot_t slot);
+void bootloader_execute_jump(void);
 
 #endif

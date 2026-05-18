@@ -28,6 +28,7 @@
 typedef enum {
     AB_SLOT_A = 0,
     AB_SLOT_B = 1,
+    AB_SLOT_AUTO = 0xFE,
     AB_SLOT_NONE = 0xFF,
 } ab_slot_t;
 
@@ -68,6 +69,7 @@ typedef enum {
 } ab_err_t;
 
 ab_err_t ab_partition_init(void);
+ab_slot_t ab_partition_get_active_slot_from_flash(void);
 ab_slot_t ab_partition_get_active_slot(void);
 ab_slot_t ab_partition_get_inactive_slot(void);
 uint32_t ab_partition_get_slot_addr(ab_slot_t slot);

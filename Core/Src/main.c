@@ -86,17 +86,8 @@ int main(void)
   if (update_flag == JUMP_FLAG_MAGIC)
   {
     update_flag = 0;
-    const ab_metadata_t *flash_meta = (const ab_metadata_t *)METADATA_ADDR;
-    if (flash_meta->magic == AB_METADATA_MAGIC &&
-        flash_meta->version == AB_METADATA_VERSION)
-    {
-      bootloader_ctx.ab_active_slot = flash_meta->active_slot;
-    }
-    else
-    {
-      bootloader_ctx.ab_active_slot = AB_SLOT_A;
-    }
-    execute_app_jump_direct();
+    bootloader_ctx.ab_active_slot = ab_partition_get_active_slot_from_flash();
+    bootloader_execute_jump();
   }
 
   /* USER CODE END 1 */
@@ -226,7 +217,7 @@ int main(void)
   }
 
   printf("\r\nAuto-jumping to active slot %s...\r\n", ab_slot_name(bootloader_ctx.ab_active_slot));
-  execute_app_jump();
+  bootloader_request_jump(AB_SLOT_AUTO);
 
   printf("Auto-jump failed! Entering idle loop.\r\n");
   /* USER CODE END 2 */

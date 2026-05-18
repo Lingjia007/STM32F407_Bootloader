@@ -208,6 +208,31 @@ ab_err_t ab_partition_init(void)
     return AB_OK;
 }
 
+ab_slot_t ab_partition_get_active_slot_from_flash(void)
+{
+    int latest_instance = -1;
+    for (int i = 0; i < AB_META_MAX_INSTANCES; i++)
+    {
+        uint32_t addr = METADATA_ADDR + (uint32_t)i * AB_META_INSTANCE_ALIGN;
+        uint32_t magic = *(volatile uint32_t *)addr;
+        if (magic != AB_METADATA_MAGIC)
+        {
+            latest_instance = (i > 0) ? (i - 1) : -1;
+            break;
+        }
+    }
+    if (latest_instance < 0)
+        return AB_SLOT_A;
+
+    uint32_t addr = METADATA_ADDR + (uint32_t)latest_instance * AB_META_INSTANCE_ALIGN;
+    const ab_metadata_t *meta = (const ab_metadata_t *)addr;
+
+    if (meta->magic != AB_METADATA_MAGIC || meta->version != AB_METADATA_VERSION)
+        return AB_SLOT_A;
+
+    return meta->active_slot;
+}
+
 ab_slot_t ab_partition_get_active_slot(void)
 {
     if (!g_ab_initialized)

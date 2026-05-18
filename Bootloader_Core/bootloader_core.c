@@ -2,12 +2,13 @@
 #include "main.h"
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 bootloader_ctx_t bootloader_ctx = {
     .config = {
         .jump = {
             .app_jump_addr = APPLICATION_ADDRESS,
-            .jump_func = jump_to_app,
+            .jump_func = NULL,
         },
     },
     .ab_active_slot = AB_SLOT_A,
@@ -25,13 +26,41 @@ __no_init volatile uint32_t update_flag @ ".bss.NoInit";
 volatile uint32_t update_flag;
 #endif
 
-void jump_to_app(uint32_t app_address)
+static void bootloader_print_jump_info(ab_slot_t slot, uint32_t app_addr)
 {
-    uint32_t app_stack_ptr = (*(__IO uint32_t *)app_address);
+    printf("\r\n=== JUMP TO SLOT (soft-reset) ===\r\n");
+    printf("  Target Slot:    %s\r\n", ab_slot_name(slot));
+    printf("  App Base Addr:  0x%08lX\r\n", (unsigned long)app_addr);
+    printf("  SP (offset 0):  0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)app_addr));
+    printf("  Reset (offset4):0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)(app_addr + 4)));
+    printf("==================================\r\n");
+}
 
-    if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
-    {
+static uint32_t bootloader_get_slot_addr(ab_slot_t slot)
+{
+    if (slot == AB_SLOT_AUTO)
+        slot = bootloader_ctx.ab_active_slot;
+    return ab_partition_get_slot_addr(slot);
+}
+
+static bool bootloader_validate_sp(uint32_t app_addr)
+{
+    uint32_t app_stack_ptr = (*(__IO uint32_t *)app_addr);
+    return (app_stack_ptr & 0x2FFE0000) == 0x20000000;
+}
+
+void bootloader_request_jump(ab_slot_t slot)
+{
+    uint32_t app_addr = bootloader_get_slot_addr(slot);
+    if (app_addr == 0 || !bootloader_validate_sp(app_addr))
         return;
+
+    bootloader_print_jump_info(slot, app_addr);
+
+    if (slot != AB_SLOT_AUTO)
+    {
+        ab_partition_set_active_slot(slot);
+        bootloader_ctx.ab_active_slot = slot;
     }
 
     update_flag = JUMP_FLAG_MAGIC;
@@ -40,33 +69,14 @@ void jump_to_app(uint32_t app_address)
     NVIC_SystemReset();
 }
 
-void execute_app_jump(void)
+void bootloader_execute_jump(void)
 {
-    uint32_t app_addr;
-
-    if (bootloader_ctx.ab_active_slot == AB_SLOT_B)
-        app_addr = SLOT_B_START_ADDR;
-    else
-        app_addr = SLOT_A_START_ADDR;
-
-    jump_to_app(app_addr);
-}
-
-void execute_app_jump_direct(void)
-{
-    pFunction jump_fn;
-    uint32_t app_addr;
-
-    if (bootloader_ctx.ab_active_slot == AB_SLOT_B)
-        app_addr = SLOT_B_START_ADDR;
-    else
-        app_addr = SLOT_A_START_ADDR;
+    uint32_t app_addr = bootloader_get_slot_addr(AB_SLOT_AUTO);
+    if (app_addr == 0 || !bootloader_validate_sp(app_addr))
+        return;
 
     uint32_t app_stack_ptr = (*(__IO uint32_t *)app_addr);
     uint32_t app_reset_handler = (*(__IO uint32_t *)(app_addr + 4));
-
-    if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
-        return;
 
     SysTick->CTRL = 0;
     __set_PRIMASK(0);
@@ -76,27 +86,7 @@ void execute_app_jump_direct(void)
     __ISB();
 
     __set_MSP(app_stack_ptr);
-    jump_fn = (pFunction)app_reset_handler;
-    jump_fn();
-}
-
-void execute_app_jump_to_slot(ab_slot_t slot)
-{
-    uint32_t app_addr = ab_partition_get_slot_addr(slot);
-
-    if (app_addr == 0)
-        return;
-
-    printf("\r\n=== JUMP TO SLOT (soft-reset) ===\r\n");
-    printf("  Target Slot:    %s\r\n", ab_slot_name(slot));
-    printf("  App Base Addr:  0x%08lX\r\n", (unsigned long)app_addr);
-    printf("  SP (offset 0):  0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)app_addr));
-    printf("  Reset (offset4):0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)(app_addr + 4)));
-    printf("==================================\r\n");
-
-    ab_partition_set_active_slot(slot);
-    bootloader_ctx.ab_active_slot = slot;
-    jump_to_app(app_addr);
+    ((pFunction)app_reset_handler)();
 }
 
 #define BOOTLOADER_BUFFER_SIZE 4096
