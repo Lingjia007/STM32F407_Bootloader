@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#define AB_META_INSTANCE_ALIGN  64
-#define AB_META_MAX_INSTANCES   (METADATA_SIZE / AB_META_INSTANCE_ALIGN)
+#define AB_META_INSTANCE_ALIGN 64
+#define AB_META_MAX_INSTANCES (METADATA_SIZE / AB_META_INSTANCE_ALIGN)
 
 static ab_metadata_t g_ab_metadata;
 static uint8_t g_ab_initialized = 0;
@@ -39,6 +39,25 @@ static int ab_is_valid_sp(uint32_t sp)
     return (sp & 0x2FFE0000) == 0x20000000;
 }
 
+static int ab_is_valid_active_slot(ab_slot_t slot)
+{
+    return (slot == AB_SLOT_A || slot == AB_SLOT_B);
+}
+
+static int ab_validate_metadata(const ab_metadata_t *meta)
+{
+    if (meta->magic != AB_METADATA_MAGIC || meta->version != AB_METADATA_VERSION)
+        return 0;
+
+    if (meta->crc32 != ab_compute_metadata_crc(meta))
+        return 0;
+
+    if (!ab_is_valid_active_slot(meta->active_slot))
+        return 0;
+
+    return 1;
+}
+
 static int ab_find_latest_instance(void)
 {
     for (int i = 0; i < AB_META_MAX_INSTANCES; i++)
@@ -58,9 +77,25 @@ static ab_err_t ab_read_metadata(void)
     if (g_ab_current_instance < 0)
         return AB_ERR_METADATA_INVALID;
 
-    uint32_t addr = METADATA_ADDR + (uint32_t)g_ab_current_instance * AB_META_INSTANCE_ALIGN;
-    memcpy(&g_ab_metadata, (void *)addr, sizeof(ab_metadata_t));
-    return AB_OK;
+    for (int i = g_ab_current_instance; i >= 0; i--)
+    {
+        uint32_t addr = METADATA_ADDR + (uint32_t)i * AB_META_INSTANCE_ALIGN;
+        memcpy(&g_ab_metadata, (void *)addr, sizeof(ab_metadata_t));
+
+        if (!ab_validate_metadata(&g_ab_metadata))
+        {
+            printf("AB: instance %d validation failed\r\n", i);
+            continue;
+        }
+
+        if (i != g_ab_current_instance)
+            printf("AB: fallback to valid instance %d\r\n", i);
+
+        g_ab_current_instance = i;
+        return AB_OK;
+    }
+
+    return AB_ERR_METADATA_INVALID;
 }
 
 static ab_err_t ab_erase_metadata_sector(void)
@@ -127,6 +162,16 @@ static ab_err_t ab_write_metadata_raw(const ab_metadata_t *meta)
     if (err != AB_OK)
         return err;
 
+    const ab_metadata_t *written = (const ab_metadata_t *)addr;
+    if (written->magic != meta->magic ||
+        written->version != meta->version ||
+        written->active_slot != meta->active_slot ||
+        written->crc32 != meta->crc32)
+    {
+        printf("AB: metadata write verification failed at instance %d\r\n", next_instance);
+        return AB_ERR_FLASH_WRITE;
+    }
+
     g_ab_current_instance = next_instance;
     printf("AB: metadata written at instance %d\r\n", next_instance);
     return AB_OK;
@@ -156,10 +201,8 @@ static void ab_init_default_metadata(void)
 
 ab_err_t ab_partition_init(void)
 {
-    ab_err_t err;
-
-    err = ab_read_metadata();
-    if (err != AB_OK || g_ab_current_instance < 0)
+    ab_err_t err = ab_read_metadata();
+    if (err != AB_OK)
     {
         printf("AB: no valid metadata, initializing defaults\r\n");
         ab_init_default_metadata();
@@ -167,42 +210,13 @@ ab_err_t ab_partition_init(void)
         err = ab_write_metadata_raw(&g_ab_metadata);
         if (err != AB_OK)
             return err;
-        g_ab_initialized = 1;
-        g_ab_metadata_dirty = 0;
-        return AB_OK;
     }
-
-    if (g_ab_metadata.magic != AB_METADATA_MAGIC ||
-        g_ab_metadata.version != AB_METADATA_VERSION)
+    else
     {
-        printf("AB: metadata invalid, initializing defaults\r\n");
-        ab_init_default_metadata();
-        g_ab_current_instance = -1;
-        err = ab_write_metadata_raw(&g_ab_metadata);
-        if (err != AB_OK)
-            return err;
-        g_ab_initialized = 1;
-        g_ab_metadata_dirty = 0;
-        return AB_OK;
+        printf("AB: metadata valid, active=%s (instance %d)\r\n",
+               ab_slot_name(g_ab_metadata.active_slot), g_ab_current_instance);
     }
 
-    uint32_t expected_crc = ab_compute_metadata_crc(&g_ab_metadata);
-    if (g_ab_metadata.crc32 != expected_crc)
-    {
-        printf("AB: metadata CRC mismatch (stored=0x%08lX, calc=0x%08lX), resetting\r\n",
-               (unsigned long)g_ab_metadata.crc32, (unsigned long)expected_crc);
-        ab_init_default_metadata();
-        g_ab_current_instance = -1;
-        err = ab_write_metadata_raw(&g_ab_metadata);
-        if (err != AB_OK)
-            return err;
-        g_ab_initialized = 1;
-        g_ab_metadata_dirty = 0;
-        return AB_OK;
-    }
-
-    printf("AB: metadata valid, active=%s (instance %d)\r\n",
-           ab_slot_name(g_ab_metadata.active_slot), g_ab_current_instance);
     g_ab_initialized = 1;
     g_ab_metadata_dirty = 0;
     return AB_OK;
@@ -210,39 +224,35 @@ ab_err_t ab_partition_init(void)
 
 ab_slot_t ab_partition_get_active_slot_from_flash(void)
 {
-    int latest_instance = -1;
-    for (int i = 0; i < AB_META_MAX_INSTANCES; i++)
-    {
-        uint32_t addr = METADATA_ADDR + (uint32_t)i * AB_META_INSTANCE_ALIGN;
-        uint32_t magic = *(volatile uint32_t *)addr;
-        if (magic != AB_METADATA_MAGIC)
-        {
-            latest_instance = (i > 0) ? (i - 1) : -1;
-            break;
-        }
-    }
+    int latest_instance = ab_find_latest_instance();
+
     if (latest_instance < 0)
         return AB_SLOT_A;
 
-    uint32_t addr = METADATA_ADDR + (uint32_t)latest_instance * AB_META_INSTANCE_ALIGN;
-    const ab_metadata_t *meta = (const ab_metadata_t *)addr;
+    for (int i = latest_instance; i >= 0; i--)
+    {
+        uint32_t addr = METADATA_ADDR + (uint32_t)i * AB_META_INSTANCE_ALIGN;
+        const ab_metadata_t *meta = (const ab_metadata_t *)addr;
 
-    if (meta->magic != AB_METADATA_MAGIC || meta->version != AB_METADATA_VERSION)
-        return AB_SLOT_A;
+        if (!ab_validate_metadata(meta))
+            continue;
 
-    return meta->active_slot;
+        return meta->active_slot;
+    }
+
+    return AB_SLOT_A;
 }
 
 ab_slot_t ab_partition_get_active_slot(void)
 {
-    if (!g_ab_initialized)
+    if (!g_ab_initialized || !ab_is_valid_active_slot(g_ab_metadata.active_slot))
         return AB_SLOT_A;
     return g_ab_metadata.active_slot;
 }
 
 ab_slot_t ab_partition_get_inactive_slot(void)
 {
-    if (!g_ab_initialized)
+    if (!g_ab_initialized || !ab_is_valid_active_slot(g_ab_metadata.active_slot))
         return AB_SLOT_B;
     return (g_ab_metadata.active_slot == AB_SLOT_A) ? AB_SLOT_B : AB_SLOT_A;
 }
