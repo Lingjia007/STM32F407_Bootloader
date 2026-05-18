@@ -2452,6 +2452,11 @@
               <FilePath>..\Bootloader_Core\bootloader_core.c</FilePath>
             </File>
             <File>
+              <FileName>ab_partition.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Bootloader_Core\ab_partition.c</FilePath>
+            </File>
+            <File>
               <FileName>firmware_package.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Bootloader_Core\firmware_package.c</FilePath>

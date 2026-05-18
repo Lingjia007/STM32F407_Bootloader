@@ -39,6 +39,7 @@
 #include "platform_config.h"
 #include "service_lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
+#include "ab_partition.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,7 +86,17 @@ int main(void)
   if (update_flag == JUMP_FLAG_MAGIC)
   {
     update_flag = 0;
-    execute_app_jump();
+    const ab_metadata_t *flash_meta = (const ab_metadata_t *)METADATA_ADDR;
+    if (flash_meta->magic == AB_METADATA_MAGIC &&
+        flash_meta->version == AB_METADATA_VERSION)
+    {
+      bootloader_ctx.ab_active_slot = flash_meta->active_slot;
+    }
+    else
+    {
+      bootloader_ctx.ab_active_slot = AB_SLOT_A;
+    }
+    execute_app_jump_direct();
   }
 
   /* USER CODE END 1 */
@@ -123,6 +134,48 @@ int main(void)
   bootloader_ctx.config.ymodem.dest_addr = bootloader_ctx.config.jump.app_jump_addr;
   lfs_spi_flash_init();
   HAL_TIM_Base_Start_IT(&htim1);
+
+  ab_partition_init();
+  bootloader_ctx.ab_active_slot = ab_partition_get_active_slot();
+
+  {
+    ab_slot_t active = ab_partition_get_active_slot();
+    const ab_metadata_t *meta = ab_partition_get_metadata();
+    ab_slot_state_t state = meta->slots[active].state;
+
+    printf("\r\n=== A/B Partition Boot ===\r\n");
+    printf("Active Slot: %s, State: %d, Boot Attempts: %d\r\n",
+           ab_slot_name(active), state, meta->slots[active].boot_attempts);
+
+    if (state == AB_STATE_TESTING)
+    {
+      ab_err_t val = ab_partition_validate_slot(active);
+      if (val != AB_OK)
+      {
+        printf("Active slot %s firmware invalid, rolling back...\r\n", ab_slot_name(active));
+        ab_partition_rollback();
+        active = ab_partition_get_active_slot();
+        bootloader_ctx.ab_active_slot = active;
+      }
+      else if (meta->slots[active].boot_attempts >= AB_MAX_BOOT_RETRIES)
+      {
+        printf("Active slot %s exceeded max boot attempts (%d), rolling back...\r\n",
+               ab_slot_name(active), AB_MAX_BOOT_RETRIES);
+        ab_partition_rollback();
+        active = ab_partition_get_active_slot();
+        bootloader_ctx.ab_active_slot = active;
+      }
+      else
+      {
+        printf("Slot %s in TESTING state, incrementing boot attempts\r\n", ab_slot_name(active));
+        ab_partition_increment_boot_attempts(active);
+      }
+    }
+    else if (state == AB_STATE_CONFIRMED)
+    {
+      printf("Slot %s CONFIRMED, booting normally\r\n", ab_slot_name(active));
+    }
+  }
 
   // 检查SD卡检测引脚状态
   uint8_t sd_detected = BSP_SD_IsDetected();
@@ -171,6 +224,11 @@ int main(void)
     printf("\r\nFirmware update requested by App...\r\n");
     Main_Menu();
   }
+
+  printf("\r\nAuto-jumping to active slot %s...\r\n", ab_slot_name(bootloader_ctx.ab_active_slot));
+  execute_app_jump();
+
+  printf("Auto-jump failed! Entering idle loop.\r\n");
   /* USER CODE END 2 */
 
   /* Infinite loop */

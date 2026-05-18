@@ -1,6 +1,10 @@
 #include "platform_internal_flash_stm32_impl.h"
+#include "ab_partition.h"
 #include <string.h>
 #include <stdio.h>
+
+#define RELOCATE_SRC_START  SLOT_A_START_ADDR
+#define RELOCATE_SRC_END    SLOT_A_END_ADDR
 
 static int16_t internal_flash_init(void *ctx)
 {
@@ -280,9 +284,38 @@ static int16_t internal_flash_tgt_open(const void *ctx, const char *path, uint32
     ((internal_flash_stm32_t *)self)->is_open = 1;
     ((internal_flash_stm32_t *)self)->is_erased = 1;
 
-    printf("Internal flash opened, addr=0x%08lX, size=%lu\r\n",
-           (unsigned long)self->flash_base.start_addr, (unsigned long)total_size);
+    printf("Internal flash opened, addr=0x%08lX, size=%lu, relocate=0x%08lX\r\n",
+           (unsigned long)self->flash_base.start_addr, (unsigned long)total_size,
+           (unsigned long)self->relocate_offset);
     return TRANSPORT_STATUS_OK;
+}
+
+static uint32_t internal_flash_relocate_word(uint32_t val, uint32_t offset)
+{
+    if (offset == 0)
+        return val;
+    if (val >= RELOCATE_SRC_START && val <= RELOCATE_SRC_END)
+        return val + offset;
+    return val;
+}
+
+static void internal_flash_relocate_buffer(const internal_flash_stm32_t *self,
+                                           uint8_t *buf, uint32_t len)
+{
+    if (self->relocate_offset == 0)
+        return;
+
+    uint32_t word_count = len / 4;
+    for (uint32_t i = 0; i < word_count; i++)
+    {
+        uint32_t val;
+        memcpy(&val, buf + i * 4, 4);
+        uint32_t relocated = internal_flash_relocate_word(val, self->relocate_offset);
+        if (relocated != val)
+        {
+            memcpy(buf + i * 4, &relocated, 4);
+        }
+    }
 }
 
 static int16_t internal_flash_tgt_write(const void *ctx, uint32_t offset, const uint8_t *data, uint32_t len)
@@ -293,6 +326,7 @@ static int16_t internal_flash_tgt_write(const void *ctx, uint32_t offset, const 
     uint32_t data_word;
     uint32_t write_len;
     uint8_t temp_buf[4];
+    uint8_t reloc_buf[1024];
 
     if (data == NULL || len == 0)
     {
@@ -326,6 +360,11 @@ static int16_t internal_flash_tgt_write(const void *ctx, uint32_t offset, const 
         memcpy(self->pending_buf + self->pending_len, data, need);
         data_word = *(uint32_t *)self->pending_buf;
 
+        if (self->relocate_offset != 0)
+        {
+            data_word = internal_flash_relocate_word(data_word, self->relocate_offset);
+        }
+
         if (HAL_FLASH_Program(TYPEPROGRAM_WORD, flash_addr, data_word) == HAL_OK)
         {
             if (*(uint32_t *)flash_addr != data_word)
@@ -343,35 +382,54 @@ static int16_t internal_flash_tgt_write(const void *ctx, uint32_t offset, const 
         flash_addr += 4;
         data += need;
         len -= need;
+        offset += need;
         self->pending_len = 0;
     }
 
     write_len = (len / 4) * 4;
 
-    for (i = 0; i < (write_len / 4); i++)
+    uint32_t processed = 0;
+    while (processed < write_len)
     {
-        if (flash_addr > (INTERNAL_FLASH_END_ADDR - 4))
+        uint32_t chunk = write_len - processed;
+        if (chunk > sizeof(reloc_buf))
+            chunk = sizeof(reloc_buf);
+        chunk = (chunk / 4) * 4;
+
+        memcpy(reloc_buf, data + processed, chunk);
+
+        if (self->relocate_offset != 0)
         {
-            break;
+            internal_flash_relocate_buffer(self, reloc_buf, chunk);
         }
 
-        memcpy(temp_buf, data + (i * 4), 4);
-        data_word = *(uint32_t *)temp_buf;
-
-        if (HAL_FLASH_Program(TYPEPROGRAM_WORD, flash_addr, data_word) == HAL_OK)
+        for (i = 0; i < (chunk / 4); i++)
         {
-            if (*(uint32_t *)flash_addr != data_word)
+            if (flash_addr > (INTERNAL_FLASH_END_ADDR - 4))
             {
-                printf("Internal flash verify failed at 0x%08lX\r\n", (unsigned long)flash_addr);
-                return TRANSPORT_STATUS_VERIFY;
+                break;
             }
-            flash_addr += 4;
+
+            memcpy(temp_buf, reloc_buf + (i * 4), 4);
+            data_word = *(uint32_t *)temp_buf;
+
+            if (HAL_FLASH_Program(TYPEPROGRAM_WORD, flash_addr, data_word) == HAL_OK)
+            {
+                if (*(uint32_t *)flash_addr != data_word)
+                {
+                    printf("Internal flash verify failed at 0x%08lX\r\n", (unsigned long)flash_addr);
+                    return TRANSPORT_STATUS_VERIFY;
+                }
+                flash_addr += 4;
+            }
+            else
+            {
+                printf("Internal flash program failed at 0x%08lX\r\n", (unsigned long)flash_addr);
+                return TRANSPORT_STATUS_WRITE;
+            }
         }
-        else
-        {
-            printf("Internal flash program failed at 0x%08lX\r\n", (unsigned long)flash_addr);
-            return TRANSPORT_STATUS_WRITE;
-        }
+
+        processed += chunk;
     }
 
     self->written_size = offset + write_len;
@@ -401,6 +459,11 @@ static int16_t internal_flash_tgt_close(const void *ctx)
         uint32_t data_word = 0xFFFFFFFF;
 
         memcpy(&data_word, self->pending_buf, self->pending_len);
+
+        if (self->relocate_offset != 0)
+        {
+            data_word = internal_flash_relocate_word(data_word, self->relocate_offset);
+        }
 
         printf("Internal flash: flushing %d pending bytes at 0x%08lX\r\n",
                self->pending_len, (unsigned long)flash_addr);
@@ -516,6 +579,7 @@ void platform_internal_flash_stm32_register(internal_flash_stm32_t *flash,
     flash->transport_base.user_data = NULL;
 
     flash->written_size = 0;
+    flash->relocate_offset = 0;
     flash->pending_len = 0;
     flash->is_open = 0;
     flash->is_erased = 0;

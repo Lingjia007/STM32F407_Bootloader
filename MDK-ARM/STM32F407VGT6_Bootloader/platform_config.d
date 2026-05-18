@@ -67,4 +67,5 @@ stm32f407vgt6_bootloader/platform_config.o: \
   ..\Impl\Inc\platform_mqtt_esp8266_impl.h \
   ..\Platform\Inc\platform_mqtt.h ..\Impl\Inc\platform_tick_stm32_impl.h \
   ..\Platform\Inc\platform_tick.h ..\Bootloader_Core\bootloader_core.h \
-  ..\Bootloader_Core\firmware_package.h ..\Utils\aes.h ..\Utils\sha512.h
+  ..\Bootloader_Core\firmware_package.h ..\Utils\aes.h ..\Utils\sha512.h \
+  ..\Bootloader_Core\ab_partition.h

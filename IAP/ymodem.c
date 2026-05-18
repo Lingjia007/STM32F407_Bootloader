@@ -24,6 +24,7 @@
 #include "service_ymodem.h"
 #include "platform_config.h"
 #include "bootloader_core.h"
+#include "ab_partition.h"
 #include "main.h"
 #include <string.h>
 
@@ -43,6 +44,34 @@ COM_StatusTypeDef Ymodem_Receive(uint32_t *p_size)
   g_ymodem_config.file_name_len = FILE_NAME_LENGTH;
 
   ymodem_status_t status = ymodem_service_receive(&g_ymodem_config, &g_ymodem_ctx, p_size);
+
+  return (COM_StatusTypeDef)status;
+}
+
+COM_StatusTypeDef Ymodem_Receive_To_Slot(uint32_t *p_size, ab_slot_t slot)
+{
+  internal_flash_stm32_t *target_flash;
+
+  if (slot == AB_SLOT_A)
+    target_flash = &g_slot_a_flash;
+  else if (slot == AB_SLOT_B)
+    target_flash = &g_slot_b_flash;
+  else
+    return COM_ERROR;
+
+  g_ymodem_config.uart = (platform_uart_base_t *)&g_uart4_console.base;
+  g_ymodem_config.transport = (platform_transport_base_t *)&target_flash->transport_base;
+  g_ymodem_config.max_size = ab_partition_get_slot_size(slot);
+  g_ymodem_config.file_name = aFileName;
+  g_ymodem_config.file_name_len = FILE_NAME_LENGTH;
+
+  ymodem_status_t status = ymodem_service_receive(&g_ymodem_config, &g_ymodem_ctx, p_size);
+
+  if ((COM_StatusTypeDef)status == COM_OK)
+  {
+    ab_partition_update_slot_meta(slot, 0, 0, 0);
+    ab_partition_set_active_slot(slot);
+  }
 
   return (COM_StatusTypeDef)status;
 }

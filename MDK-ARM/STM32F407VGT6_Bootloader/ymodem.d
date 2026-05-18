@@ -3,9 +3,7 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\ymodem.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stdint.h \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Platform\Inc\platform_transport.h ..\Platform\Inc\platform_uart.h \
-  ..\Platform\Inc\platform_config.h \
-  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
-  ..\Platform\Inc\platform_led.h \
+  ..\Bootloader_Core\ab_partition.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal.h \
   ..\Core\Inc\stm32f4xx_hal_conf.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_rcc.h \
@@ -43,7 +41,10 @@ stm32f407vgt6_bootloader/ymodem.o: ..\IAP\ymodem.c ..\IAP\ymodem.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_ll_usb.h \
   ..\Drivers\STM32F4xx_HAL_Driver\Inc\stm32f4xx_hal_pcd_ex.h \
-  ..\Core\Inc\main.h ..\Impl\Inc\platform_w25q128_stm32_impl.h \
+  ..\Platform\Inc\platform_config.h \
+  ..\Impl\Inc\platform_gpio_led_stm32_impl.h \
+  ..\Platform\Inc\platform_led.h ..\Core\Inc\main.h \
+  ..\Impl\Inc\platform_w25q128_stm32_impl.h \
   ..\Platform\Inc\platform_spi_flash.h \
   ..\Impl\Inc\platform_internal_flash_stm32_impl.h \
   ..\Platform\Inc\platform_internal_flash.h \

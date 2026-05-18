@@ -7,6 +7,7 @@
 #include "platform_fatfs_stm32_impl.h"
 #include "platform_lfs_stm32_impl.h"
 #include "firmware_package.h"
+#include "ab_partition.h"
 #include <stdint.h>
 
 #define APPLICATION_ADDRESS (uint32_t)0x08020000
@@ -14,6 +15,7 @@
 
 #define UPDATE_FLAG_MAGIC 0x5A5A5A5A
 #define JUMP_FLAG_MAGIC 0xA5A5A5A5
+#define BOOT_CONFIRM_MAGIC 0x424F4F54
 
 #if defined(__CC_ARM)
 extern volatile uint32_t update_flag;
@@ -101,6 +103,7 @@ typedef struct
     bootloader_target_t target_type;
     fw_pkg_verify_config_t pkg_verify;
     bootloader_err_t last_error;
+    ab_slot_t ab_active_slot;
 } bootloader_ctx_t;
 
 bootloader_err_t bootloader_download(const platform_transport_base_t *src_transport,
@@ -116,5 +119,7 @@ extern bootloader_ctx_t bootloader_ctx;
 
 void jump_to_app(uint32_t app_address);
 void execute_app_jump(void);
+void execute_app_jump_direct(void);
+void execute_app_jump_to_slot(ab_slot_t slot);
 
 #endif

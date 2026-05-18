@@ -1,0 +1,270 @@
+SPI flash init success, ID=0xFEA6
+AB: no valid metadata, initializing defaults
+AB: metadata written at instance 0
+
+=== A/B Partition Boot ===
+Active Slot: A, State: 2, Boot Attempts: 0
+Slot A CONFIRMED, booting normally
+SD Card Detection Pin State: PRESENT
+SD_CARD_DET_Pin GPIO Level: LOW
+TF card detected and ready
+
+
+Enter Bootloader Menu...
+
+================================================================================
+                               STM32F4xx IAP Menu
+================================================================================
+
+  [1] Download image to internal Flash          - Firmware download options >>
+  [3] Store image to SPI-Flash LFS              - SPI Flash storage management >>
+  [4] Execute the loaded application            - Jump to application firmware
+  [6] Decrypt and download encrypted firmware   - AES decryption options >>
+  [7] Decrypt .bin.aes file on SD card          - Decrypt and save to SD card
+  [8] HPatch differential upgrade               - Differential firmware update >>
+  [B] Ed25519 Signature Verify                  - Firmware signature verification >>
+  [C] Generate Device Key (RNG)                 - Generate 128-bit random device key
+  [D] Write DevKey to OTP                       - Generate and write 128-bit key to OTP
+  [E] Firmware Package Parse                    - Parse .iap.bin package and decrypt >>
+  [F] A/B Partition Management                  - View status, swap, rollback slots >>
+
+================================================================================
+
+Enter selection: 1
+
+================================================================================
+                        Download image to internal Flash
+================================================================================
+
+  [1] Download via Serial (Ymodem)              - Receive firmware via Ymodem
+  [2] Download from SD card (FATFS)             - Read firmware from SD card
+  [3] Download from SPI Flash (LittleFS)        - Read firmware from SPI Flash
+  [0] Back                                      - Return to previous menu
+
+================================================================================
+
+Enter selection: 2
+Initializing TF card...
+Scanning for bin and aes files...
+Found bin and aes files:
+  [0] NEW.hdiff
+  [1] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.bin.aes
+  [2] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_New.bin
+  [3] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_Old_HdiffUpgraded.bin
+  [4] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.dec.bin
+  [5] RTT_HdiffUpgraded.iap.bin
+  [6] rtthread_mdk5.bin
+  [7] RTT.hdiff
+  [8] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_New.sig
+  [9] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_Old.bin
+  [A] rtthread.bin
+  [B] app_partition_a.bin
+  [C] app_partition_b.bin
+  [D] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.iap.bin
+
+Select file (0-9,A-D) or 'q' to abort: 
+Selected: app_partition_b.bin
+Target slot: B (inactive)
+Download to slot A(1) or slot B(2)? [default=inactive]: 
+Downloading to Slot B (0x08080000)...
+bootloader_download: opening source [fatfs]...
+FATFS source opened: app_partition_b.bin, size=10264
+bootloader_download: total_size=10264, opening target [slot_b]...
+Internal flash opened, addr=0x08080000, size=10264, relocate=0x00060000
+bootloader_download: starting download loop...
+bootloader_download: progress 4096/10264
+bootloader_download: progress 8192/10264
+bootloader_download: progress 10264/10264
+bootloader_download: closing target...
+Internal flash closed
+bootloader_download: closing source...
+FATFS source closed
+bootloader_download: success
+AB: slot B meta updated: ver=0, sec=0, size=0
+AB: metadata written at instance 1
+AB: metadata flushed (instance 1)
+AB: active slot set to B (TESTING)
+AB: metadata written at instance 2
+AB: metadata flushed (instance 2)
+Firmware update to Slot B completed!
+Slot marked as TESTING, will activate on next boot.
+
+================================================================================
+                        Download image to internal Flash
+================================================================================
+
+  [1] Download via Serial (Ymodem)              - Receive firmware via Ymodem
+  [2] Download from SD card (FATFS)             - Read firmware from SD card
+  [3] Download from SPI Flash (LittleFS)        - Read firmware from SPI Flash
+  [0] Back                                      - Return to previous menu
+
+================================================================================
+
+Enter selection: 0
+
+================================================================================
+                               STM32F4xx IAP Menu
+================================================================================
+
+  [1] Download image to internal Flash          - Firmware download options >>
+  [3] Store image to SPI-Flash LFS              - SPI Flash storage management >>
+  [4] Execute the loaded application            - Jump to application firmware
+  [6] Decrypt and download encrypted firmware   - AES decryption options >>
+  [7] Decrypt .bin.aes file on SD card          - Decrypt and save to SD card
+  [8] HPatch differential upgrade               - Differential firmware update >>
+  [B] Ed25519 Signature Verify                  - Firmware signature verification >>
+  [C] Generate Device Key (RNG)                 - Generate 128-bit random device key
+  [D] Write DevKey to OTP                       - Generate and write 128-bit key to OTP
+  [E] Firmware Package Parse                    - Parse .iap.bin package and decrypt >>
+  [F] A/B Partition Management                  - View status, swap, rollback slots >>
+
+================================================================================
+
+Enter selection: 4
+Start program execution from Slot B......
+
+
+=== JUMP TO SLOT DEBUG ===
+  Target Slot:    B
+  App Base Addr:  0x08080000
+  SP (offset 0):  0x200008F8
+  Reset (offset4):0x08080231
+  VTOR before:    0x00000000
+===========================
+  VTOR SPI flash init success, ID=0xFEA6
+AB: metadata valid, active=B (instance 2)
+
+=== A/B Partition Boot ===
+Active Slot: B, State: 1, Boot Attempts: 0
+AB: slot B valid: SP=0x200008F8, Reset=0x08080231
+Slot B in TESTING state, incrementing boot attempts
+AB: slot B boot_attempts=1
+AB: metadata written at instance 3
+AB: metadata flushed (instance 3)
+SD Card Detection Pin State: PRESENT
+SD_CARD_DET_Pin GPIO Level: LOW
+TF card detected and ready
+
+
+Enter Bootloader Menu...
+
+================================================================================
+                               STM32F4xx IAP Menu
+================================================================================
+
+  [1] Download image to internal Flash          - Firmware download options >>
+  [3] Store image to SPI-Flash LFS              - SPI Flash storage management >>
+  [4] Execute the loaded application            - Jump to application firmware
+  [6] Decrypt and download encrypted firmware   - AES decryption options >>
+  [7] Decrypt .bin.aes file on SD card          - Decrypt and save to SD card
+  [8] HPatch differential upgrade               - Differential firmware update >>
+  [B] Ed25519 Signature Verify                  - Firmware signature verification >>
+  [C] Generate Device Key (RNG)                 - Generate 128-bit random device key
+  [D] Write DevKey to OTP                       - Generate and write 128-bit key to OTP
+  [E] Firmware Package Parse                    - Parse .iap.bin package and decrypt >>
+  [F] A/B Partition Management                  - View status, swap, rollback slots >>
+
+================================================================================
+
+Enter selection: 1
+
+================================================================================
+                        Download image to internal Flash
+================================================================================
+
+  [1] Download via Serial (Ymodem)              - Receive firmware via Ymodem
+  [2] Download from SD card (FATFS)             - Read firmware from SD card
+  [3] Download from SPI Flash (LittleFS)        - Read firmware from SPI Flash
+  [0] Back                                      - Return to previous menu
+
+================================================================================
+
+Enter selection: 2
+Initializing TF card...
+Scanning for bin and aes files...
+Found bin and aes files:
+  [0] NEW.hdiff
+  [1] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.bin.aes
+  [2] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_New.bin
+  [3] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_Old_HdiffUpgraded.bin
+  [4] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.dec.bin
+  [5] RTT_HdiffUpgraded.iap.bin
+  [6] rtthread_mdk5.bin
+  [7] RTT.hdiff
+  [8] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_New.sig
+  [9] STM32F407VGT6_UART_DMA_Efficient_RingBuffer_Old.bin
+  [A] rtthread.bin
+  [B] app_partition_a.bin
+  [C] app_partition_b.bin
+  [D] STM32F407VGT6_UART_DMA_Efficient_RingBuffer.iap.bin
+
+Select file (0-9,A-D) or 'q' to abort: 
+Selected: app_partition_a.bin
+Target slot: A (inactive)
+Download to slot A(1) or slot B(2)? [default=inactive]: 
+Downloading to Slot A (0x08020000)...
+bootloader_download: opening source [fatfs]...
+FATFS source opened: app_partition_a.bin, size=10264
+bootloader_download: total_size=10264, opening target [slot_a]...
+Internal flash opened, addr=0x08020000, size=10264, relocate=0x00000000
+bootloader_download: starting download loop...
+bootloader_download: progress 4096/10264
+bootloader_download: progress 8192/10264
+bootloader_download: progress 10264/10264
+bootloader_download: closing target...
+Internal flash closed
+bootloader_download: closing source...
+FATFS source closed
+bootloader_download: success
+AB: slot A meta updated: ver=0, sec=0, size=0
+AB: metadata written at instance 4
+AB: metadata flushed (instance 4)
+AB: active slot set to A (TESTING)
+AB: metadata written at instance 5
+AB: metadata flushed (instance 5)
+Firmware update to Slot A completed!
+Slot marked as TESTING, will activate on next boot.
+
+================================================================================
+                        Download image to internal Flash
+================================================================================
+
+  [1] Download via Serial (Ymodem)              - Receive firmware via Ymodem
+  [2] Download from SD card (FATFS)             - Read firmware from SD card
+  [3] Download from SPI Flash (LittleFS)        - Read firmware from SPI Flash
+  [0] Back                                      - Return to previous menu
+
+================================================================================
+
+Enter selection: 0
+
+================================================================================
+                               STM32F4xx IAP Menu
+================================================================================
+
+  [1] Download image to internal Flash          - Firmware download options >>
+  [3] Store image to SPI-Flash LFS              - SPI Flash storage management >>
+  [4] Execute the loaded application            - Jump to application firmware
+  [6] Decrypt and download encrypted firmware   - AES decryption options >>
+  [7] Decrypt .bin.aes file on SD card          - Decrypt and save to SD card
+  [8] HPatch differential upgrade               - Differential firmware update >>
+  [B] Ed25519 Signature Verify                  - Firmware signature verification >>
+  [C] Generate Device Key (RNG)                 - Generate 128-bit random device key
+  [D] Write DevKey to OTP                       - Generate and write 128-bit key to OTP
+  [E] Firmware Package Parse                    - Parse .iap.bin package and decrypt >>
+  [F] A/B Partition Management                  - View status, swap, rollback slots >>
+
+================================================================================
+
+Enter selection: 4
+Start program execution from Slot A......
+
+
+=== JUMP TO SLOT DEBUG ===
+  Target Slot:    A
+  App Base Addr:  0x08020000
+  SP (offset 0):  0x200008F8
+  Reset (offset4):0x08020231
+  VTOR before:    0x00000000
+===========================
+  V

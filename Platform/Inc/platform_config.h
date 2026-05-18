@@ -15,6 +15,9 @@
 extern gpio_led_stm32_t g_status_led;
 extern w25q128_stm32_t g_w25q128_flash;
 extern internal_flash_stm32_t g_internal_flash;
+extern internal_flash_stm32_t g_slot_a_flash;
+extern internal_flash_stm32_t g_slot_b_flash;
+extern internal_flash_stm32_t g_download_cache_flash;
 extern uart_stm32_t g_uart4_console;
 extern uart_stm32_t g_usart1_esp8266;
 extern fatfs_stm32_t g_fatfs_transport;

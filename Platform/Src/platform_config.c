@@ -1,10 +1,14 @@
 #include "platform_config.h"
 #include "bootloader_core.h"
+#include "ab_partition.h"
 #include "main.h"
 
 gpio_led_stm32_t g_status_led;
 w25q128_stm32_t g_w25q128_flash;
 internal_flash_stm32_t g_internal_flash;
+internal_flash_stm32_t g_slot_a_flash;
+internal_flash_stm32_t g_slot_b_flash;
+internal_flash_stm32_t g_download_cache_flash;
 uart_stm32_t g_uart4_console;
 uart_stm32_t g_usart1_esp8266;
 fatfs_stm32_t g_fatfs_transport;
@@ -29,6 +33,22 @@ void platform_config_init(void)
                                             APPLICATION_ADDRESS, 
                                             INTERNAL_FLASH_END_ADDR, 
                                             "internal_flash");
+    
+    platform_internal_flash_stm32_register(&g_slot_a_flash,
+                                            SLOT_A_START_ADDR,
+                                            SLOT_A_END_ADDR,
+                                            "slot_a");
+    
+    platform_internal_flash_stm32_register(&g_slot_b_flash,
+                                            SLOT_B_START_ADDR,
+                                            SLOT_B_END_ADDR,
+                                            "slot_b");
+    g_slot_b_flash.relocate_offset = SLOT_B_START_ADDR - SLOT_A_START_ADDR;
+    
+    platform_internal_flash_stm32_register(&g_download_cache_flash,
+                                            DOWNLOAD_CACHE_ADDR,
+                                            DOWNLOAD_CACHE_ADDR + DOWNLOAD_CACHE_SIZE - 1,
+                                            "download_cache");
     
     platform_uart_stm32_register(&g_uart4_console, &huart4, "uart4_console");
     

@@ -72,8 +72,8 @@ stm32f407vgt6_bootloader/service_onenet_ota.o: \
   ..\ESP8266_OTA\esp8266_ota_config.h \
   ..\Bootloader_Core\bootloader_core.h \
   ..\Bootloader_Core\firmware_package.h ..\Utils\aes.h ..\Utils\sha512.h \
-  ..\Utils\cJSON.h ..\Utils\md5.h ..\FATFS\App\fatfs.h \
-  ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
+  ..\Bootloader_Core\ab_partition.h ..\Utils\cJSON.h ..\Utils\md5.h \
+  ..\FATFS\App\fatfs.h ..\Middlewares\Third_Party\FatFs\src\ff_gen_drv.h \
   ..\Middlewares\Third_Party\FatFs\src\diskio.h \
   ..\FATFS\Target\sd_diskio.h ..\Core\Inc\rtc.h \
   ..\Service\Inc\service_lfs_spi_flash_adapter.h

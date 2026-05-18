@@ -3,6 +3,7 @@
 #include "platform_config.h"
 #include "esp8266_ota_config.h"
 #include "bootloader_core.h"
+#include "ab_partition.h"
 #include "cJSON.h"
 #include "md5.h"
 #include "fatfs.h"
@@ -779,9 +780,15 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
     switch (ctx->target_type)
     {
     case ONENET_OTA_TARGET_INTERNAL_FLASH:
-        printf("OTA download: target = Internal Flash\r\n");
-        bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
-        target_transport = &g_internal_flash.transport_base;
+        printf("OTA download: target = Internal Flash (A/B Slot)\r\n");
+        {
+            ab_slot_t ota_slot = ab_partition_get_inactive_slot();
+            internal_flash_stm32_t *slot_flash = (ota_slot == AB_SLOT_A) ? &g_slot_a_flash : &g_slot_b_flash;
+            printf("OTA download: writing to Slot %s (0x%08lX)\r\n",
+                   ab_slot_name(ota_slot), (unsigned long)ab_partition_get_slot_addr(ota_slot));
+            bootloader_ctx.config.storage.internal_flash_addr = ab_partition_get_slot_addr(ota_slot);
+            target_transport = &slot_flash->transport_base;
+        }
         target_path = NULL;
         break;
     case ONENET_OTA_TARGET_SD_CARD_FATFS:
@@ -915,12 +922,13 @@ static int ota_download_and_verify(onenet_ota_ctx_t *ctx, const onenet_ota_packa
     uint32_t verify_offset = 0;
     if (ctx->target_type == ONENET_OTA_TARGET_INTERNAL_FLASH)
     {
+        uint32_t verify_base = ab_partition_get_slot_addr(ab_partition_get_inactive_slot());
         while (verify_offset < info->size)
         {
             uint32_t to_read = sizeof(verify_buf);
             if (verify_offset + to_read > info->size)
                 to_read = info->size - verify_offset;
-            memcpy(verify_buf, (const uint8_t *)(APPLICATION_ADDRESS + verify_offset), to_read);
+            memcpy(verify_buf, (const uint8_t *)(verify_base + verify_offset), to_read);
             MD5Update(&verify_ctx, verify_buf, to_read);
             verify_offset += to_read;
         }
@@ -1152,6 +1160,13 @@ void onenet_ota_process_upgrade(onenet_ota_ctx_t *ctx)
         return;
     }
     ota_report_result(ctx, &info, ONENET_STEP_UPGRADE_SUCCESS);
+    if (ctx->target_type == ONENET_OTA_TARGET_INTERNAL_FLASH)
+    {
+        ab_slot_t ota_slot = ab_partition_get_inactive_slot();
+        ab_partition_update_slot_meta(ota_slot, 0, 0, 0);
+        ab_partition_set_active_slot(ota_slot);
+        printf("OTA: Slot %s marked as TESTING\r\n", ab_slot_name(ota_slot));
+    }
     if (ctx->mqtt && MQTT_CHECK_CONNECTED(ctx->mqtt, 0) != PLATFORM_MQTT_OK)
     {
         printf("OTA MQTT: not connected, configuring...\r\n");

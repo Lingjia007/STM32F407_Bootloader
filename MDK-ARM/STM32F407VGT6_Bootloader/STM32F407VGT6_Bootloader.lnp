@@ -63,6 +63,7 @@
 "stm32f407vgt6_bootloader\stm32f4xx_hal_tim_ex.o"
 "stm32f407vgt6_bootloader\stm32f4xx_hal_uart.o"
 "stm32f407vgt6_bootloader\bootloader_core.o"
+"stm32f407vgt6_bootloader\ab_partition.o"
 "stm32f407vgt6_bootloader\firmware_package.o"
 "stm32f407vgt6_bootloader\bsp_driver_sd.o"
 "stm32f407vgt6_bootloader\sd_diskio.o"

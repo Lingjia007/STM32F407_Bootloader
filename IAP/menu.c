@@ -16,6 +16,7 @@
 #include "fatfs.h"
 #include "service_lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
+#include "ab_partition.h"
 #include "lfs.h"
 #include "stdio.h"
 #include "stdlib.h"
@@ -292,9 +293,39 @@ static void cmd_serial_download(menu_ctx_t *ctx, int argc, char *argv[])
   uint8_t number[11] = {0};
   uint32_t size = 0;
   COM_StatusTypeDef result;
+  char msg[128];
+  ab_slot_t target_slot;
 
+  target_slot = ab_partition_get_inactive_slot();
+  snprintf(msg, sizeof(msg), "Target slot: %s (inactive)", ab_slot_name(target_slot));
+  menu_service_println(ctx, msg);
+  menu_service_print(ctx, "Download to slot A(1) or slot B(2)? [default=inactive]: ");
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &number[0], 100);
+    if (number[0] == '1')
+    {
+      target_slot = AB_SLOT_A;
+      break;
+    }
+    else if (number[0] == '2')
+    {
+      target_slot = AB_SLOT_B;
+      break;
+    }
+    else if (number[0] == '\r' || number[0] == '\n' || number[0] == 0)
+    {
+      break;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nDownloading to Slot %s via Ymodem...", ab_slot_name(target_slot));
+  menu_service_println(ctx, msg);
   menu_service_println(ctx, "Waiting for the file to be sent ... (press 'a' to abort)");
-  result = Ymodem_Receive(&size);
+
+  result = Ymodem_Receive_To_Slot(&size, target_slot);
   if (result == COM_OK)
   {
     HAL_Delay(100);
@@ -303,6 +334,8 @@ static void cmd_serial_download(menu_ctx_t *ctx, int argc, char *argv[])
     menu_service_printf(ctx, "Name: %s\n", (const char *)aFileName);
     menu_service_int2str(number, size);
     menu_service_printf(ctx, "Size: %s Bytes\n", (const char *)number);
+    snprintf(msg, sizeof(msg), "Slot: %s", ab_slot_name(target_slot));
+    menu_service_println(ctx, msg);
     menu_service_println(ctx, "-------------------");
   }
   else if (result == COM_LIMIT)
@@ -332,6 +365,8 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
   char range_str[16];
   FRESULT res;
   bootloader_err_t err;
+  ab_slot_t target_slot;
+  internal_flash_stm32_t *target_flash;
 
   menu_service_println(ctx, "Initializing TF card...");
 
@@ -381,19 +416,54 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
 
   snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
-  menu_service_println(ctx, "Starting firmware update...");
+
+  target_slot = ab_partition_get_inactive_slot();
+  snprintf(msg, sizeof(msg), "Target slot: %s (inactive)", ab_slot_name(target_slot));
+  menu_service_println(ctx, msg);
+  menu_service_print(ctx, "Download to slot A(1) or slot B(2)? [default=inactive]: ");
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, 100);
+    if (key == '1')
+    {
+      target_slot = AB_SLOT_A;
+      break;
+    }
+    else if (key == '2')
+    {
+      target_slot = AB_SLOT_B;
+      break;
+    }
+    else if (key == '\r' || key == '\n' || key == 0)
+    {
+      break;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nDownloading to Slot %s (0x%08lX)...",
+           ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
+  menu_service_println(ctx, msg);
+
+  if (target_slot == AB_SLOT_A)
+    target_flash = &g_slot_a_flash;
+  else
+    target_flash = &g_slot_b_flash;
 
   g_fatfs_transport.fs = &SDFatFS;
   strncpy(bootloader_ctx.config.storage.fatfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.fatfs_path) - 1);
   bootloader_ctx.config.storage.fatfs_path[sizeof(bootloader_ctx.config.storage.fatfs_path) - 1] = '\0';
-  bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_fatfs_transport.base, &g_internal_flash.transport_base, bootloader_ctx.config.storage.fatfs_path);
+  err = bootloader_download(&g_fatfs_transport.base, &target_flash->transport_base, bootloader_ctx.config.storage.fatfs_path);
 
   if (err == BOOTLOADER_OK)
   {
-    menu_service_println(ctx, "Firmware update completed successfully!");
-    menu_service_println(ctx, "You can now execute the application.");
+    ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+    ab_partition_set_active_slot(target_slot);
+    snprintf(msg, sizeof(msg), "Firmware update to Slot %s completed!", ab_slot_name(target_slot));
+    menu_service_println(ctx, msg);
+    menu_service_println(ctx, "Slot marked as TESTING, will activate on next boot.");
   }
   else
   {
@@ -415,6 +485,8 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
   int res;
   bootloader_err_t err;
   lfs_t lfs;
+  ab_slot_t target_slot;
+  internal_flash_stm32_t *target_flash;
 
   menu_service_println(ctx, "Initializing SPI Flash...");
 
@@ -472,19 +544,54 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
 
   snprintf(msg, sizeof(msg), "\r\nSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
-  menu_service_println(ctx, "Starting firmware update...");
+
+  target_slot = ab_partition_get_inactive_slot();
+  snprintf(msg, sizeof(msg), "Target slot: %s (inactive)", ab_slot_name(target_slot));
+  menu_service_println(ctx, msg);
+  menu_service_print(ctx, "Download to slot A(1) or slot B(2)? [default=inactive]: ");
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, 100);
+    if (key == '1')
+    {
+      target_slot = AB_SLOT_A;
+      break;
+    }
+    else if (key == '2')
+    {
+      target_slot = AB_SLOT_B;
+      break;
+    }
+    else if (key == '\r' || key == '\n' || key == 0)
+    {
+      break;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\r\nDownloading to Slot %s (0x%08lX)...",
+           ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
+  menu_service_println(ctx, msg);
+
+  if (target_slot == AB_SLOT_A)
+    target_flash = &g_slot_a_flash;
+  else
+    target_flash = &g_slot_b_flash;
 
   g_lfs_transport.lfs = &lfs;
   strncpy(bootloader_ctx.config.storage.lfs_path, file_list[selected], sizeof(bootloader_ctx.config.storage.lfs_path) - 1);
   bootloader_ctx.config.storage.lfs_path[sizeof(bootloader_ctx.config.storage.lfs_path) - 1] = '\0';
-  bootloader_ctx.config.storage.internal_flash_addr = APPLICATION_ADDRESS;
 
-  err = bootloader_download(&g_lfs_transport.base, &g_internal_flash.transport_base, bootloader_ctx.config.storage.lfs_path);
+  err = bootloader_download(&g_lfs_transport.base, &target_flash->transport_base, bootloader_ctx.config.storage.lfs_path);
 
   if (err == BOOTLOADER_OK)
   {
-    menu_service_println(ctx, "Firmware update completed successfully!");
-    menu_service_println(ctx, "You can now execute the application.");
+    ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+    ab_partition_set_active_slot(target_slot);
+    snprintf(msg, sizeof(msg), "Firmware update to Slot %s completed!", ab_slot_name(target_slot));
+    menu_service_println(ctx, msg);
+    menu_service_println(ctx, "Slot marked as TESTING, will activate on next boot.");
   }
   else
   {
@@ -501,12 +608,18 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
 static void cmd_serial_upload(menu_ctx_t *ctx, int argc, char *argv[])
 {
   uint8_t status = 0;
+  char msg[128];
+  ab_slot_t active = ab_partition_get_active_slot();
+  uint32_t upload_addr = ab_partition_get_slot_addr(active);
+  uint32_t upload_size = ab_partition_get_slot_size(active);
 
-  menu_service_println(ctx, "\n\nSelect Receive File\n");
+  snprintf(msg, sizeof(msg), "\n\nUploading from Slot %s (0x%08lX)\n", ab_slot_name(active), (unsigned long)upload_addr);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "Select Receive File\n");
   menu_service_getchar(ctx, &status, RX_TIMEOUT);
   if (status == CRC16)
   {
-    status = Ymodem_Transmit((uint8_t *)APPLICATION_ADDRESS, (const uint8_t *)"UploadedFlashImage.bin", USER_FLASH_SIZE);
+    status = Ymodem_Transmit((uint8_t *)upload_addr, (const uint8_t *)"UploadedFlashImage.bin", upload_size);
     if (status != 0)
     {
       menu_service_println(ctx, "\nError Occurred while Transmitting File\n");
@@ -522,8 +635,12 @@ static void cmd_serial_upload(menu_ctx_t *ctx, int argc, char *argv[])
 #if MENU_ENABLE_EXECUTE_APP
 static void cmd_execute_app(menu_ctx_t *ctx, int argc, char *argv[])
 {
-  menu_service_println(ctx, "Start program execution......\n");
-  bootloader_ctx.config.jump.jump_func(bootloader_ctx.config.jump.app_jump_addr);
+  char msg[128];
+  ab_slot_t active = ab_partition_get_active_slot();
+  snprintf(msg, sizeof(msg), "Start program execution from Slot %s......\n", ab_slot_name(active));
+  menu_service_println(ctx, msg);
+  bootloader_ctx.ab_active_slot = active;
+  execute_app_jump_to_slot(active);
 }
 #endif
 
@@ -1023,7 +1140,7 @@ static void StoreFromInternalFlash(void)
     return;
   }
 
-  flash_addr = APPLICATION_ADDRESS;
+  flash_addr = ab_partition_get_slot_addr(ab_partition_get_active_slot());
   flash_size = size;
 
   while (total_written < flash_size)
@@ -2878,23 +2995,32 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
   menu_service_println(ctx, msg);
   snprintf(src_path, sizeof(src_path), "0:/%s", file_list[selected]);
 
-  menu_service_println(ctx, "Starting decryption and download...");
-
-  platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
-  decrypt_result = aes_decrypt_to_flash(&g_fs_fatfs.base, src_path, &g_internal_flash.transport_base, &decrypt_config);
-
-  if (decrypt_result > 0)
   {
-    menu_service_println(ctx, "Decryption and download completed successfully!");
-    snprintf(msg, sizeof(msg), "Written size: %d bytes", decrypt_result);
+    ab_slot_t target_slot = ab_partition_get_inactive_slot();
+    internal_flash_stm32_t *target_flash = (target_slot == AB_SLOT_A) ? &g_slot_a_flash : &g_slot_b_flash;
+
+    snprintf(msg, sizeof(msg), "Decrypting to Slot %s (0x%08lX)...",
+             ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
     menu_service_println(ctx, msg);
-    menu_service_println(ctx, "You can now execute the application.");
-  }
-  else
-  {
-    menu_service_print(ctx, "Decryption failed! Error code: ");
-    menu_service_int2str((uint8_t *)msg, (uint32_t)(-decrypt_result));
-    menu_service_println(ctx, msg);
+
+    platform_fs_fatfs_register(&g_fs_fatfs, &SDFatFS, "fatfs");
+    decrypt_result = aes_decrypt_to_flash(&g_fs_fatfs.base, src_path, &target_flash->transport_base, &decrypt_config);
+
+    if (decrypt_result > 0)
+    {
+      ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+      ab_partition_set_active_slot(target_slot);
+      snprintf(msg, sizeof(msg), "Decryption to Slot %s completed!", ab_slot_name(target_slot));
+      menu_service_println(ctx, msg);
+      snprintf(msg, sizeof(msg), "Written size: %d bytes", decrypt_result);
+      menu_service_println(ctx, msg);
+    }
+    else
+    {
+      menu_service_print(ctx, "Decryption failed! Error code: ");
+      menu_service_int2str((uint8_t *)msg, (uint32_t)(-decrypt_result));
+      menu_service_println(ctx, msg);
+    }
   }
 
   f_mount(NULL, (TCHAR const *)SDPath, 0);
@@ -2999,23 +3125,33 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
 
   snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
   menu_service_println(ctx, msg);
-  menu_service_println(ctx, "Starting decryption and download...");
 
-  platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
-  decrypt_result = aes_decrypt_to_flash(&g_fs_lfs.base, file_list[selected], &g_internal_flash.transport_base, &decrypt_config);
+  {
+    ab_slot_t target_slot = ab_partition_get_inactive_slot();
+    internal_flash_stm32_t *target_flash = (target_slot == AB_SLOT_A) ? &g_slot_a_flash : &g_slot_b_flash;
 
-  if (decrypt_result > 0)
-  {
-    menu_service_println(ctx, "Decryption and download completed successfully!");
-    snprintf(msg, sizeof(msg), "Written size: %d bytes", decrypt_result);
+    snprintf(msg, sizeof(msg), "Decrypting to Slot %s (0x%08lX)...",
+             ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
     menu_service_println(ctx, msg);
-    menu_service_println(ctx, "You can now execute the application.");
-  }
-  else
-  {
-    menu_service_print(ctx, "Decryption failed! Error code: ");
-    menu_service_int2str((uint8_t *)msg, (uint32_t)(-decrypt_result));
-    menu_service_println(ctx, msg);
+
+    platform_fs_lfs_register(&g_fs_lfs, &lfs, "lfs");
+    decrypt_result = aes_decrypt_to_flash(&g_fs_lfs.base, file_list[selected], &target_flash->transport_base, &decrypt_config);
+
+    if (decrypt_result > 0)
+    {
+      ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+      ab_partition_set_active_slot(target_slot);
+      snprintf(msg, sizeof(msg), "Decryption to Slot %s completed!", ab_slot_name(target_slot));
+      menu_service_println(ctx, msg);
+      snprintf(msg, sizeof(msg), "Written size: %d bytes", decrypt_result);
+      menu_service_println(ctx, msg);
+    }
+    else
+    {
+      menu_service_print(ctx, "Decryption failed! Error code: ");
+      menu_service_int2str((uint8_t *)msg, (uint32_t)(-decrypt_result));
+      menu_service_println(ctx, msg);
+    }
   }
 
   lfs_spi_flash_unmount(&lfs);
@@ -3440,6 +3576,219 @@ static void cmd_ed25519_verify_buffer_test(menu_ctx_t *ctx, int argc, char *argv
 }
 #endif
 
+static void cmd_ab_show_status(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  char msg[256];
+  const ab_metadata_t *meta = ab_partition_get_metadata();
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "======== A/B Partition Status ========");
+  snprintf(msg, sizeof(msg), "  Active Slot:     %s", ab_slot_name(meta->active_slot));
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Metadata Magic:  0x%08lX", (unsigned long)meta->magic);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Metadata Ver:    %lu", (unsigned long)meta->version);
+  menu_service_println(ctx, msg);
+
+  for (int s = 0; s < 2; s++)
+  {
+    const char *state_str = "UNKNOWN";
+    switch (meta->slots[s].state)
+    {
+    case AB_STATE_IDLE:
+      state_str = "IDLE";
+      break;
+    case AB_STATE_TESTING:
+      state_str = "TESTING";
+      break;
+    case AB_STATE_CONFIRMED:
+      state_str = "CONFIRMED";
+      break;
+    case AB_STATE_INVALID:
+      state_str = "INVALID";
+      break;
+    default:
+      break;
+    }
+
+    menu_service_println(ctx, "");
+    snprintf(msg, sizeof(msg), "  --- Slot %s (0x%08lX) ---",
+             ab_slot_name((ab_slot_t)s),
+             (unsigned long)ab_partition_get_slot_addr((ab_slot_t)s));
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  State:           %s", state_str);
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  FW Version:      %lu", (unsigned long)meta->slots[s].fw_version);
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  Security Ctr:    %lu", (unsigned long)meta->slots[s].security_counter);
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  FW Size:         %lu", (unsigned long)meta->slots[s].fw_size);
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  Boot Attempts:   %d", meta->slots[s].boot_attempts);
+    menu_service_println(ctx, msg);
+
+    ab_err_t val = ab_partition_validate_slot((ab_slot_t)s);
+    snprintf(msg, sizeof(msg), "  FW Valid:        %s", (val == AB_OK) ? "YES" : "NO");
+    menu_service_println(ctx, msg);
+  }
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "  --- Memory Map ---");
+  snprintf(msg, sizeof(msg), "  Bootloader:  0x%08X - 0x%08X (128KB)", 0x08000000, 0x0801FFFF);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Slot A:      0x%08X - 0x%08X (384KB)", SLOT_A_START_ADDR, SLOT_A_END_ADDR);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Slot B:      0x%08X - 0x%08X (384KB)", SLOT_B_START_ADDR, SLOT_B_END_ADDR);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Cache:       0x%08X - 0x%08X (64KB)", DOWNLOAD_CACHE_ADDR, DOWNLOAD_CACHE_ADDR + DOWNLOAD_CACHE_SIZE - 1);
+  menu_service_println(ctx, msg);
+  snprintf(msg, sizeof(msg), "  Metadata:    0x%08X - 0x%08X (64KB)", METADATA_ADDR, METADATA_ADDR + METADATA_SIZE - 1);
+  menu_service_println(ctx, msg);
+  menu_service_println(ctx, "=======================================");
+}
+
+static void cmd_ab_set_active(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  char msg[128];
+  uint8_t key = 0;
+  ab_slot_t target;
+
+  menu_service_print(ctx, "\r\nSet active slot: A(1) or B(2)? ");
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == '1')
+    {
+      target = AB_SLOT_A;
+      break;
+    }
+    else if (key == '2')
+    {
+      target = AB_SLOT_B;
+      break;
+    }
+    else if (key == 'q' || key == 'Q')
+    {
+      menu_service_println(ctx, "\rAborted.");
+      return;
+    }
+  }
+
+  ab_err_t err = ab_partition_set_active_slot(target);
+  if (err == AB_OK)
+  {
+    snprintf(msg, sizeof(msg), "\r\nActive slot set to %s (TESTING)", ab_slot_name(target));
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "\r\nFailed: %s", ab_err_str(err));
+    menu_service_println(ctx, msg);
+  }
+}
+
+static void cmd_ab_confirm_slot(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  char msg[128];
+  ab_slot_t active = ab_partition_get_active_slot();
+
+  ab_err_t err = ab_partition_mark_slot_confirmed(active);
+  if (err == AB_OK)
+  {
+    snprintf(msg, sizeof(msg), "Slot %s marked as CONFIRMED", ab_slot_name(active));
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "Failed: %s", ab_err_str(err));
+    menu_service_println(ctx, msg);
+  }
+}
+
+static void cmd_ab_rollback(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  char msg[128];
+
+  menu_service_print(ctx, "\r\nRollback to previous slot? (y/n): ");
+  menu_service_flush(ctx);
+
+  uint8_t key = 0;
+  menu_service_getchar(ctx, &key, RX_TIMEOUT);
+  if (key != 'y' && key != 'Y')
+  {
+    menu_service_println(ctx, "\rAborted.");
+    return;
+  }
+
+  ab_err_t err = ab_partition_rollback();
+  if (err == AB_OK)
+  {
+    snprintf(msg, sizeof(msg), "Rolled back to Slot %s", ab_slot_name(ab_partition_get_active_slot()));
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "Rollback failed: %s", ab_err_str(err));
+    menu_service_println(ctx, msg);
+  }
+}
+
+static void cmd_ab_jump_slot(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  char msg[128];
+  uint8_t key = 0;
+  ab_slot_t target;
+
+  menu_service_print(ctx, "\r\nJump to slot: A(1) or B(2)? ");
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == '1')
+    {
+      target = AB_SLOT_A;
+      break;
+    }
+    else if (key == '2')
+    {
+      target = AB_SLOT_B;
+      break;
+    }
+    else if (key == 'q' || key == 'Q')
+    {
+      menu_service_println(ctx, "\rAborted.");
+      return;
+    }
+  }
+
+  ab_err_t val = ab_partition_validate_slot(target);
+  if (val != AB_OK)
+  {
+    snprintf(msg, sizeof(msg), "Slot %s has no valid firmware!", ab_slot_name(target));
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  snprintf(msg, sizeof(msg), "Jumping to Slot %s (0x%08lX)...",
+           ab_slot_name(target), (unsigned long)ab_partition_get_slot_addr(target));
+  menu_service_println(ctx, msg);
+
+  bootloader_ctx.ab_active_slot = target;
+  execute_app_jump_to_slot(target);
+}
+
+MENU_TABLE(ab_menu) = {
+    MENU_ITEM_CMD("1", "Show A/B Partition Status", "Display slot info and memory map", cmd_ab_show_status),
+    MENU_ITEM_CMD("2", "Set Active Slot", "Switch active slot (A or B)", cmd_ab_set_active),
+    MENU_ITEM_CMD("3", "Confirm Current Slot", "Mark active slot as confirmed", cmd_ab_confirm_slot),
+    MENU_ITEM_CMD("4", "Rollback", "Rollback to previous slot", cmd_ab_rollback),
+    MENU_ITEM_CMD("5", "Jump to Slot", "Directly jump to A or B slot", cmd_ab_jump_slot),
+    MENU_ITEM_BACK(),
+    MENU_TABLE_END};
+
 #if MENU_ENABLE_ESP8266_WIFI
 MENU_TABLE(mqtt_menu) = {
     MENU_ITEM_CMD("1", "Check MQTT Connection Status", "Query current MQTT connection", cmd_mqtt_check_status),
@@ -3832,6 +4181,7 @@ MENU_TABLE(main_menu) = {
 #if MENU_ENABLE_FIRMWARE_PACKAGE
     MENU_ITEM_SUBMENU("E", "Firmware Package Parse", "Parse .iap.bin package and decrypt", fw_pkg_menu, sizeof(fw_pkg_menu) / sizeof(fw_pkg_menu[0]) - 1),
 #endif
+    MENU_ITEM_SUBMENU("F", "A/B Partition Management", "View status, swap, rollback slots", ab_menu, sizeof(ab_menu) / sizeof(ab_menu[0]) - 1),
     MENU_TABLE_END};
 
 void Main_Menu(void)

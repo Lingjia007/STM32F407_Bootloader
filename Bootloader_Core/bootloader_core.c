@@ -10,6 +10,7 @@ bootloader_ctx_t bootloader_ctx = {
             .jump_func = jump_to_app,
         },
     },
+    .ab_active_slot = AB_SLOT_A,
 };
 
 #if defined(__CC_ARM)
@@ -41,23 +42,61 @@ void jump_to_app(uint32_t app_address)
 
 void execute_app_jump(void)
 {
+    uint32_t app_addr;
+
+    if (bootloader_ctx.ab_active_slot == AB_SLOT_B)
+        app_addr = SLOT_B_START_ADDR;
+    else
+        app_addr = SLOT_A_START_ADDR;
+
+    jump_to_app(app_addr);
+}
+
+void execute_app_jump_direct(void)
+{
     pFunction jump_fn;
-    uint32_t app_stack_ptr = (*(__IO uint32_t *)APPLICATION_ADDRESS);
-    uint32_t app_reset_handler = (*(__IO uint32_t *)(APPLICATION_ADDRESS + 4));
+    uint32_t app_addr;
+
+    if (bootloader_ctx.ab_active_slot == AB_SLOT_B)
+        app_addr = SLOT_B_START_ADDR;
+    else
+        app_addr = SLOT_A_START_ADDR;
+
+    uint32_t app_stack_ptr = (*(__IO uint32_t *)app_addr);
+    uint32_t app_reset_handler = (*(__IO uint32_t *)(app_addr + 4));
 
     if ((app_stack_ptr & 0x2FFE0000) != 0x20000000)
-    {
         return;
-    }
 
-    SCB->VTOR = APPLICATION_ADDRESS;
+    SysTick->CTRL = 0;
+    __set_PRIMASK(0);
+
+    SCB->VTOR = app_addr;
     __DSB();
     __ISB();
 
     __set_MSP(app_stack_ptr);
-
     jump_fn = (pFunction)app_reset_handler;
     jump_fn();
+}
+
+void execute_app_jump_to_slot(ab_slot_t slot)
+{
+    uint32_t app_addr = ab_partition_get_slot_addr(slot);
+
+    if (app_addr == 0)
+        return;
+
+    printf("\r\n=== JUMP TO SLOT (soft-reset) ===\r\n");
+    printf("  Target Slot:    %s\r\n", ab_slot_name(slot));
+    printf("  App Base Addr:  0x%08lX\r\n", (unsigned long)app_addr);
+    printf("  SP (offset 0):  0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)app_addr));
+    printf("  Reset (offset4):0x%08lX\r\n", (unsigned long)(*(__IO uint32_t *)(app_addr + 4)));
+    printf("==================================\r\n");
+
+    ab_partition_set_active_slot(slot);
+    bootloader_ctx.ab_active_slot = slot;
+    jump_to_app(app_addr);
 }
 
 #define BOOTLOADER_BUFFER_SIZE 4096

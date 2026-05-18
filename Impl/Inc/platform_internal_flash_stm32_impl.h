@@ -29,6 +29,7 @@ typedef struct
     platform_internal_flash_base_t flash_base;
     platform_transport_base_t transport_base;
     uint32_t written_size;
+    uint32_t relocate_offset;
     uint8_t pending_buf[4];
     uint8_t pending_len;
     uint8_t is_open;

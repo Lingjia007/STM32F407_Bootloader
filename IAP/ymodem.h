@@ -25,6 +25,7 @@
 #define __YMODEM_H_
 
 #include "service_ymodem.h"
+#include "ab_partition.h"
 
 typedef enum
 {
@@ -37,6 +38,7 @@ typedef enum
 } COM_StatusTypeDef;
 
 COM_StatusTypeDef Ymodem_Receive(uint32_t *p_size);
+COM_StatusTypeDef Ymodem_Receive_To_Slot(uint32_t *p_size, ab_slot_t slot);
 COM_StatusTypeDef Ymodem_Transmit(uint8_t *p_buf, const uint8_t *p_file_name, uint32_t file_size);
 
 #endif
