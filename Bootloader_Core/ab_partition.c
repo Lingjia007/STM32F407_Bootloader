@@ -3,8 +3,10 @@
 #include <string.h>
 #include <stdio.h>
 
-#define AB_META_INSTANCE_ALIGN 64
+#define AB_META_INSTANCE_ALIGN 128
 #define AB_META_MAX_INSTANCES (METADATA_SIZE / AB_META_INSTANCE_ALIGN)
+_Static_assert(AB_META_INSTANCE_ALIGN >= sizeof(ab_metadata_t),
+               "instance alignment must >= metadata struct size");
 
 static ab_metadata_t g_ab_metadata;
 static uint8_t g_ab_initialized = 0;
@@ -142,47 +144,79 @@ static ab_err_t ab_flash_write_words(uint32_t addr, const uint32_t *data, uint32
     return AB_OK;
 }
 
+static ab_err_t ab_compact_and_write(const ab_metadata_t *meta)
+{
+    printf("AB: compacting metadata area...\r\n");
+
+    for (int retry = 0; retry < 3; retry++)
+    {
+        ab_err_t err = ab_erase_metadata_sector();
+        if (err != AB_OK)
+        {
+            printf("AB: compact erase failed (attempt %d)\r\n", retry + 1);
+            continue;
+        }
+
+        err = ab_flash_write_words(METADATA_ADDR, (const uint32_t *)meta,
+                                   (sizeof(ab_metadata_t) + 3) / 4);
+        if (err != AB_OK)
+        {
+            printf("AB: compact write failed (attempt %d)\r\n", retry + 1);
+            continue;
+        }
+
+        const ab_metadata_t *written = (const ab_metadata_t *)METADATA_ADDR;
+        if (written->magic != meta->magic ||
+            written->version != meta->version ||
+            written->active_slot != meta->active_slot ||
+            written->crc32 != meta->crc32)
+        {
+            printf("AB: compact verify failed (attempt %d)\r\n", retry + 1);
+            continue;
+        }
+
+        g_ab_current_instance = 0;
+        printf("AB: metadata written at instance 0 (compacted)\r\n");
+        return AB_OK;
+    }
+
+    printf("AB: compaction failed after 3 attempts\r\n");
+    return AB_ERR_FLASH_WRITE;
+}
+
 static ab_err_t ab_write_metadata_raw(const ab_metadata_t *meta)
 {
     int next_instance = g_ab_current_instance + 1;
+    int need_compact = 0;
 
     if (next_instance >= AB_META_MAX_INSTANCES)
     {
-        printf("AB: metadata area full, compacting...\r\n");
-        ab_err_t err = ab_erase_metadata_sector();
-        if (err != AB_OK)
-            return err;
-        next_instance = 0;
-        g_ab_current_instance = -1;
+        need_compact = 1;
     }
+    else
+    {
+        uint32_t addr = METADATA_ADDR + (uint32_t)next_instance * AB_META_INSTANCE_ALIGN;
+        const uint32_t *existing_words = (const uint32_t *)addr;
+        const uint32_t *new_words = (const uint32_t *)meta;
+        size_t word_count = (sizeof(ab_metadata_t) + 3) / 4;
+
+        for (size_t i = 0; i < word_count; i++)
+        {
+            if ((existing_words[i] & new_words[i]) != new_words[i])
+            {
+                need_compact = 1;
+                break;
+            }
+        }
+
+        if (need_compact)
+            printf("AB: need erase before write at instance %d\r\n", next_instance);
+    }
+
+    if (need_compact)
+        return ab_compact_and_write(meta);
 
     uint32_t addr = METADATA_ADDR + (uint32_t)next_instance * AB_META_INSTANCE_ALIGN;
-
-    const ab_metadata_t *existing = (const ab_metadata_t *)addr;
-    int need_erase = 0;
-    const uint32_t *existing_words = (const uint32_t *)existing;
-    const uint32_t *new_words = (const uint32_t *)meta;
-    size_t word_count = (sizeof(ab_metadata_t) + 3) / 4;
-
-    for (size_t i = 0; i < word_count; i++)
-    {
-        if ((existing_words[i] & new_words[i]) != new_words[i])
-        {
-            need_erase = 1;
-            break;
-        }
-    }
-
-    if (need_erase)
-    {
-        printf("AB: need erase before write at instance %d\r\n", next_instance);
-        ab_err_t err = ab_erase_metadata_sector();
-        if (err != AB_OK)
-            return err;
-        next_instance = 0;
-        g_ab_current_instance = -1;
-        addr = METADATA_ADDR;
-    }
 
     ab_err_t err = ab_flash_write_words(addr, (const uint32_t *)meta,
                                         (sizeof(ab_metadata_t) + 3) / 4);
