@@ -51,6 +51,7 @@
 #if MENU_ENABLE_FIRMWARE_PACKAGE
 #include "firmware_package.h"
 #include "hkdf.h"
+#include "sha256.h"
 #endif
 
 #define MAX_FILES 20
@@ -1735,6 +1736,97 @@ static fw_pkg_err_t fw_pkg_process_and_save(
     menu_service_println(ctx, "Signature verification: SKIPPED (no public key)");
   }
 
+  if (total_written > SHA256_BLOCK_SIZE)
+  {
+    menu_service_println(ctx, "");
+    menu_service_println(ctx, "Verifying internal SHA256 checksum...");
+
+    uint8_t stored_sha256[SHA256_BLOCK_SIZE];
+    uint8_t computed_sha256[SHA256_BLOCK_SIZE];
+    uint32_t firmware_size = total_written - SHA256_BLOCK_SIZE;
+
+    snprintf(msg, sizeof(msg), "  Firmware size: %lu bytes (total %lu - hash %d)",
+             (unsigned long)firmware_size, (unsigned long)total_written, SHA256_BLOCK_SIZE);
+    menu_service_println(ctx, msg);
+
+    fs_err = FS_OPEN(dst_fs, &dst_file, dst_path, FS_MODE_READ);
+    if (fs_err != FS_STATUS_OK)
+    {
+      menu_service_println(ctx, "Error: Cannot reopen output file for SHA256 check!");
+      return FW_PKG_ERR_READ;
+    }
+
+    sha256_ctx_t sha256_ctx;
+    sha256_init(&sha256_ctx);
+
+    uint32_t firmware_remaining = firmware_size;
+    while (firmware_remaining > 0)
+    {
+      uint32_t to_read = FW_PKG_DECRYPT_BUF_SIZE;
+      if (firmware_remaining < to_read)
+        to_read = firmware_remaining;
+
+      io_result = FS_READ(dst_fs, &dst_file, process_buf, to_read);
+      if (io_result <= 0)
+        break;
+
+      sha256_update(&sha256_ctx, process_buf, (size_t)io_result);
+      firmware_remaining -= (uint32_t)io_result;
+    }
+
+    if (firmware_remaining != 0)
+    {
+      menu_service_println(ctx, "Error: Failed to read firmware for SHA256 check!");
+      FS_CLOSE(dst_fs, &dst_file);
+      return FW_PKG_ERR_READ;
+    }
+
+    sha256_final(&sha256_ctx, computed_sha256);
+
+    io_result = FS_READ(dst_fs, &dst_file, stored_sha256, SHA256_BLOCK_SIZE);
+    FS_CLOSE(dst_fs, &dst_file);
+
+    if (io_result != SHA256_BLOCK_SIZE)
+    {
+      menu_service_println(ctx, "Error: Failed to read stored SHA256!");
+      return FW_PKG_ERR_READ;
+    }
+
+    {
+      static char hex_buf[65];
+      for (int i = 0; i < 32; i++)
+        snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", computed_sha256[i]);
+      hex_buf[64] = '\0';
+      snprintf(msg, sizeof(msg), "  Computed SHA256: %s", hex_buf);
+      menu_service_println(ctx, msg);
+    }
+
+    {
+      static char hex_buf[65];
+      for (int i = 0; i < 32; i++)
+        snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", stored_sha256[i]);
+      hex_buf[64] = '\0';
+      snprintf(msg, sizeof(msg), "  Stored SHA256:   %s", hex_buf);
+      menu_service_println(ctx, msg);
+    }
+
+    if (memcmp(computed_sha256, stored_sha256, SHA256_BLOCK_SIZE) == 0)
+    {
+      menu_service_println(ctx, "Internal SHA256: VERIFIED");
+    }
+    else
+    {
+      menu_service_println(ctx, "FAILED: Internal SHA256 mismatch!");
+      menu_service_println(ctx, "Decrypted data may be CORRUPTED!");
+      return FW_PKG_ERR_DECRYPT;
+    }
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "Decrypted data too small for SHA256 check (%lu bytes)", (unsigned long)total_written);
+    menu_service_println(ctx, msg);
+  }
+
   menu_service_println(ctx, "");
   menu_service_println(ctx, "======== Summary ========");
   snprintf(msg, sizeof(msg), "  Firmware:     v%u.%u.%u",
@@ -1742,8 +1834,17 @@ static fw_pkg_err_t fw_pkg_process_and_save(
   menu_service_println(ctx, msg);
   snprintf(msg, sizeof(msg), "  Ciphertext:   %lu bytes", (unsigned long)pkg_ctx.ciphertext_size);
   menu_service_println(ctx, msg);
-  snprintf(msg, sizeof(msg), "  Decrypted:    %lu bytes", (unsigned long)total_written);
-  menu_service_println(ctx, msg);
+  if (total_written > SHA256_BLOCK_SIZE)
+  {
+    snprintf(msg, sizeof(msg), "  Decrypted:    %lu bytes (firmware %lu + hash %d)",
+             (unsigned long)total_written, (unsigned long)(total_written - SHA256_BLOCK_SIZE), SHA256_BLOCK_SIZE);
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "  Decrypted:    %lu bytes", (unsigned long)total_written);
+    menu_service_println(ctx, msg);
+  }
   snprintf(msg, sizeof(msg), "  Output:       %s", dst_path);
   menu_service_println(ctx, msg);
   menu_service_println(ctx, "  HMAC:         PASSED");
@@ -1751,6 +1852,8 @@ static fw_pkg_err_t fw_pkg_process_and_save(
     menu_service_println(ctx, "  Signature:    VERIFIED");
   else
     menu_service_println(ctx, "  Signature:    SKIPPED");
+  if (total_written > SHA256_BLOCK_SIZE)
+    menu_service_println(ctx, "  Int.SHA256:   VERIFIED");
   menu_service_println(ctx, "  Result:       SUCCESS");
   menu_service_println(ctx, "=========================");
 

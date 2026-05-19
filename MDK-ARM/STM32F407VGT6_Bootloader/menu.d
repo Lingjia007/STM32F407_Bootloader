@@ -81,4 +81,4 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   C:\Keil_v5\ARM\ARMCLANG\include\ctype.h \
   ..\Service\Inc\service_aes_decrypt.h ..\Service\Inc\service_hpatch.h \
   ..\Service\Inc\service_ed25519_verify.h ..\Core\Inc\rng.h \
-  ..\Utils\edsign.h ..\Utils\hkdf.h
+  ..\Utils\edsign.h ..\Utils\hkdf.h ..\Utils\sha256.h
