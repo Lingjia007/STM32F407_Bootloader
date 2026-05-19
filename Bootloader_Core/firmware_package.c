@@ -256,14 +256,47 @@ fw_pkg_err_t fw_pkg_decrypt_init(fw_pkg_ctx_t *ctx,
     return FW_PKG_OK;
 }
 
+static int fw_pkg_pkcs7_unpad(const uint8_t *data, size_t len, size_t *actual_len)
+{
+    if (data == NULL || len == 0 || len % AES_BLOCKLEN != 0)
+    {
+        return 0;
+    }
+
+    uint8_t pad_val = data[len - 1];
+
+    if (pad_val == 0 || pad_val > AES_BLOCKLEN)
+    {
+        printf("fw_pkg: invalid PKCS7 pad value %u\r\n", pad_val);
+        return 0;
+    }
+
+    for (size_t i = 1; i <= pad_val; i++)
+    {
+        if (data[len - i] != pad_val)
+        {
+            printf("fw_pkg: PKCS7 padding mismatch at offset %lu\r\n",
+                   (unsigned long)(len - i));
+            return 0;
+        }
+    }
+
+    *actual_len = len - pad_val;
+    return 1;
+}
+
 fw_pkg_err_t fw_pkg_decrypt_payload(fw_pkg_ctx_t *ctx,
                                     uint8_t *ciphertext,
-                                    size_t ciphertext_len)
+                                    size_t ciphertext_len,
+                                    int is_final_block,
+                                    size_t *actual_len)
 {
-    if (ctx == NULL || ciphertext == NULL)
+    if (ctx == NULL || ciphertext == NULL || actual_len == NULL)
     {
         return FW_PKG_ERR_PARAM;
     }
+
+    *actual_len = ciphertext_len;
 
     if (ciphertext_len == 0)
     {
@@ -293,6 +326,16 @@ fw_pkg_err_t fw_pkg_decrypt_payload(fw_pkg_ctx_t *ctx,
     {
     case FW_PKG_ENC_AES256_CBC:
         AES_CBC_decrypt_buffer(&ctx->aes_ctx, ciphertext, ciphertext_len);
+        if (is_final_block)
+        {
+            if (!fw_pkg_pkcs7_unpad(ciphertext, ciphertext_len, actual_len))
+            {
+                printf("fw_pkg: PKCS7 unpad failed\r\n");
+                return FW_PKG_ERR_DECRYPT;
+            }
+            printf("fw_pkg: PKCS7 unpad OK, %lu -> %lu bytes\r\n",
+                   (unsigned long)ciphertext_len, (unsigned long)*actual_len);
+        }
         break;
 
     case FW_PKG_ENC_AES256_CTR:
@@ -303,6 +346,16 @@ fw_pkg_err_t fw_pkg_decrypt_payload(fw_pkg_ctx_t *ctx,
         for (size_t i = 0; i < ciphertext_len; i += AES_BLOCKLEN)
         {
             AES_ECB_decrypt(&ctx->aes_ctx, ciphertext + i);
+        }
+        if (is_final_block)
+        {
+            if (!fw_pkg_pkcs7_unpad(ciphertext, ciphertext_len, actual_len))
+            {
+                printf("fw_pkg: PKCS7 unpad failed\r\n");
+                return FW_PKG_ERR_DECRYPT;
+            }
+            printf("fw_pkg: PKCS7 unpad OK, %lu -> %lu bytes\r\n",
+                   (unsigned long)ciphertext_len, (unsigned long)*actual_len);
         }
         break;
 
@@ -519,12 +572,18 @@ fw_pkg_err_t fw_pkg_process(const platform_transport_base_t *src_transport,
 
         if (ctx.header.encryption_algo != FW_PKG_ENC_NONE)
         {
-            ret = fw_pkg_decrypt_payload(&ctx, process_buf, bytes_read);
+            int is_final = (ciphertext_remaining == bytes_read);
+            size_t actual_len = 0;
+            ret = fw_pkg_decrypt_payload(&ctx, process_buf, bytes_read, is_final, &actual_len);
             if (ret != FW_PKG_OK)
             {
                 TRANSPORT_TARGET_CLOSE(tgt_transport);
                 TRANSPORT_SOURCE_CLOSE(src_transport);
                 return ret;
+            }
+            if (is_final && actual_len < bytes_read)
+            {
+                bytes_read = (uint32_t)actual_len;
             }
         }
 

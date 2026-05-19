@@ -1634,13 +1634,19 @@ static fw_pkg_err_t fw_pkg_process_and_save(
 
     if (pkg_ctx.header.encryption_algo != FW_PKG_ENC_NONE)
     {
-      ret = fw_pkg_decrypt_payload(&pkg_ctx, process_buf, bytes_read);
+      int is_final = (ciphertext_remaining == bytes_read);
+      size_t actual_len = 0;
+      ret = fw_pkg_decrypt_payload(&pkg_ctx, process_buf, bytes_read, is_final, &actual_len);
       if (ret != FW_PKG_OK)
       {
         menu_service_println(ctx, "Error: Decryption failed!");
         FS_CLOSE(dst_fs, &dst_file);
         FS_CLOSE(src_fs, &src_file);
         return ret;
+      }
+      if (is_final && actual_len < bytes_read)
+      {
+        bytes_read = (uint32_t)actual_len;
       }
     }
 

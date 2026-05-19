@@ -144,7 +144,9 @@ fw_pkg_err_t fw_pkg_decrypt_init(fw_pkg_ctx_t *ctx,
 
 fw_pkg_err_t fw_pkg_decrypt_payload(fw_pkg_ctx_t *ctx,
                                     uint8_t *ciphertext,
-                                    size_t ciphertext_len);
+                                    size_t ciphertext_len,
+                                    int is_final_block,
+                                    size_t *actual_len);
 
 fw_pkg_err_t fw_pkg_process(const platform_transport_base_t *src_transport,
                             const platform_transport_base_t *tgt_transport,

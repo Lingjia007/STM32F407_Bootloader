@@ -1,5 +1,5 @@
 Load "STM32F407VGT6_Bootloader\\STM32F407VGT6_Bootloader.axf" 
-Set JLink Project File to "d:\edgedownload\STM32F407VGT6_Bootloader\MDK-ARM\JLinkSettings.ini"* JLink Info: Device "STM32F407VG" selected.
+Set JLink Project File to "d:\edgedownload\STM32F407_Bootloader\MDK-ARM\JLinkSettings.ini"* JLink Info: Device "STM32F407VG" selected.
 
 JLink info:
 ------------
@@ -11,7 +11,7 @@ Feature(s) : GDB, FlashDL, FlashBP, JFlash
 * JLink Info: InitTarget() start
 * JLink Info: SWD selected. Executing JTAG -> SWD switching sequence.
 * JLink Info: DAP initialized successfully.
-* JLink Info: InitTarget() end - Took 25.0ms
+* JLink Info: InitTarget() end - Took 23.9ms
 * JLink Info: Found SW-DP with ID 0x2BA01477
 * JLink Info: DPIDR: 0x2BA01477
 * JLink Info: CoreSight SoC-400 or earlier
@@ -54,5 +54,5 @@ Full Chip Erase Done.Programming Done.Verify OK.* JLink Info: Memory map 'before
 * JLink Info: Memory map 'after startup completion point' is active
 Application running ...
 * JLink Info: OnDisconnectTarget() start
-* JLink Info: OnDisconnectTarget() end - Took 2.00ms
-Flash Load finished at 20:10:35
+* JLink Info: OnDisconnectTarget() end - Took 1.92ms
+Flash Load finished at 18:05:37
