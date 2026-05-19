@@ -106,6 +106,17 @@ typedef struct
     ab_slot_t ab_active_slot;
 } bootloader_ctx_t;
 
+typedef struct
+{
+    uint8_t firmware_major;
+    uint8_t firmware_minor;
+    uint8_t firmware_patch;
+    uint32_t security_counter;
+    uint32_t fw_size;
+    uint8_t sha256[32];
+    uint8_t sha256_valid;
+} bootloader_secure_download_result_t;
+
 bootloader_err_t bootloader_download(const platform_transport_base_t *src_transport,
                                      const platform_transport_base_t *tgt_transport,
                                      const char *path);
@@ -113,7 +124,10 @@ bootloader_err_t bootloader_download(const platform_transport_base_t *src_transp
 bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src_transport,
                                             const platform_transport_base_t *tgt_transport,
                                             const char *path,
-                                            const fw_pkg_verify_config_t *config);
+                                            const fw_pkg_verify_config_t *config,
+                                            bootloader_secure_download_result_t *result);
+
+const char *bootloader_err_str(bootloader_err_t err);
 
 extern bootloader_ctx_t bootloader_ctx;
 

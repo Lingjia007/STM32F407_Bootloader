@@ -3,6 +3,7 @@
 #include "aes.h"
 #include "edsign.h"
 #include "sha512.h"
+#include "sha256.h"
 #include <string.h>
 #include <stdio.h>
 
@@ -675,6 +676,396 @@ fw_pkg_err_t fw_pkg_process(const platform_transport_base_t *src_transport,
     }
 
     printf("fw_pkg_process: firmware update SUCCESS\r\n");
+    return FW_PKG_OK;
+}
+
+fw_pkg_err_t fw_pkg_process_ex(const platform_transport_base_t *src_transport,
+                               const platform_transport_base_t *tgt_transport,
+                               const char *path,
+                               const fw_pkg_verify_config_t *config,
+                               fw_pkg_ctx_t *out_ctx)
+{
+    fw_pkg_ctx_t ctx;
+    int16_t err;
+    uint32_t total_size = 0;
+    uint32_t bytes_read = 0;
+    uint32_t total_read = 0;
+    uint32_t flash_offset = 0;
+    uint32_t total_written = 0;
+    uint8_t aes_key[FW_PKG_AES_KEY_SIZE];
+    struct sha512_state sig_state;
+    uint8_t sig_pending[SHA512_BLOCK_SIZE];
+    size_t sig_pending_len = 0;
+    size_t sig_total_len = 0;
+
+    static uint8_t process_buf[FW_PKG_DECRYPT_BUF_SIZE] __attribute__((aligned(4)));
+
+    memset(&ctx, 0, sizeof(ctx));
+    memset(aes_key, 0, sizeof(aes_key));
+
+    if (src_transport == NULL || tgt_transport == NULL || config == NULL)
+    {
+        printf("fw_pkg_process_ex: null param\r\n");
+        return FW_PKG_ERR_PARAM;
+    }
+
+    if (config->ed25519_pubkey != NULL)
+    {
+        sha512_init(&sig_state);
+        sig_pending_len = 0;
+        sig_total_len = 0;
+    }
+
+    printf("fw_pkg_process_ex: opening source [%s]...\r\n", src_transport->name);
+    err = TRANSPORT_SOURCE_OPEN(src_transport, path, &total_size);
+    if (err != TRANSPORT_STATUS_OK)
+    {
+        printf("fw_pkg_process_ex: src open failed err=%d\r\n", err);
+        return FW_PKG_ERR_READ;
+    }
+
+    printf("fw_pkg_process_ex: total_size=%lu\r\n", (unsigned long)total_size);
+
+    if (total_size < FW_PKG_HEADER_SIZE + FW_PKG_SALT_SIZE + FW_PKG_IV_SIZE + FW_PKG_SIGNATURE_SIZE)
+    {
+        printf("fw_pkg_process_ex: file too small\r\n");
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_SIZE;
+    }
+
+    printf("fw_pkg_process_ex: reading header (%d bytes)...\r\n", FW_PKG_HEADER_SIZE);
+    err = TRANSPORT_SOURCE_READ(src_transport, process_buf, FW_PKG_HEADER_SIZE, &bytes_read);
+    if (err != TRANSPORT_STATUS_OK || bytes_read != FW_PKG_HEADER_SIZE)
+    {
+        printf("fw_pkg_process_ex: read header failed\r\n");
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_READ;
+    }
+    total_read += bytes_read;
+
+    fw_pkg_err_t ret = fw_pkg_parse_header(&ctx, process_buf, bytes_read);
+    if (ret != FW_PKG_OK)
+    {
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return ret;
+    }
+
+    if (config->ed25519_pubkey != NULL)
+    {
+        fw_pkg_sha512_feed(&sig_state, process_buf, FW_PKG_HEADER_SIZE,
+                           sig_pending, &sig_pending_len);
+        sig_total_len += FW_PKG_HEADER_SIZE;
+    }
+
+    ret = fw_pkg_verify_header_hmac(&ctx, config);
+    if (ret != FW_PKG_OK)
+    {
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return ret;
+    }
+
+    if (ctx.header.hardware_compat != config->hardware_compat)
+    {
+        printf("fw_pkg_process_ex: HW compat mismatch (pkg=0x%08lX, board=0x%08lX)\r\n",
+               (unsigned long)ctx.header.hardware_compat, (unsigned long)config->hardware_compat);
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_HW_COMPAT;
+    }
+
+    ret = fw_pkg_check_rollback(&ctx, config);
+    if (ret != FW_PKG_OK)
+    {
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return ret;
+    }
+
+    printf("fw_pkg_process_ex: reading salt (%d bytes)...\r\n", FW_PKG_SALT_SIZE);
+    err = TRANSPORT_SOURCE_READ(src_transport, ctx.dynamic_salt, FW_PKG_SALT_SIZE, &bytes_read);
+    if (err != TRANSPORT_STATUS_OK || bytes_read != FW_PKG_SALT_SIZE)
+    {
+        printf("fw_pkg_process_ex: read salt failed\r\n");
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_READ;
+    }
+    total_read += bytes_read;
+
+    if (config->ed25519_pubkey != NULL)
+    {
+        fw_pkg_sha512_feed(&sig_state, ctx.dynamic_salt, FW_PKG_SALT_SIZE,
+                           sig_pending, &sig_pending_len);
+        sig_total_len += FW_PKG_SALT_SIZE;
+    }
+
+    printf("fw_pkg_process_ex: reading IV (%d bytes)...\r\n", FW_PKG_IV_SIZE);
+    err = TRANSPORT_SOURCE_READ(src_transport, ctx.iv, FW_PKG_IV_SIZE, &bytes_read);
+    if (err != TRANSPORT_STATUS_OK || bytes_read != FW_PKG_IV_SIZE)
+    {
+        printf("fw_pkg_process_ex: read IV failed\r\n");
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_READ;
+    }
+    total_read += bytes_read;
+
+    if (config->ed25519_pubkey != NULL)
+    {
+        fw_pkg_sha512_feed(&sig_state, ctx.iv, FW_PKG_IV_SIZE,
+                           sig_pending, &sig_pending_len);
+        sig_total_len += FW_PKG_IV_SIZE;
+    }
+
+    if (ctx.header.encryption_algo != FW_PKG_ENC_NONE)
+    {
+        ret = fw_pkg_derive_aes_key(&ctx, config, aes_key);
+        if (ret != FW_PKG_OK)
+        {
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return ret;
+        }
+
+        ret = fw_pkg_decrypt_init(&ctx, aes_key);
+        if (ret != FW_PKG_OK)
+        {
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return ret;
+        }
+    }
+
+    uint32_t ciphertext_remaining = ctx.ciphertext_size;
+    uint32_t signature_offset = total_size - FW_PKG_SIGNATURE_SIZE;
+    uint32_t decrypted_size = ctx.ciphertext_size;
+
+    printf("fw_pkg_process_ex: opening target, decrypted_size=%lu\r\n",
+           (unsigned long)decrypted_size);
+    err = TRANSPORT_TARGET_OPEN(tgt_transport, path, decrypted_size);
+    if (err != TRANSPORT_STATUS_OK)
+    {
+        printf("fw_pkg_process_ex: tgt open failed err=%d\r\n", err);
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_ERASE;
+    }
+
+    printf("fw_pkg_process_ex: processing ciphertext (%lu bytes)...\r\n",
+           (unsigned long)ciphertext_remaining);
+
+    while (ciphertext_remaining > 0)
+    {
+        uint32_t to_read = FW_PKG_DECRYPT_BUF_SIZE;
+        if (ciphertext_remaining < to_read)
+        {
+            to_read = ciphertext_remaining;
+        }
+
+        if (total_read + to_read > signature_offset)
+        {
+            to_read = signature_offset - total_read;
+            if (to_read == 0)
+                break;
+        }
+
+        err = TRANSPORT_SOURCE_READ(src_transport, process_buf, to_read, &bytes_read);
+        if (err != TRANSPORT_STATUS_OK)
+        {
+            printf("fw_pkg_process_ex: read cipher failed\r\n");
+            TRANSPORT_TARGET_CLOSE(tgt_transport);
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return FW_PKG_ERR_READ;
+        }
+
+        if (bytes_read == 0)
+        {
+            break;
+        }
+
+        total_read += bytes_read;
+
+        if (config->ed25519_pubkey != NULL)
+        {
+            fw_pkg_sha512_feed(&sig_state, process_buf, bytes_read,
+                               sig_pending, &sig_pending_len);
+            sig_total_len += bytes_read;
+        }
+
+        if (ctx.header.encryption_algo != FW_PKG_ENC_NONE)
+        {
+            int is_final = (ciphertext_remaining == bytes_read);
+            size_t actual_len = 0;
+            ret = fw_pkg_decrypt_payload(&ctx, process_buf, bytes_read, is_final, &actual_len);
+            if (ret != FW_PKG_OK)
+            {
+                TRANSPORT_TARGET_CLOSE(tgt_transport);
+                TRANSPORT_SOURCE_CLOSE(src_transport);
+                return ret;
+            }
+            if (is_final && actual_len < bytes_read)
+            {
+                bytes_read = (uint32_t)actual_len;
+            }
+        }
+
+        err = TRANSPORT_TARGET_WRITE(tgt_transport, flash_offset, process_buf, bytes_read);
+        if (err != TRANSPORT_STATUS_OK)
+        {
+            printf("fw_pkg_process_ex: write flash failed\r\n");
+            TRANSPORT_TARGET_CLOSE(tgt_transport);
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return FW_PKG_ERR_WRITE;
+        }
+
+        flash_offset += bytes_read;
+        total_written += bytes_read;
+        ciphertext_remaining -= bytes_read;
+
+        printf("fw_pkg_process_ex: progress %lu/%lu\r\n",
+               (unsigned long)flash_offset, (unsigned long)decrypted_size);
+    }
+
+    if (total_read < signature_offset)
+    {
+        uint32_t skip = signature_offset - total_read;
+        printf("fw_pkg_process_ex: skipping %lu bytes to signature\r\n", (unsigned long)skip);
+        while (skip > 0)
+        {
+            uint32_t to_skip = (skip > FW_PKG_DECRYPT_BUF_SIZE) ? FW_PKG_DECRYPT_BUF_SIZE : skip;
+            err = TRANSPORT_SOURCE_READ(src_transport, process_buf, to_skip, &bytes_read);
+            if (err != TRANSPORT_STATUS_OK || bytes_read == 0)
+            {
+                printf("fw_pkg_process_ex: skip read failed\r\n");
+                TRANSPORT_TARGET_CLOSE(tgt_transport);
+                TRANSPORT_SOURCE_CLOSE(src_transport);
+                return FW_PKG_ERR_READ;
+            }
+
+            if (config->ed25519_pubkey != NULL)
+            {
+                fw_pkg_sha512_feed(&sig_state, process_buf, bytes_read,
+                                   sig_pending, &sig_pending_len);
+                sig_total_len += bytes_read;
+            }
+
+            total_read += bytes_read;
+            skip -= bytes_read;
+        }
+    }
+
+    printf("fw_pkg_process_ex: reading signature (%d bytes)...\r\n", FW_PKG_SIGNATURE_SIZE);
+    err = TRANSPORT_SOURCE_READ(src_transport, ctx.signature, FW_PKG_SIGNATURE_SIZE, &bytes_read);
+    if (err != TRANSPORT_STATUS_OK || bytes_read != FW_PKG_SIGNATURE_SIZE)
+    {
+        printf("fw_pkg_process_ex: read signature failed\r\n");
+        TRANSPORT_TARGET_CLOSE(tgt_transport);
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_READ;
+    }
+
+    if (ctx.header.signature_algo == FW_PKG_SIG_ED25519 && config->ed25519_pubkey != NULL)
+    {
+        uint8_t sig_hash[64];
+        fw_pkg_sha512_finish(&sig_state, sig_pending, sig_pending_len,
+                             sig_total_len, sig_hash);
+
+        ret = fw_pkg_verify_signature_hash(&ctx, config, sig_hash);
+        if (ret != FW_PKG_OK)
+        {
+            printf("fw_pkg_process_ex: SIGNATURE INVALID - firmware may be tampered!\r\n");
+            TRANSPORT_TARGET_CLOSE(tgt_transport);
+            TRANSPORT_SOURCE_CLOSE(src_transport);
+            return ret;
+        }
+    }
+
+    printf("fw_pkg_process_ex: closing target...\r\n");
+    err = TRANSPORT_TARGET_CLOSE(tgt_transport);
+    if (err != TRANSPORT_STATUS_OK)
+    {
+        printf("fw_pkg_process_ex: tgt close failed\r\n");
+        TRANSPORT_SOURCE_CLOSE(src_transport);
+        return FW_PKG_ERR_WRITE;
+    }
+
+    printf("fw_pkg_process_ex: closing source...\r\n");
+    err = TRANSPORT_SOURCE_CLOSE(src_transport);
+    if (err != TRANSPORT_STATUS_OK)
+    {
+        printf("fw_pkg_process_ex: src close failed\r\n");
+        return FW_PKG_ERR_READ;
+    }
+
+    if (out_ctx != NULL)
+    {
+        memcpy(out_ctx, &ctx, sizeof(fw_pkg_ctx_t));
+        out_ctx->ciphertext_size = total_written;
+        out_ctx->computed_sha256_valid = 0;
+        out_ctx->stored_sha256_valid = 0;
+
+        if (total_written > SHA256_BLOCK_SIZE)
+        {
+            uint8_t computed_sha256[SHA256_BLOCK_SIZE];
+            uint8_t stored_sha256[SHA256_BLOCK_SIZE];
+            uint32_t firmware_size = total_written - SHA256_BLOCK_SIZE;
+
+            printf("fw_pkg_process_ex: verifying internal SHA256...\r\n");
+            printf("  Firmware size: %lu bytes (total %lu - hash %d)\r\n",
+                   (unsigned long)firmware_size, (unsigned long)total_written, SHA256_BLOCK_SIZE);
+
+            sha256_ctx_t sha256_ctx;
+            sha256_init(&sha256_ctx);
+
+            uint32_t read_offset = 0;
+            uint32_t firmware_remaining = firmware_size;
+            while (firmware_remaining > 0)
+            {
+                uint32_t to_read = FW_PKG_DECRYPT_BUF_SIZE;
+                if (firmware_remaining < to_read)
+                    to_read = firmware_remaining;
+
+                err = TRANSPORT_TARGET_READ(tgt_transport, read_offset, process_buf, to_read, &bytes_read);
+                if (err != TRANSPORT_STATUS_OK || bytes_read != to_read)
+                {
+                    printf("fw_pkg_process_ex: read back failed for SHA256\r\n");
+                    break;
+                }
+
+                sha256_update(&sha256_ctx, process_buf, bytes_read);
+                read_offset += bytes_read;
+                firmware_remaining -= bytes_read;
+            }
+
+            if (firmware_remaining == 0)
+            {
+                sha256_final(&sha256_ctx, computed_sha256);
+
+                err = TRANSPORT_TARGET_READ(tgt_transport, read_offset, stored_sha256, SHA256_BLOCK_SIZE, &bytes_read);
+                if (err == TRANSPORT_STATUS_OK && bytes_read == SHA256_BLOCK_SIZE)
+                {
+                    memcpy(out_ctx->computed_sha256, computed_sha256, 32);
+                    out_ctx->computed_sha256_valid = 1;
+                    memcpy(out_ctx->stored_sha256, stored_sha256, 32);
+                    out_ctx->stored_sha256_valid = 1;
+
+                    printf("  Computed SHA256: ");
+                    for (int i = 0; i < 32; i++)
+                        printf("%02X", computed_sha256[i]);
+                    printf("\r\n");
+                    printf("  Stored SHA256:   ");
+                    for (int i = 0; i < 32; i++)
+                        printf("%02X", stored_sha256[i]);
+                    printf("\r\n");
+
+                    if (memcmp(computed_sha256, stored_sha256, 32) == 0)
+                    {
+                        printf("  Result: MATCH\r\n");
+                        out_ctx->ciphertext_size = firmware_size;
+                    }
+                    else
+                    {
+                        printf("  Result: MISMATCH!\r\n");
+                    }
+                }
+            }
+        }
+    }
+
+    printf("fw_pkg_process_ex: firmware update SUCCESS\r\n");
     return FW_PKG_OK;
 }
 

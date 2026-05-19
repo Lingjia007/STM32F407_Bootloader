@@ -200,6 +200,40 @@ static int16_t lfs_tgt_close(const void* ctx)
     return TRANSPORT_STATUS_OK;
 }
 
+static int16_t lfs_tgt_read(const void *ctx, uint32_t offset, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+{
+    lfs_stm32_t *self = container_of(ctx, lfs_stm32_t, base);
+    lfs_ssize_t res;
+
+    if (buf == NULL || size == 0)
+    {
+        return TRANSPORT_STATUS_PARAM;
+    }
+
+    if (!self->is_open)
+    {
+        printf("LFS: read failed, not open\r\n");
+        return TRANSPORT_STATUS_READ;
+    }
+
+    res = lfs_file_seek(self->lfs, &self->file, offset, LFS_SEEK_SET);
+    if (res < 0)
+    {
+        printf("LFS: seek failed at offset %lu, res=%ld\r\n", (unsigned long)offset, (long)res);
+        return TRANSPORT_STATUS_READ;
+    }
+
+    res = lfs_file_read(self->lfs, &self->file, buf, size);
+    if (res < 0)
+    {
+        printf("LFS: read failed, res=%ld\r\n", (long)res);
+        return TRANSPORT_STATUS_READ;
+    }
+
+    *bytes_read = (uint32_t)res;
+    return TRANSPORT_STATUS_OK;
+}
+
 static const platform_transport_source_ops_t lfs_source_ops = {
     .open = lfs_src_open,
     .read = lfs_src_read,
@@ -209,6 +243,7 @@ static const platform_transport_source_ops_t lfs_source_ops = {
 static const platform_transport_target_ops_t lfs_target_ops = {
     .open = lfs_tgt_open,
     .write = lfs_tgt_write,
+    .read = lfs_tgt_read,
     .close = lfs_tgt_close,
 };
 

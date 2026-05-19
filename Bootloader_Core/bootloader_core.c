@@ -261,12 +261,20 @@ static bootloader_err_t fw_pkg_err_to_bootloader(fw_pkg_err_t err)
 bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src_transport,
                                             const platform_transport_base_t *tgt_transport,
                                             const char *path,
-                                            const fw_pkg_verify_config_t *config)
+                                            const fw_pkg_verify_config_t *config,
+                                            bootloader_secure_download_result_t *result)
 {
+    fw_pkg_ctx_t pkg_ctx;
+
     if (src_transport == NULL || tgt_transport == NULL || config == NULL)
     {
         printf("bootloader_secure_download: param null\r\n");
         return BOOTLOADER_ERR_PARAM;
+    }
+
+    if (result != NULL)
+    {
+        memset(result, 0, sizeof(bootloader_secure_download_result_t));
     }
 
     printf("bootloader_secure_download: starting secure firmware update...\r\n");
@@ -275,7 +283,7 @@ bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src
            (unsigned)config->uid_len,
            (unsigned)config->ed25519_pubkey_len);
 
-    fw_pkg_err_t ret = fw_pkg_process(src_transport, tgt_transport, path, config);
+    fw_pkg_err_t ret = fw_pkg_process_ex(src_transport, tgt_transport, path, config, &pkg_ctx);
 
     if (ret != FW_PKG_OK)
     {
@@ -285,6 +293,71 @@ bootloader_err_t bootloader_secure_download(const platform_transport_base_t *src
         return bootloader_ctx.last_error;
     }
 
+    if (result != NULL)
+    {
+        result->firmware_major = pkg_ctx.header.firmware_major;
+        result->firmware_minor = pkg_ctx.header.firmware_minor;
+        result->firmware_patch = pkg_ctx.header.firmware_patch;
+        result->security_counter = pkg_ctx.header.security_counter;
+        result->fw_size = pkg_ctx.ciphertext_size;
+        if (pkg_ctx.computed_sha256_valid)
+        {
+            memcpy(result->sha256, pkg_ctx.computed_sha256, 32);
+            result->sha256_valid = 1;
+        }
+        else
+        {
+            result->sha256_valid = 0;
+        }
+    }
+
     printf("bootloader_secure_download: SUCCESS\r\n");
     return BOOTLOADER_OK;
+}
+
+const char *bootloader_err_str(bootloader_err_t err)
+{
+    switch (err)
+    {
+    case BOOTLOADER_OK:
+        return "OK";
+    case BOOTLOADER_ERR_PARAM:
+        return "Invalid parameter";
+    case BOOTLOADER_ERR_OPEN_SRC:
+        return "Failed to open source";
+    case BOOTLOADER_ERR_OPEN_DST:
+        return "Failed to open destination";
+    case BOOTLOADER_ERR_READ:
+        return "Read error";
+    case BOOTLOADER_ERR_WRITE:
+        return "Write error";
+    case BOOTLOADER_ERR_CLOSE:
+        return "Close error";
+    case BOOTLOADER_ERR_SIZE:
+        return "Size error";
+    case BOOTLOADER_ERR_ERASE:
+        return "Erase error";
+    case BOOTLOADER_ERR_VERIFY:
+        return "Verification failed";
+    case BOOTLOADER_ERR_ABORT:
+        return "Aborted";
+    case BOOTLOADER_ERR_PKG_MAGIC:
+        return "Bad package magic";
+    case BOOTLOADER_ERR_PKG_HMAC:
+        return "HMAC verification failed";
+    case BOOTLOADER_ERR_PKG_SIG:
+        return "Signature verification failed";
+    case BOOTLOADER_ERR_PKG_DECRYPT:
+        return "Decryption failed";
+    case BOOTLOADER_ERR_PKG_ROLLBACK:
+        return "Rollback detected";
+    case BOOTLOADER_ERR_PKG_HW_COMPAT:
+        return "Hardware compatibility mismatch";
+    case BOOTLOADER_ERR_PKG_HEADER_VER:
+        return "Unsupported header version";
+    case BOOTLOADER_ERR_PKG_UNSUPPORTED:
+        return "Unsupported algorithm";
+    default:
+        return "Unknown error";
+    }
 }

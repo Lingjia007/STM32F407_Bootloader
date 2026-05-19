@@ -495,9 +495,31 @@ static int16_t internal_flash_tgt_close(const void *ctx)
     return TRANSPORT_STATUS_OK;
 }
 
+static int16_t internal_flash_tgt_read(const void *ctx, uint32_t offset, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+{
+    const internal_flash_stm32_t *self = container_of(ctx, internal_flash_stm32_t, transport_base);
+
+    if (buf == NULL || size == 0)
+    {
+        return TRANSPORT_STATUS_PARAM;
+    }
+
+    uint32_t addr = self->flash_base.start_addr + offset;
+    if (addr + size > self->flash_base.end_addr + 1)
+    {
+        return TRANSPORT_STATUS_READ;
+    }
+
+    memcpy(buf, (void *)addr, size);
+    *bytes_read = size;
+
+    return TRANSPORT_STATUS_OK;
+}
+
 static const platform_transport_target_ops_t internal_flash_target_ops = {
     .open = internal_flash_tgt_open,
     .write = internal_flash_tgt_write,
+    .read = internal_flash_tgt_read,
     .close = internal_flash_tgt_close,
 };
 

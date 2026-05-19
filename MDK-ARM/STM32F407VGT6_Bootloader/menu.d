@@ -79,6 +79,5 @@ stm32f407vgt6_bootloader/menu.o: ..\IAP\menu.c ..\Core\Inc\main.h \
   ..\Bootloader_Core\firmware_package.h ..\Utils\aes.h ..\Utils\sha512.h \
   ..\Service\Inc\service_lfs_spi_flash_adapter.h \
   C:\Keil_v5\ARM\ARMCLANG\include\ctype.h \
-  ..\Service\Inc\service_aes_decrypt.h ..\Service\Inc\service_hpatch.h \
-  ..\Service\Inc\service_ed25519_verify.h ..\Core\Inc\rng.h \
-  ..\Utils\edsign.h ..\Utils\hkdf.h ..\Utils\sha256.h
+  ..\Service\Inc\service_hpatch.h ..\Utils\edsign.h ..\Utils\hkdf.h \
+  ..\Utils\sha256.h

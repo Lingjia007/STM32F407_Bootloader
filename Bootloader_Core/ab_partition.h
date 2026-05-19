@@ -20,10 +20,12 @@
 #define METADATA_SIZE       (64 * 1024)
 
 #define AB_METADATA_MAGIC       0x41425441
-#define AB_METADATA_VERSION     1
+#define AB_METADATA_VERSION     2
 
 #define AB_BOOT_CONFIRM_MAGIC   0x424F4F54
 #define AB_MAX_BOOT_RETRIES     3
+
+#define AB_SHA256_SIZE          32
 
 typedef enum {
     AB_SLOT_A = 0,
@@ -45,6 +47,7 @@ typedef struct __attribute__((packed)) {
     uint32_t fw_size;
     ab_slot_state_t state;
     uint8_t boot_attempts;
+    uint8_t sha256[AB_SHA256_SIZE];
     uint8_t reserved[3];
 } ab_slot_meta_t;
 
@@ -80,7 +83,8 @@ ab_err_t ab_partition_mark_slot_confirmed(ab_slot_t slot);
 ab_err_t ab_partition_increment_boot_attempts(ab_slot_t slot);
 ab_err_t ab_partition_reset_boot_attempts(ab_slot_t slot);
 ab_err_t ab_partition_update_slot_meta(ab_slot_t slot, uint32_t fw_version,
-                                       uint32_t security_counter, uint32_t fw_size);
+                                       uint32_t security_counter, uint32_t fw_size,
+                                       const uint8_t *sha256);
 ab_err_t ab_partition_rollback(void);
 ab_err_t ab_partition_validate_slot(ab_slot_t slot);
 ab_err_t ab_partition_metadata_flush(void);

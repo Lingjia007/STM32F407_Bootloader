@@ -228,6 +228,41 @@ static int16_t fatfs_tgt_close(const void *ctx)
     return TRANSPORT_STATUS_OK;
 }
 
+static int16_t fatfs_tgt_read(const void *ctx, uint32_t offset, uint8_t *buf, uint32_t size, uint32_t *bytes_read)
+{
+    fatfs_stm32_t *self = container_of(ctx, fatfs_stm32_t, base);
+    FRESULT res;
+    UINT br;
+
+    if (buf == NULL || size == 0)
+    {
+        return TRANSPORT_STATUS_PARAM;
+    }
+
+    if (!self->is_open)
+    {
+        printf("FATFS: read failed, not open\r\n");
+        return TRANSPORT_STATUS_READ;
+    }
+
+    res = f_lseek(&self->file, offset);
+    if (res != FR_OK)
+    {
+        printf("FATFS: seek failed at offset %lu, res=%d\r\n", (unsigned long)offset, res);
+        return TRANSPORT_STATUS_READ;
+    }
+
+    res = f_read(&self->file, buf, size, &br);
+    if (res != FR_OK)
+    {
+        printf("FATFS: read failed, res=%d\r\n", res);
+        return TRANSPORT_STATUS_READ;
+    }
+
+    *bytes_read = br;
+    return TRANSPORT_STATUS_OK;
+}
+
 static const platform_transport_source_ops_t fatfs_source_ops = {
     .open = fatfs_src_open,
     .read = fatfs_src_read,
@@ -237,6 +272,7 @@ static const platform_transport_source_ops_t fatfs_source_ops = {
 static const platform_transport_target_ops_t fatfs_target_ops = {
     .open = fatfs_tgt_open,
     .write = fatfs_tgt_write,
+    .read = fatfs_tgt_read,
     .close = fatfs_tgt_close,
 };
 

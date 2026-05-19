@@ -5,4 +5,5 @@ stm32f407vgt6_bootloader/firmware_package.o: \
   C:\Keil_v5\ARM\ARMCLANG\include\stddef.h \
   ..\Platform\Inc\platform_transport.h ..\Utils\aes.h ..\Utils\sha512.h \
   C:\Keil_v5\ARM\ARMCLANG\include\string.h ..\Utils\hkdf.h \
-  ..\Utils\edsign.h C:\Keil_v5\ARM\ARMCLANG\include\stdio.h
+  ..\Utils\edsign.h ..\Utils\sha256.h \
+  C:\Keil_v5\ARM\ARMCLANG\include\stdio.h

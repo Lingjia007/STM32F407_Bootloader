@@ -1163,7 +1163,7 @@ void onenet_ota_process_upgrade(onenet_ota_ctx_t *ctx)
     if (ctx->target_type == ONENET_OTA_TARGET_INTERNAL_FLASH)
     {
         ab_slot_t ota_slot = ab_partition_get_inactive_slot();
-        ab_partition_update_slot_meta(ota_slot, 0, 0, 0);
+        ab_partition_update_slot_meta(ota_slot, 0, 0, 0, NULL);
         ab_partition_set_active_slot(ota_slot);
         printf("OTA: Slot %s marked as TESTING\r\n", ab_slot_name(ota_slot));
     }

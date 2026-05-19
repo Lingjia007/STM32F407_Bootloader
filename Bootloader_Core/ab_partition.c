@@ -157,6 +157,33 @@ static ab_err_t ab_write_metadata_raw(const ab_metadata_t *meta)
     }
 
     uint32_t addr = METADATA_ADDR + (uint32_t)next_instance * AB_META_INSTANCE_ALIGN;
+
+    const ab_metadata_t *existing = (const ab_metadata_t *)addr;
+    int need_erase = 0;
+    const uint32_t *existing_words = (const uint32_t *)existing;
+    const uint32_t *new_words = (const uint32_t *)meta;
+    size_t word_count = (sizeof(ab_metadata_t) + 3) / 4;
+
+    for (size_t i = 0; i < word_count; i++)
+    {
+        if ((existing_words[i] & new_words[i]) != new_words[i])
+        {
+            need_erase = 1;
+            break;
+        }
+    }
+
+    if (need_erase)
+    {
+        printf("AB: need erase before write at instance %d\r\n", next_instance);
+        ab_err_t err = ab_erase_metadata_sector();
+        if (err != AB_OK)
+            return err;
+        next_instance = 0;
+        g_ab_current_instance = -1;
+        addr = METADATA_ADDR;
+    }
+
     ab_err_t err = ab_flash_write_words(addr, (const uint32_t *)meta,
                                         (sizeof(ab_metadata_t) + 3) / 4);
     if (err != AB_OK)
@@ -359,7 +386,8 @@ ab_err_t ab_partition_reset_boot_attempts(ab_slot_t slot)
 }
 
 ab_err_t ab_partition_update_slot_meta(ab_slot_t slot, uint32_t fw_version,
-                                       uint32_t security_counter, uint32_t fw_size)
+                                       uint32_t security_counter, uint32_t fw_size,
+                                       const uint8_t *sha256)
 {
     if (slot != AB_SLOT_A && slot != AB_SLOT_B)
         return AB_ERR_PARAM;
@@ -372,6 +400,16 @@ ab_err_t ab_partition_update_slot_meta(ab_slot_t slot, uint32_t fw_version,
     g_ab_metadata.slots[slot].fw_size = fw_size;
     g_ab_metadata.slots[slot].state = AB_STATE_TESTING;
     g_ab_metadata.slots[slot].boot_attempts = 0;
+
+    if (sha256 != NULL)
+    {
+        memcpy(g_ab_metadata.slots[slot].sha256, sha256, AB_SHA256_SIZE);
+    }
+    else
+    {
+        memset(g_ab_metadata.slots[slot].sha256, 0, AB_SHA256_SIZE);
+    }
+
     g_ab_metadata_dirty = 1;
 
     printf("AB: slot %s meta updated: ver=%lu, sec=%lu, size=%lu\r\n",

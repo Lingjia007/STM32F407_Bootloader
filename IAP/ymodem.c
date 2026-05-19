@@ -69,7 +69,7 @@ COM_StatusTypeDef Ymodem_Receive_To_Slot(uint32_t *p_size, ab_slot_t slot)
 
   if ((COM_StatusTypeDef)status == COM_OK)
   {
-    ab_partition_update_slot_meta(slot, 0, 0, 0);
+    ab_partition_update_slot_meta(slot, 0, 0, 0, NULL);
     ab_partition_set_active_slot(slot);
   }
 

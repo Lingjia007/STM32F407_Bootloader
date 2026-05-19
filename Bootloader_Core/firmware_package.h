@@ -106,6 +106,10 @@ typedef struct
     struct AES_ctx aes_ctx;
     uint8_t aes_ctx_initialized;
     fw_pkg_err_t last_error;
+    uint8_t computed_sha256[32];
+    uint8_t computed_sha256_valid;
+    uint8_t stored_sha256[32];
+    uint8_t stored_sha256_valid;
 } fw_pkg_ctx_t;
 
 void fw_pkg_sha512_feed(struct sha512_state *state,
@@ -152,6 +156,12 @@ fw_pkg_err_t fw_pkg_process(const platform_transport_base_t *src_transport,
                             const platform_transport_base_t *tgt_transport,
                             const char *path,
                             const fw_pkg_verify_config_t *config);
+
+fw_pkg_err_t fw_pkg_process_ex(const platform_transport_base_t *src_transport,
+                               const platform_transport_base_t *tgt_transport,
+                               const char *path,
+                               const fw_pkg_verify_config_t *config,
+                               fw_pkg_ctx_t *out_ctx);
 
 const char *fw_pkg_err_str(fw_pkg_err_t err);
 

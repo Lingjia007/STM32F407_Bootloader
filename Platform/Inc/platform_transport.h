@@ -44,6 +44,7 @@ typedef struct {
 typedef struct {
     int16_t (*open)(const void* ctx, const char* path, uint32_t total_size);
     int16_t (*write)(const void* ctx, uint32_t offset, const uint8_t* data, uint32_t len);
+    int16_t (*read)(const void* ctx, uint32_t offset, uint8_t* buf, uint32_t size, uint32_t* bytes_read);
     int16_t (*close)(const void* ctx);
 } platform_transport_target_ops_t;
 
@@ -74,6 +75,10 @@ typedef struct {
 #define TRANSPORT_TARGET_WRITE(transport, offset, data, len) \
     ((transport) && (transport)->target_ops && (transport)->target_ops->write ? \
      (transport)->target_ops->write((transport), (offset), (data), (len)) : (int16_t)TRANSPORT_STATUS_ERROR)
+
+#define TRANSPORT_TARGET_READ(transport, offset, buf, size, bytes_read) \
+    ((transport) && (transport)->target_ops && (transport)->target_ops->read ? \
+     (transport)->target_ops->read((transport), (offset), (buf), (size), (bytes_read)) : (int16_t)TRANSPORT_STATUS_ERROR)
 
 #define TRANSPORT_TARGET_CLOSE(transport) \
     ((transport) && (transport)->target_ops && (transport)->target_ops->close ? \

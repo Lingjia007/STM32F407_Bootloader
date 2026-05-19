@@ -16,6 +16,7 @@
 #include "fatfs.h"
 #include "service_lfs_spi_flash_adapter.h"
 #include "bootloader_core.h"
+#include "platform_internal_flash_stm32_impl.h"
 #include "ab_partition.h"
 #include "lfs.h"
 #include "stdio.h"
@@ -460,7 +461,7 @@ static void cmd_sdcard_download(menu_ctx_t *ctx, int argc, char *argv[])
 
   if (err == BOOTLOADER_OK)
   {
-    ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+    ab_partition_update_slot_meta(target_slot, 0, 0, 0, NULL);
     ab_partition_set_active_slot(target_slot);
     snprintf(msg, sizeof(msg), "Firmware update to Slot %s completed!", ab_slot_name(target_slot));
     menu_service_println(ctx, msg);
@@ -588,7 +589,7 @@ static void cmd_spi_flash_download(menu_ctx_t *ctx, int argc, char *argv[])
 
   if (err == BOOTLOADER_OK)
   {
-    ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+    ab_partition_update_slot_meta(target_slot, 0, 0, 0, NULL);
     ab_partition_set_active_slot(target_slot);
     snprintf(msg, sizeof(msg), "Firmware update to Slot %s completed!", ab_slot_name(target_slot));
     menu_service_println(ctx, msg);
@@ -2134,6 +2135,290 @@ static void cmd_fw_pkg_spi(menu_ctx_t *ctx, int argc, char *argv[])
   }
 }
 
+static void cmd_secure_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  char range_str[16];
+  FRESULT res;
+  char src_path[128];
+
+  uint8_t devkey_bytes[16];
+  uint8_t uid_bytes[12];
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "====== Secure Download to A/B Slot (SD Card) ======");
+
+  menu_service_println(ctx, "Initializing TF card...");
+  res = f_mount(&SDFatFS, (TCHAR const *)SDPath, 1);
+  if (res != FR_OK)
+  {
+    menu_service_print(ctx, "Error: SD card mount failed! Error code: ");
+    menu_service_int2str((uint8_t *)msg, res);
+    menu_service_println(ctx, msg);
+    return;
+  }
+
+  menu_service_println(ctx, "Scanning for .iap.bin files...");
+  scan_sd_card_files();
+
+  uint8_t iap_count = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(iap_count), file_list[i]);
+      menu_service_println(ctx, msg);
+      iap_count++;
+    }
+  }
+
+  if (iap_count == 0)
+  {
+    menu_service_println(ctx, "No .iap.bin files found on SD card!");
+    f_mount(NULL, (TCHAR const *)SDPath, 0);
+    return;
+  }
+
+  build_sel_range_str(iap_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == 'q' || key == 'Q')
+    {
+      menu_service_println(ctx, "\rAborted by user.");
+      f_mount(NULL, (TCHAR const *)SDPath, 0);
+      return;
+    }
+    selected = sel_char_to_index((char)key);
+    if (selected < iap_count)
+      break;
+  }
+
+  uint8_t iap_idx = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      if (iap_idx == selected)
+      {
+        selected = i;
+        break;
+      }
+      iap_idx++;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
+  menu_service_println(ctx, msg);
+
+  snprintf(src_path, sizeof(src_path), "0:/%s", file_list[selected]);
+
+  {
+    const uint8_t *otp_ptr = (const uint8_t *)FLASH_OTP_BASE;
+    memcpy(devkey_bytes, otp_ptr, 16);
+  }
+
+  uint8_t *uid_ptr = (uint8_t *)UID_BASE;
+  memcpy(uid_bytes, uid_ptr, 12);
+
+  fw_pkg_verify_config_t verify_config = {
+      .devkey = devkey_bytes,
+      .devkey_len = 16,
+      .uid = uid_bytes,
+      .uid_len = 12,
+      .ed25519_pubkey = FW_PKG_ED25519_PUBLIC_KEY,
+      .ed25519_pubkey_len = 32,
+      .hardware_compat = 0,
+      .stored_security_counter = 0,
+  };
+
+  fw_pkg_print_verify_config(ctx, &verify_config);
+
+  ab_slot_t target_slot = ab_partition_get_inactive_slot();
+  snprintf(msg, sizeof(msg), "Target slot: %s (0x%08lX)",
+           ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
+  menu_service_println(ctx, msg);
+
+  internal_flash_stm32_t flash_transport;
+  platform_internal_flash_stm32_register(&flash_transport,
+                                         ab_partition_get_slot_addr(target_slot),
+                                         ab_partition_get_slot_addr(target_slot) + ab_partition_get_slot_size(target_slot) - 1,
+                                         "internal_flash");
+
+  g_fatfs_transport.fs = &SDFatFS;
+
+  bootloader_secure_download_result_t result;
+  bootloader_err_t err = bootloader_secure_download(&g_fatfs_transport.base, &flash_transport.transport_base, src_path, &verify_config, &result);
+
+  if (err == BOOTLOADER_OK)
+  {
+    uint32_t fw_version = ((uint32_t)result.firmware_major << 16) |
+                          ((uint32_t)result.firmware_minor << 8) |
+                          (uint32_t)result.firmware_patch;
+    ab_partition_update_slot_meta(target_slot, fw_version, result.security_counter, result.fw_size, result.sha256_valid ? result.sha256 : NULL);
+    ab_partition_set_active_slot(target_slot);
+    snprintf(msg, sizeof(msg), "Secure download to Slot %s completed!", ab_slot_name(target_slot));
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  FW: v%u.%u.%u, Size: %lu bytes", result.firmware_major, result.firmware_minor, result.firmware_patch, (unsigned long)result.fw_size);
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "Secure download FAILED: %s (err=%d)", bootloader_err_str(err), err);
+    menu_service_println(ctx, msg);
+  }
+
+  f_mount(NULL, (TCHAR const *)SDPath, 0);
+}
+
+static void cmd_secure_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
+{
+  uint8_t key = 0;
+  uint8_t selected = 0;
+  uint8_t i;
+  char msg[256];
+  char range_str[16];
+  char src_path[128];
+
+  uint8_t devkey_bytes[16];
+  uint8_t uid_bytes[12];
+  lfs_t lfs;
+
+  menu_service_println(ctx, "");
+  menu_service_println(ctx, "====== Secure Download to A/B Slot (SPI Flash) ======");
+
+  menu_service_println(ctx, "Initializing SPI Flash...");
+  if (lfs_spi_flash_init() != 0)
+  {
+    menu_service_println(ctx, "Error: SPI Flash initialization failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "Mounting LittleFS...");
+  if (lfs_spi_flash_mount(&lfs) != LFS_ERR_OK)
+  {
+    menu_service_println(ctx, "Error: LittleFS mount failed!");
+    return;
+  }
+
+  menu_service_println(ctx, "Scanning for .iap.bin files...");
+  scan_lfs_files(&lfs);
+
+  uint8_t iap_count = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      snprintf(msg, sizeof(msg), "  [%c] %s", index_to_sel_char(iap_count), file_list[i]);
+      menu_service_println(ctx, msg);
+      iap_count++;
+    }
+  }
+
+  if (iap_count == 0)
+  {
+    menu_service_println(ctx, "No .iap.bin files found on SPI Flash!");
+    return;
+  }
+
+  build_sel_range_str(iap_count, range_str, sizeof(range_str));
+  menu_service_printf(ctx, "\r\nSelect file (%s) or 'q' to abort: ", range_str);
+  menu_service_flush(ctx);
+
+  while (1)
+  {
+    menu_service_getchar(ctx, &key, RX_TIMEOUT);
+    if (key == 'q' || key == 'Q')
+    {
+      menu_service_println(ctx, "\rAborted by user.");
+      return;
+    }
+    selected = sel_char_to_index((char)key);
+    if (selected < iap_count)
+      break;
+  }
+
+  uint8_t iap_idx = 0;
+  for (i = 0; i < file_count; i++)
+  {
+    if (fw_pkg_is_iap_file(file_list[i]))
+    {
+      if (iap_idx == selected)
+      {
+        selected = i;
+        break;
+      }
+      iap_idx++;
+    }
+  }
+
+  snprintf(msg, sizeof(msg), "\rSelected: %s", file_list[selected]);
+  menu_service_println(ctx, msg);
+
+  snprintf(src_path, sizeof(src_path), "/%s", file_list[selected]);
+
+  {
+    const uint8_t *otp_ptr = (const uint8_t *)FLASH_OTP_BASE;
+    memcpy(devkey_bytes, otp_ptr, 16);
+  }
+
+  uint8_t *uid_ptr = (uint8_t *)UID_BASE;
+  memcpy(uid_bytes, uid_ptr, 12);
+
+  fw_pkg_verify_config_t verify_config = {
+      .devkey = devkey_bytes,
+      .devkey_len = 16,
+      .uid = uid_bytes,
+      .uid_len = 12,
+      .ed25519_pubkey = FW_PKG_ED25519_PUBLIC_KEY,
+      .ed25519_pubkey_len = 32,
+      .hardware_compat = 0,
+      .stored_security_counter = 0,
+  };
+
+  fw_pkg_print_verify_config(ctx, &verify_config);
+
+  ab_slot_t target_slot = ab_partition_get_inactive_slot();
+  snprintf(msg, sizeof(msg), "Target slot: %s (0x%08lX)",
+           ab_slot_name(target_slot), (unsigned long)ab_partition_get_slot_addr(target_slot));
+  menu_service_println(ctx, msg);
+
+  internal_flash_stm32_t flash_transport;
+  platform_internal_flash_stm32_register(&flash_transport,
+                                         ab_partition_get_slot_addr(target_slot),
+                                         ab_partition_get_slot_addr(target_slot) + ab_partition_get_slot_size(target_slot) - 1,
+                                         "internal_flash");
+
+  g_lfs_transport.lfs = &lfs;
+
+  bootloader_secure_download_result_t result;
+  bootloader_err_t err = bootloader_secure_download(&g_lfs_transport.base, &flash_transport.transport_base, src_path, &verify_config, &result);
+
+  if (err == BOOTLOADER_OK)
+  {
+    uint32_t fw_version = ((uint32_t)result.firmware_major << 16) |
+                          ((uint32_t)result.firmware_minor << 8) |
+                          (uint32_t)result.firmware_patch;
+    ab_partition_update_slot_meta(target_slot, fw_version, result.security_counter, result.fw_size, result.sha256_valid ? result.sha256 : NULL);
+    ab_partition_set_active_slot(target_slot);
+    snprintf(msg, sizeof(msg), "Secure download to Slot %s completed!", ab_slot_name(target_slot));
+    menu_service_println(ctx, msg);
+    snprintf(msg, sizeof(msg), "  FW: v%u.%u.%u, Size: %lu bytes", result.firmware_major, result.firmware_minor, result.firmware_patch, (unsigned long)result.fw_size);
+    menu_service_println(ctx, msg);
+  }
+  else
+  {
+    snprintf(msg, sizeof(msg), "Secure download FAILED: %s (err=%d)", bootloader_err_str(err), err);
+    menu_service_println(ctx, msg);
+  }
+}
+
 #endif
 
 #if MENU_ENABLE_ESP8266_WIFI
@@ -3117,7 +3402,7 @@ static void cmd_decrypt_download_sdcard(menu_ctx_t *ctx, int argc, char *argv[])
 
     if (decrypt_result > 0)
     {
-      ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+      ab_partition_update_slot_meta(target_slot, 0, 0, 0, NULL);
       ab_partition_set_active_slot(target_slot);
       snprintf(msg, sizeof(msg), "Decryption to Slot %s completed!", ab_slot_name(target_slot));
       menu_service_println(ctx, msg);
@@ -3248,7 +3533,7 @@ static void cmd_decrypt_download_spi(menu_ctx_t *ctx, int argc, char *argv[])
 
     if (decrypt_result > 0)
     {
-      ab_partition_update_slot_meta(target_slot, 0, 0, 0);
+      ab_partition_update_slot_meta(target_slot, 0, 0, 0, NULL);
       ab_partition_set_active_slot(target_slot);
       snprintf(msg, sizeof(msg), "Decryption to Slot %s completed!", ab_slot_name(target_slot));
       menu_service_println(ctx, msg);
@@ -3727,7 +4012,20 @@ static void cmd_ab_show_status(menu_ctx_t *ctx, int argc, char *argv[])
     menu_service_println(ctx, msg);
     snprintf(msg, sizeof(msg), "  State:           %s", state_str);
     menu_service_println(ctx, msg);
-    snprintf(msg, sizeof(msg), "  FW Version:      %lu", (unsigned long)meta->slots[s].fw_version);
+    {
+      uint32_t fw_ver = meta->slots[s].fw_version;
+      uint8_t major = (fw_ver >> 16) & 0xFF;
+      uint8_t minor = (fw_ver >> 8) & 0xFF;
+      uint8_t patch = fw_ver & 0xFF;
+      if (fw_ver != 0)
+      {
+        snprintf(msg, sizeof(msg), "  FW Version:      V%u.%u.%u (%lu)", major, minor, patch, (unsigned long)fw_ver);
+      }
+      else
+      {
+        snprintf(msg, sizeof(msg), "  FW Version:      %lu", (unsigned long)fw_ver);
+      }
+    }
     menu_service_println(ctx, msg);
     snprintf(msg, sizeof(msg), "  Security Ctr:    %lu", (unsigned long)meta->slots[s].security_counter);
     menu_service_println(ctx, msg);
@@ -3739,6 +4037,30 @@ static void cmd_ab_show_status(menu_ctx_t *ctx, int argc, char *argv[])
     ab_err_t val = ab_partition_validate_slot((ab_slot_t)s);
     snprintf(msg, sizeof(msg), "  FW Valid:        %s", (val == AB_OK) ? "YES" : "NO");
     menu_service_println(ctx, msg);
+
+    int sha256_nonzero = 0;
+    for (int i = 0; i < AB_SHA256_SIZE; i++)
+    {
+      if (meta->slots[s].sha256[i] != 0)
+      {
+        sha256_nonzero = 1;
+        break;
+      }
+    }
+
+    if (sha256_nonzero)
+    {
+      static char hex_buf[65];
+      for (int i = 0; i < 32; i++)
+        snprintf(&hex_buf[i * 2], sizeof(hex_buf) - i * 2, "%02X", meta->slots[s].sha256[i]);
+      hex_buf[64] = '\0';
+      snprintf(msg, sizeof(msg), "  SHA256:          %s", hex_buf);
+      menu_service_println(ctx, msg);
+    }
+    else
+    {
+      menu_service_println(ctx, "  SHA256:          (not set)");
+    }
   }
 
   menu_service_println(ctx, "");
@@ -3977,6 +4299,8 @@ MENU_TABLE(ed25519_menu) = {
 MENU_TABLE(fw_pkg_menu) = {
     MENU_ITEM_CMD("1", "Parse package from SD card (FATFS)", "Parse .iap.bin and save decrypted to SD", cmd_fw_pkg_sdcard),
     MENU_ITEM_CMD("2", "Parse package from SPI Flash (LFS)", "Parse .iap.bin and save decrypted to SPI", cmd_fw_pkg_spi),
+    MENU_ITEM_CMD("3", "Secure Download to A/B (SD Card)", "Download to inactive A/B slot from SD", cmd_secure_download_sdcard),
+    MENU_ITEM_CMD("4", "Secure Download to A/B (SPI Flash)", "Download to inactive A/B slot from SPI", cmd_secure_download_spi),
     MENU_ITEM_BACK(),
     MENU_TABLE_END};
 #endif
